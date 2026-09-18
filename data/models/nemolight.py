@@ -142,15 +142,16 @@ ENGINES = {'llamacpp': {'status': 'degraded',
            'label': 'Runs',
            'note': 'Runs on the hybrid Mamba-Transformer path without special handling.',
            'issues': []},
- 'vllmmetal': {'status': 'degraded',
-               'label': 'Nightly only',
-               'note': 'Implemented, and only in nightlies. Mamba-2 mixers now run on paged '
-                        'state (#710, merged 2026-09-07) and Nemotron-H goes through the decode '
-                        'pipeline (#735, merged 2026-09-08), closing the request that had '
-                        'blocked this. Neither is in the v0.28.0 stable from 2026-09-01; the '
-                        '`v0.28.0.dev20260908140440` prerelease was cut 32 minutes after #735 '
-                        'landed and is the first build that carries both. So this works if you '
-                        'track nightlies and does not if you pin the release.',
+ 'vllmmetal': {'status': 'works',
+               'label': 'Runs',
+               'note': 'Released. Mamba-2 mixers run on paged state (#710) and Nemotron-H goes '
+                        'through the decode pipeline (#735); both are in v0.29.0, cut '
+                        '2026-09-11, so this no longer needs a nightly. The support arrived as a '
+                        'chain rather than a patch - hybrid geometry behind a family owner, then '
+                        'a state-family routing table, then the mixers - which is why it took '
+                        'from the original request to now. Before it landed, the model loaded, '
+                        'warmed up, reported healthy and then killed EngineCore on the first '
+                        'request.',
                'issues': ['vllm-project/vllm-metal#644']},
  'ds4': {'status': 'none',
          'label': 'Out of scope',

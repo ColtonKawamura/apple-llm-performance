@@ -16,9 +16,11 @@ NOTE = ('The best shape on this page for Apple hardware: 13B active reads roughl
  'so bandwidth stops being the constraint and a 256 GB machine finally does useful work. It is '
  'also the clearest example of a model whose story depends entirely on the engine - '
  'unreachable through the mainstream MLX servers, and carried by one engine written '
- 'specifically for it. Read both engine tabs before committing: ds4 is the default here, '
- 'but llama.cpp runs this on a stock build and the case between them is narrower than a '
- 'single recommendation makes it look.')
+ 'specifically for it. Read both engine tabs before committing. ds4 stays the default '
+ 'because it is the only engine with measured Metal numbers for this model - but the one '
+ 'Apple-silicon defect that argued against llama.cpp was deleted upstream in September, '
+ 'and nothing replaced it, so the case is narrower again. On a large-prompt agent '
+ "workload ds4's O(n squared) tokenizer is the thing most likely to change your mind.")
 
 SOURCES = [('Artificial Analysis writeup',
   'https://artificialanalysis.ai/articles/deepseek-is-back-among-the-leading-open-weights-models-with-v4-pro-and-v4-flash')]
@@ -133,10 +135,21 @@ KV = {'bytes_per_token': 49536,
 # Per-engine status. Keys must be engines whose modality matches MODALITY.
 ENGINES = {'vllmmetal': {'status': 'blocked',
                'label': 'Blocked',
-               'note': 'Not in the support matrix. Latent attention generally is the weak spot '
-                       'here: the only MLA row carried is flagged as having no Metal kernel, '
-                       'and a specialised MLA paged-attention kernel is still at the RFC '
-                       'stage.',
+               'note': 'Purpose-built C and Metal kernels for this one architecture, and the '
+                        'only engine here with published Metal numbers for it. Be precise about '
+                        'which numbers: the headline 790 tok/s prefill and 39.4 tok/s generation '
+                        'are q2 on a 128 GB M5 Max. The build a 256 GB machine would load is q4, '
+                        'and the only q4 figure the project publishes is from its older sweep - '
+                        '35.5 tok/s generation on a 512 GB M3 Ultra against 36.9 for q2, so the '
+                        'quant costs little. There is still no head-to-head against llama.cpp on '
+                        'Metal, by anyone. `ds4-server` speaks OpenAI and Anthropic, persists KV '
+                        'to disk across restarts, and `--batched-session N` gives real '
+                        'concurrent sessions. Its own costs are real and measured: the BPE merge '
+                        'loop is O(n squared), so a 24k-token prompt burns 175-250 seconds of '
+                        'CPU before prefill even starts, on an M3 Ultra - there are no tagged '
+                        'releases, and vision is unsupported. That tokenizer pathology is the '
+                        'one thing that should push an agent workload to the llama.cpp tab, '
+                        'which now has no Apple-silicon defect on file at all.',
                'issues': ['vllm-project/vllm-metal#360']},
  'ds4': {'status': 'works',
          'label': 'Best path',
@@ -154,18 +167,19 @@ ENGINES = {'vllmmetal': {'status': 'blocked',
                   'an M3 Ultra, and worse for agents than anything llama.cpp has on Metal - '
                   'there are no tagged releases, and vision is unsupported.',
          'issues': ['antirez/ds4#853', 'antirez/ds4#816', 'antirez/ds4#836', 'antirez/ds4#805', 'antirez/ds4#851', 'antirez/ds4#839']},
- 'llamacpp': {'status': 'degraded',
-              'label': 'Runs, degraded',
+ 'llamacpp': {'status': 'works',
+              'label': 'Runs',
               'note': '`deepseek4` is in mainline, so this works on a stock build, and at 256 '
-                       'GB the GGUF ladder gives you more rungs to choose from than ds4 does. '
-                       'The reason it is not the default here is one open defect, and it is '
-                       'filed against exactly this case: a Mac Studio M3 Ultra with 256 GB '
-                       'running the unsloth UD-Q8_K_XL build on Metal degenerates into '
-                       'repetition and leaks special tokens over a long agentic session. It '
-                       'degrades rather than fails, so a short test will not show it. For one- '
-                       'shot or short-conversation use the two engines are much closer than this '
-                       'page previously implied.',
-              'issues': ['ggml-org/llama.cpp#26694']},
+                       'GB the GGUF ladder gives more rungs to choose from than ds4 does. This '
+                       'cell used to be degraded on the strength of one open Metal defect - '
+                       'repetition and leaked special tokens in long agentic sessions, filed '
+                       'against a Mac Studio M3 Ultra. That issue was deleted upstream between '
+                       '2026-09-09 and 2026-09-18 and now 404s, and a fresh survey of every '
+                       'DeepSeek V4 Flash issue on the tracker finds no Apple-silicon report at '
+                       'all. Absence of reports is not proof of correctness - treat this as '
+                       'untested rather than verified - but it is no longer evidence of a '
+                       'defect, so the status follows the evidence.',
+              'issues': []},
  'ollama': {'status': 'works',
             'label': 'Runs',
             'note': 'In the library as `deepseek-v4-flash`. The zero-effort route; the ceiling '

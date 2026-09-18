@@ -70,11 +70,11 @@ KV = {'bytes_per_token': 89856,
 
 # Per-engine status. Keys must be engines whose modality matches MODALITY.
 ENGINES = {
-    'llamacpp': {'status': 'degraded', 'label': 'Master only',
-                 'note': "`hy_v4` landed in `src/llama-arch.cpp` on 2026-09-04, one day after "
-                         "v0.4.0 cut, so it is on master and not in a release - build from source "
-                         "or wait for v0.5.0. AngelSlim's GGUF is the one with real traction at "
-                         "121k downloads.",
+    'llamacpp': {'status': 'works', 'label': 'Runs',
+                 'note': 'Released. `hy_v4` landed on 2026-09-04, one day after v0.4.0 cut, and '
+                          'v0.4.1 carries it - so a stock build loads this and building from '
+                          "master is no longer required. AngelSlim's GGUF is the one with real "
+                          'traction.',
                  'issues': []},
     'ollama':   {'status': 'blocked', 'label': 'Blocked',
                  'note': "Takes the architecture from llama.cpp, so it is waiting on a release "

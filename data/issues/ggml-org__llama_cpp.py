@@ -6,16 +6,7 @@ One record, one file. See AGENTS.md for the schema and the rules.
 REPO = 'ggml-org/llama.cpp'
 
 # number -> severity / headline / why it matters.
-ISSUES = {26694: {'severity': 'high',
-         'headline': 'DeepSeek V4 Flash degenerates into repetition and leaks special tokens '
-                     'in long agentic sessions on Metal',
-         'why': 'The one DeepSeek V4 Flash defect on this engine actually filed against Apple '
-                'silicon: a Mac Studio M3 Ultra with 256 GB, Metal with flash attention, serving '
-                'the unsloth UD-Q8_K_XL build at 262k context. It degrades over a long agentic '
-                'conversation rather than failing outright, which is the hard kind to notice. '
-                'Open since 2026-08-07.'},
- 
-    27742: {'severity': 'medium',
+ISSUES = {27742: {'severity': 'medium',
             'headline': 'model: add Qwen3.8-Flash-Next (qwen4exp)',
             'why': 'Merged 2026-08-27, which is what unblocked this architecture. It is on master '
                    'only - no tagged release carries it yet, so a packaged build will not load the '
@@ -48,9 +39,10 @@ ISSUES = {26694: {'severity': 'high',
                 "Read the closed marker as 'no longer being worked on'."},
  26365: {'severity': 'low',
          'headline': 'Kimi K3 full-size vision lives on a branch, not master',
-         'why': 'The text backbone is in mainline. This asks for tensor-split support on the '
-                'vision branch, which is a useful signal about how finished K3 support is '
-                'rather than a blocker for text work.'},
+         'why': 'Closed 2026-09-14 as not planned - a decision not to merge rather than a fix, '
+                'so the situation stands: full-size Kimi K3 vision lives on a branch and '
+                'mainline does not carry it. If you want vision on this model you are building '
+                "someone's fork."},
  26382: {'severity': 'medium',
          'headline': 'Same K and V cache type enforced for models with no V cache',
          'why': "GLM-5.2's DSA attention has no V cache to quantise, but the flag pair is "

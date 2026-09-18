@@ -43,8 +43,9 @@ ISSUES = {14116: {'severity': 'medium',
                 'another, so a negative result here matters.'},
  17783: {'severity': 'medium',
          'headline': 'gemma4:31b-mlx grows in memory over a session',
-         'why': 'Resident size climbing during use, on the MLX path. Matters most on a machine '
-                'sized close to the model.'},
+         'why': 'Fixed, closed 2026-09-10. Resident size climbed across a session on the MLX '
+                'path, which matters most on a machine sized close to the model - the failure '
+                'arrives after hours rather than at load. Kept listed so the fix is dated.'},
  17878: {'severity': 'medium',
          'headline': 'Embeddings silently return all-zero vectors under sustained load',
          'why': 'HTTP 200, plausible usage numbers, and useless vectors. Not an LLM path, but '
