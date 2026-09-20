@@ -614,8 +614,9 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .ix-name {{ font-weight: 600; font-size: .92rem; letter-spacing: -.01em;
     position: relative; display: flex; align-items: center; min-width: 0; }}
   .ix-name em {{ font-style: normal; position: relative; }}
-  /* Scored against the leader for the selected job, so the top row is always
-     full. Width is set from JS; models with no number for that job get none. */
+  /* Scored against the leader of the selected job - or the average of its share
+     of each chosen job's leader when several are picked - so the top row is
+     always full. Width is set from JS; models with no number get none. */
   .ix-bar {{ position: absolute; left: -.35rem; top: 50%; transform: translateY(-50%);
     height: 1.45rem; width: 0; border-radius: 3px; background: var(--ok);
     opacity: .16; transition: width .18s ease; pointer-events: none; }}
@@ -1064,8 +1065,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 
   // The chosen jobs: every chip that is pressed, in display order. Empty means
   // "anything" - the plain list. Combining ANDs them: a model only counts for
-  // the combined pick where it publishes a figure for EACH chosen job, so with
-  // two or more selected the bars have nothing to compare and are dropped.
+  // the combined pick where it publishes a figure for EACH chosen job, and its
+  // bar is the average of its share of the leader across those jobs.
   function ucSelected() {{
     var out = [];
     var chips = document.querySelectorAll("#uc-sel .uc-chip");
@@ -1416,6 +1417,10 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     var uc = ucs.length ? ucs[0] : null;
     var gate = ucs.length ? ucGate(ucs) : null;
     var combined = ucs.length > 1;
+    var num = function (v) {{
+      var m = String(v).match(/-?[0-9]+([.][0-9]+)?/);
+      return m ? parseFloat(m[0]) : null;
+    }};
     // The intersection of the chosen jobs' rankings: a map of model id to its
     // position in the first chosen job's rank plus one entry per job it appears in.
     var pos = {{}}, entries = {{}};
@@ -1468,34 +1473,49 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         winner = {{ row: row, mid: mid }};
         break;
       }}
-      // Bars compare one suite against its leader, and a combined pick has no
-      // single suite - the jobs quote different benchmarks - so bars are drawn
-      // only for a single chosen job, where they mean something.
-      var leadMetric = null, leadVal = null;
-      if (!combined) {{
-        var num = function (v) {{
-          var m = String(v).match(/-?[0-9]+([.][0-9]+)?/);
-          return m ? parseFloat(m[0]) : null;
-        }};
-        for (var li = 0; li < uc.rank.length; li++) {{
-          var lrow = document.querySelector('.ix-row[data-model="' + uc.rank[li][0] + '"]');
+      // Each chosen job is compared against its own leader - the first model in
+      // that job's ranking that fits and publishes a number - because the jobs
+      // quote different benchmarks and no cross-job scale exists. A model's bar
+      // is the average of its share of the leader across the chosen jobs, so a
+      // combined pick still gets a bar. A job with no numeric leader (editorial
+      // categories) does not enter the average.
+      var lead = [];
+      ucs.forEach(function (u) {{
+        var lm = null, lv = null;
+        for (var li = 0; li < u.rank.length; li++) {{
+          var lrow = document.querySelector('.ix-row[data-model="' + u.rank[li][0] + '"]');
           if (lrow && lrow.__pick && !lrow.__pick.tooBig &&
               BAND_RANK[lrow.__pick.band] <= BAND_RANK[gate]) {{
-            leadMetric = uc.rank[li][1];
-            leadVal = num(uc.rank[li][2]);
+            lm = u.rank[li][1];
+            lv = num(u.rank[li][2]);
             break;
           }}
         }}
-      }}
+        lead.push({{ id: u.id, metric: lm, val: lv }});
+      }});
+      var anyLead = lead.some(function (L) {{ return L.val !== null; }});
+      var leadMetric = combined ? null : lead[0].metric;
+      var leadVal = combined ? null : lead[0].val;
       // Compare anything on the leader's scale, not only its exact suite. SWE-bench
       // Pro against SWE-bench Verified is imprecise; an Elo of 1554 against a
       // percentage is meaningless. So: both values have to sit in the same band.
+      // The figure is looked up per job - pos is a position in the first job's
+      // rank, which says nothing about the others.
       var sameScale = function (a, b) {{ return (a <= 100) === (b <= 100); }};
       var barFor = function (mid) {{
-        if (combined || !leadVal || pos[mid] === undefined) return null;
-        var v = num(uc.rank[pos[mid]][2]);
-        if (v === null || !sameScale(v, leadVal)) return null;
-        return Math.max(0, Math.min(100, (v / leadVal) * 100));
+        if (pos[mid] === undefined) return null;
+        var acc = 0, cnt = 0;
+        lead.forEach(function (L) {{
+          if (!L.val) return;   // no numeric leader for that job - it cannot compare
+          var e = entries[mid].filter(function (x) {{ return x[0] === L.id; }});
+          if (!e.length) return;   // not ranked in this job at all
+          var v = num(e[0][2]);
+          if (v === null || !sameScale(v, L.val)) return;
+          acc += Math.max(0, Math.min(100, (v / L.val) * 100));
+          cnt++;
+        }});
+        if (!cnt) return null;
+        return acc / cnt;
       }};
       document.querySelectorAll(".ix-row").forEach(function (r) {{
         var mid = r.getAttribute("data-model");
@@ -1506,7 +1526,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         var w0 = usable ? barFor(mid) : null;
         // Sort the usable tier by bar length so the chart reads monotonically;
         // rows with no comparable figure keep their curated place behind them.
-        // With combined jobs there are no bars, so the curated order stands.
         r.style.order = usable
           ? (w0 === null ? 1050 + pos[mid] : Math.round((100 - w0) * 10))
           : (ranked ? 2000 + pos[mid] : 4000);
@@ -1514,9 +1533,9 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         if (bar) {{
           var w = usable ? barFor(mid) : null;
           bar.style.width = w === null ? "0" : w.toFixed(1) + "%";
-          // Only meaningful when the category has a numeric leader to compare
-          // against; with no benchmark at all, nothing is "off scale".
-          r.classList.toggle("no-bar", usable && w === null && leadVal !== null);
+          // Only meaningful when at least one chosen job has a numeric leader
+          // to compare against; with no benchmark at all, nothing is "off scale".
+          r.classList.toggle("no-bar", usable && w === null && anyLead);
         }}
       }});
       // The figure(s) the winner quotes: one per chosen job it has a number for.
@@ -1540,8 +1559,11 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       var whyCombined = function () {{
         return ucs.map(function (u) {{ return u.axis; }}).join(" ") +
           " With several jobs chosen, the list keeps only models that publish a figure for every one " +
-          "of them and orders by the first. The jobs quote different benchmarks, so there are no bars; " +
-          "the chosen model quotes its figure for each job in the line above.";
+          "of them. The jobs quote different benchmarks, so each is compared against the leader of its " +
+          "own job and a bar shows the average of those shares; a job with no numeric benchmark does " +
+          "not enter the average, and a row marked \u2020 quotes a figure that is off the leader's scale " +
+          "in at least one job, so that job is skipped for it. The chosen model quotes its figure for " +
+          "each job in the line above.";
       }};
       if (winner) {{
         winner.row.classList.add("uc-best");
