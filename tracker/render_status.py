@@ -560,12 +560,25 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .index {{ margin: 0 0 2.75rem; }}
   .ix-top {{ display: flex; flex-direction: column; align-items: flex-start; gap: .5rem;
     margin-bottom: .85rem; }}
-  .uc-f {{ display: flex; align-items: baseline; gap: .5rem; }}
+  .uc-f {{ display: flex; flex-direction: column; align-items: flex-start; gap: .45rem; }}
   .uc-f > span {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .64rem;
     letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }}
-  .uc-f select {{ font-family: inherit; font-size: .84rem; font-weight: 500; color: var(--ink);
-    background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: .3rem .5rem; }}
-  .uc-f select:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 1px; }}
+  /* Jobs are combinable: every checked chip is ANDed, and the best row is the
+     strongest model that fits for each one. A bare <select multiple> needs a
+     modifier key to multi-pick and hides the current choice, so the chips are
+     hand-rolled instead. */
+  .uc-list {{ display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0;
+    list-style: none; max-width: 54rem; }}
+  .uc-chip {{ margin: 0; display: inline-flex; align-items: center; gap: .4rem;
+    font-size: .78rem; font-weight: 500; color: var(--ink-2); cursor: pointer;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: .22rem .7rem; transition: border-color .12s ease, background .12s ease, color .12s ease; }}
+  .uc-chip:hover {{ border-color: var(--muted); color: var(--ink); }}
+  .uc-chip:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 1px; }}
+  .uc-chip .uc-tick {{ font-size: .8em; line-height: 1; color: var(--ok); visibility: hidden; }}
+  .uc-chip[aria-pressed="true"] {{ background: var(--ok-tint); border-color: var(--ok);
+    color: var(--ink); }}
+  .uc-chip[aria-pressed="true"] .uc-tick {{ visibility: visible; }}
   .uc-out {{ margin: 0 0 .9rem; font-size: .87rem; color: var(--ink-2); }}
   .uc-out strong {{ color: var(--ink); font-weight: 600; }}
   .uc-out .uc-why {{ display: block; margin-top: .2rem; font-size: .78rem; color: var(--muted); }}
@@ -942,9 +955,10 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   <nav class="index" id="list" aria-label="Model index">
     <div class="ix-top">
       <h2 class="ix-head">Models at a glance</h2>
-      <label class="uc-f"><span>What for?</span>
-        <select id="uc-sel"></select>
-      </label>
+      <div class="uc-f">
+        <span>What for?</span>
+        <div class="uc-list" id="uc-sel" role="group" aria-label="Jobs to combine"></div>
+      </div>
     </div>
     <p class="uc-out" id="uc-out"></p>
     <div class="ix-rows">{index}
@@ -1047,6 +1061,33 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   // 10 GB made a 310 MB model report "10 GB resident".
   var OVERHEAD_TEXT = 10, OVERHEAD_MEDIA = 1.5, OVERHEAD = OVERHEAD_TEXT;
   var BANDS = {bands};
+
+  // The chosen jobs: every chip that is pressed, in display order. Empty means
+  // "anything" - the plain list. Combining ANDs them: a model only counts for
+  // the combined pick where it publishes a figure for EACH chosen job, so with
+  // two or more selected the bars have nothing to compare and are dropped.
+  function ucSelected() {{
+    var out = [];
+    var chips = document.querySelectorAll("#uc-sel .uc-chip");
+    for (var i = 0; i < chips.length; i++) {{
+      if (chips[i].getAttribute("aria-pressed") === "true") {{
+        var id = chips[i].getAttribute("data-uc");
+        for (var ui = 0; ui < USE_CASES.length; ui++) {{
+          if (USE_CASES[ui].id === id) {{ out.push(USE_CASES[ui]); break; }}
+        }}
+      }}
+    }}
+    return out;
+  }}
+  // The strictest fidelity gate among the chosen jobs wins: a build acceptable
+  // for one of the jobs is not acceptable for the other.
+  function ucGate(ucs) {{
+    var g = "unusable";
+    for (var i = 0; i < ucs.length; i++) {{
+      if (BAND_RANK[ucs[i].gate] < BAND_RANK[g]) g = ucs[i].gate;
+    }}
+    return g;
+  }}
 
 
   var chipSel = document.getElementById("rig-chip"),
@@ -1364,24 +1405,42 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       }});
     }});
 
-    // The winner for the selected job: walk the curated ranking and take the
-    // first model that both fits and clears that job's fidelity gate. Ranking is
-    // fixed at build time because the benchmarks are not mutually comparable;
-    // what changes with the cluster is only which entries are reachable.
-    var ucId = ucSel ? ucSel.value : "";
-    var uc = null;
-    for (var ui = 0; ui < USE_CASES.length; ui++) {{
-      if (USE_CASES[ui].id === ucId) {{ uc = USE_CASES[ui]; break; }}
+    // The winner for the chosen job or jobs. One job: walk its curated ranking
+    // and take the first model that fits and clears its fidelity gate. Several
+    // jobs: AND them - a model only counts where it publishes a figure for
+    // EACH chosen job - then take the strongest among those, ordered by the
+    // first chosen job. Ranking is fixed at build time because the benchmarks
+    // are not mutually comparable; what changes with the cluster is only which
+    // entries are reachable.
+    var ucs = ucSelected();
+    var uc = ucs.length ? ucs[0] : null;
+    var gate = ucs.length ? ucGate(ucs) : null;
+    var combined = ucs.length > 1;
+    // The intersection of the chosen jobs' rankings: a map of model id to its
+    // position in the first chosen job's rank plus one entry per job it appears in.
+    var pos = {{}}, entries = {{}};
+    if (ucs.length) {{
+      ucs.forEach(function (u, ui) {{
+        u.rank.forEach(function (r) {{
+          if (pos[r[0]] === undefined) entries[r[0]] = [];
+          if (ui === 0) pos[r[0]] = u.rank.indexOf(r);
+          if (!entries[r[0]].some(function (e) {{ return e[0] === u.id; }})) {{
+            entries[r[0]].push([u.id, r[1], r[2]]);
+          }}
+        }});
+      }});
     }}
     // Models built for a different kind of output are not "unranked", they are
     // irrelevant - a text model has no place in an image-generation table. The
-    // default view shows text models; the others appear with their category.
-    var wantMod = uc ? uc.mod : "text";
+    // default view shows text models; the others appear with their categories.
+    var mods = {{}};
+    if (ucs.length) ucs.forEach(function (u) {{ mods[u.mod] = true; }});
+    var inMod = function (mod) {{ return ucs.length ? !!mods[mod] : mod === "text"; }};
     document.querySelectorAll(".ix-row").forEach(function (r) {{
       r.classList.remove("uc-best", "uc-out-of-scope");
-      r.hidden = (r.getAttribute("data-mod") || "text") !== wantMod;
+      r.hidden = !inMod(r.getAttribute("data-mod") || "text");
     }});
-    if (!uc) {{
+    if (!ucs.length) {{
       if (ucOut) ucOut.innerHTML = "";
       document.querySelectorAll(".ix-row").forEach(function (r) {{
         r.style.order = "";
@@ -1390,48 +1449,50 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         if (bar) bar.style.width = "0";
       }});
     }} else {{
-      var inScope = {{}};
-      uc.rank.forEach(function (r) {{ inScope[r[0]] = true; }});
+      // Usable = ranked in the (intersection of the) chosen job(s), fits on this
+      // cluster, and clears the strictest of the chosen jobs' fidelity gates.
+      var usableSet = {{}};
+      document.querySelectorAll(".ix-row").forEach(function (r) {{
+        var mid = r.getAttribute("data-model");
+        usableSet[mid] = pos[mid] !== undefined && r.__pick && !r.__pick.tooBig &&
+                         BAND_RANK[r.__pick.band] <= BAND_RANK[gate];
+      }});
+      // Winner: strongest model in first-job order that is usable for every job.
       var winner = null;
-      for (var ri = 0; ri < uc.rank.length; ri++) {{
-        var row = document.querySelector('.ix-row[data-model="' + uc.rank[ri][0] + '"]');
-        if (!row || !row.__pick || row.__pick.tooBig) continue;
-        if (BAND_RANK[row.__pick.band] > BAND_RANK[uc.gate]) continue;
-        winner = {{ row: row, entry: uc.rank[ri] }};
+      var first = ucs[0].rank;
+      for (var ri = 0; ri < first.length; ri++) {{
+        var mid = first[ri][0];
+        if (!usableSet[mid]) continue;
+        var row = document.querySelector('.ix-row[data-model="' + mid + '"]');
+        if (!row) continue;
+        winner = {{ row: row, mid: mid }};
         break;
       }}
-      // Rank order for the chosen job, then everything that does not fit or does
-      // not publish a number for it. The container is a flex column, so `order`
-      // re-sequences without touching the DOM.
-      var pos = {{}};
-      uc.rank.forEach(function (r, i) {{ pos[r[0]] = i; }});
-
-      // Bar widths are a ratio against the leader, but only where that ratio
-      // means something: the two rows have to be quoting the SAME benchmark.
-      // Scoring 87.4 on one suite against 1554 on another is not a comparison,
-      // and this page's whole argument is that you cannot rank across suites.
-      var num = function (v) {{
-        var m = String(v).match(/-?[0-9]+([.][0-9]+)?/);
-        return m ? parseFloat(m[0]) : null;
-      }};
+      // Bars compare one suite against its leader, and a combined pick has no
+      // single suite - the jobs quote different benchmarks - so bars are drawn
+      // only for a single chosen job, where they mean something.
       var leadMetric = null, leadVal = null;
-      for (var li = 0; li < uc.rank.length; li++) {{
-        var lrow = document.querySelector('.ix-row[data-model="' + uc.rank[li][0] + '"]');
-        if (lrow && lrow.__pick && !lrow.__pick.tooBig &&
-            BAND_RANK[lrow.__pick.band] <= BAND_RANK[uc.gate]) {{
-          leadMetric = uc.rank[li][1];
-          leadVal = num(uc.rank[li][2]);
-          break;
+      if (!combined) {{
+        var num = function (v) {{
+          var m = String(v).match(/-?[0-9]+([.][0-9]+)?/);
+          return m ? parseFloat(m[0]) : null;
+        }};
+        for (var li = 0; li < uc.rank.length; li++) {{
+          var lrow = document.querySelector('.ix-row[data-model="' + uc.rank[li][0] + '"]');
+          if (lrow && lrow.__pick && !lrow.__pick.tooBig &&
+              BAND_RANK[lrow.__pick.band] <= BAND_RANK[gate]) {{
+            leadMetric = uc.rank[li][1];
+            leadVal = num(uc.rank[li][2]);
+            break;
+          }}
         }}
       }}
       // Compare anything on the leader's scale, not only its exact suite. SWE-bench
       // Pro against SWE-bench Verified is imprecise; an Elo of 1554 against a
       // percentage is meaningless. So: both values have to sit in the same band.
-      var sameScale = function (a, b) {{
-        return (a <= 100) === (b <= 100);
-      }};
+      var sameScale = function (a, b) {{ return (a <= 100) === (b <= 100); }};
       var barFor = function (mid) {{
-        if (!leadVal || pos[mid] === undefined) return null;
+        if (combined || !leadVal || pos[mid] === undefined) return null;
         var v = num(uc.rank[pos[mid]][2]);
         if (v === null || !sameScale(v, leadVal)) return null;
         return Math.max(0, Math.min(100, (v / leadVal) * 100));
@@ -1440,12 +1501,12 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         var mid = r.getAttribute("data-model");
         var ranked = pos[mid] !== undefined;
         if (!ranked) r.classList.add("uc-out-of-scope");
-        var usable = ranked && r.__pick && !r.__pick.tooBig &&
-                     BAND_RANK[r.__pick.band] <= BAND_RANK[uc.gate];
+        var usable = usableSet[mid];
         // three tiers: usable in rank order, then ranked-but-unusable, then unranked
         var w0 = usable ? barFor(mid) : null;
         // Sort the usable tier by bar length so the chart reads monotonically;
         // rows with no comparable figure keep their curated place behind them.
+        // With combined jobs there are no bars, so the curated order stands.
         r.style.order = usable
           ? (w0 === null ? 1050 + pos[mid] : Math.round((100 - w0) * 10))
           : (ranked ? 2000 + pos[mid] : 4000);
@@ -1458,49 +1519,88 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
           r.classList.toggle("no-bar", usable && w === null && leadVal !== null);
         }}
       }});
+      // The figure(s) the winner quotes: one per chosen job it has a number for.
+      var figs = [];
       if (winner) {{
-        winner.row.classList.add("uc-best");
-        var pk = winner.row.__pick;
-        ucOut.innerHTML = "Best for <strong>" + uc.label.toLowerCase() + "</strong> on this cluster: " +
-          "<strong>" + pk.model + "</strong> via " + pk.engine + ", " + fmt(pk.gb) +
-          (pk.bpw === null ? ", as published" : " at " + pk.bpw.toFixed(2) + " bits/weight") +
-          " &mdash; " + winner.entry[1] + " " + winner.entry[2] + "." +
-          "<details class='uc-fold'><summary>How are these ranked?</summary>" +
-          "<span class='uc-why'>" + uc.axis +
+        ucs.forEach(function (u) {{
+          var e = entries[winner.mid].filter(function (x) {{ return x[0] === u.id; }});
+          if (e.length) figs.push(u.label + " " + e[0][1] + " " + e[0][2]);
+        }});
+      }}
+      var whySingle = function () {{
+        return uc.axis +
           (leadVal === null ? " No comparable numeric benchmark is published for these, so there are no bars."
                             : " Dimmed rows publish no number for this job. Ordered by bar where a " +
                               "comparable figure exists; bars are each model's score as a share of the " +
                               "leader's <em>" + leadMetric + "</em>. Rows quoting a different suite on the " +
                               "same scale are included and are approximate; a row marked \u2020 quotes a " +
                               "figure that is not on that scale at all, so it gets no bar rather than a " +
-                              "fabricated one.") + "</span></details>";
+                              "fabricated one.");
+      }};
+      var whyCombined = function () {{
+        return ucs.map(function (u) {{ return u.axis; }}).join(" ") +
+          " With several jobs chosen, the list keeps only models that publish a figure for every one " +
+          "of them and orders by the first. The jobs quote different benchmarks, so there are no bars; " +
+          "the chosen model quotes its figure for each job in the line above.";
+      }};
+      if (winner) {{
+        winner.row.classList.add("uc-best");
+        var pk = winner.row.__pick;
+        var jobName = combined
+          ? ucs.map(function (u) {{ return u.label.toLowerCase(); }}).join(" and ")
+          : uc.label.toLowerCase();
+        ucOut.innerHTML = "Best for <strong>" + jobName + "</strong> on this cluster: " +
+          "<strong>" + pk.model + "</strong> via " + pk.engine + ", " + fmt(pk.gb) +
+          (pk.bpw === null ? ", as published" : " at " + pk.bpw.toFixed(2) + " bits/weight") +
+          " &mdash; " + figs.join("; ") + "." +
+          "<details class='uc-fold'><summary>How are these ranked?</summary>" +
+          "<span class='uc-why'>" + (combined ? whyCombined() : whySingle()) + "</span></details>";
       }} else {{
+        var jobs = combined
+          ? "Every model ranked for all of " + ucs.map(function (u) {{ return u.label.toLowerCase(); }}).join(", ")
+          : "Every model ranked for " + uc.label.toLowerCase();
         ucOut.innerHTML = "<strong>Nothing suitable fits this cluster.</strong>" +
-          "<span class='uc-why'>Every model ranked for " + uc.label.toLowerCase() +
-          " is either too large here, or only fits at a precision below what this job tolerates. " +
-          "Add memory, add a machine, or pick a different job.</span>";
+          "<span class='uc-why'>" + jobs +
+          " is either too large here, or only fits at a precision below what " +
+          (combined ? "the strictest chosen job tolerates. Add memory, add a machine, or choose fewer or easier jobs"
+                    : "this job tolerates. Add memory, add a machine, or pick a different job") +
+          ".</span>";
       }}
     }}
 
     var p = new URLSearchParams();
     p.set("chip", chip); p.set("mem", g); p.set("n", n);
-    if (ucId) p.set("uc", ucId);
+    if (ucs.length) p.set("uc", ucs.map(function (u) {{ return u.id; }}).join(","));
     history.replaceState(null, "", location.pathname + "?" + p.toString() + (location.hash || ""));
   }}
 
   var ucSel = document.getElementById("uc-sel"), ucOut = document.getElementById("uc-out");
   if (ucSel) {{
-    var o0 = document.createElement("option");
-    o0.value = ""; o0.textContent = "Anything - just show me the list";
-    ucSel.appendChild(o0);
+    // One chip per job, in display order. Pressed chips are the chosen jobs;
+    // none pressed is the plain list. Chips, not a <select multiple>: the
+    // current choice stays visible and multi-picking needs no modifier key.
     USE_CASES.forEach(function (u) {{
-      var o = document.createElement("option");
-      o.value = u.id; o.textContent = u.label;
-      ucSel.appendChild(o);
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = "uc-chip";
+      b.setAttribute("data-uc", u.id);
+      b.setAttribute("aria-pressed", "false");
+      b.innerHTML = "<span class='uc-tick' aria-hidden='true'>\u2713</span>" +
+                    "<span>" + u.label + "</span>";
+      b.addEventListener("click", function () {{
+        var on = b.getAttribute("aria-pressed") === "true";
+        b.setAttribute("aria-pressed", on ? "false" : "true");
+        apply();
+      }});
+      ucSel.appendChild(b);
     }});
     var uc0 = q.get("uc");
-    if (uc0 && USE_CASES.some(function (u) {{ return u.id === uc0; }})) ucSel.value = uc0;
-    ucSel.addEventListener("change", apply);
+    if (uc0) {{
+      uc0.split(",").forEach(function (id) {{
+        var chip = ucSel.querySelector(".uc-chip[data-uc='" + id + "']");
+        if (chip) chip.setAttribute("aria-pressed", "true");
+      }});
+    }}
   }}
 
   // The hash is the view: no hash shows the list, #model-id shows that card.
