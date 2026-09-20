@@ -46,7 +46,22 @@ const FILE = path.resolve(process.argv[2] || 'docs/index.html');
     await page.goto('file://' + FILE, { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(500);
     const chips = await page.$$eval('#rig-chip option', o => o.map(x => x.value).filter(Boolean));
-    const ucs = await page.$$eval('#uc-sel option', o => o.map(x => x.value));
+    const ucs = await page.$$eval('#uc-sel .uc-chip', o => o.map(x => x.getAttribute('data-uc')));
+    // The What-for control combines jobs: every single job, plus two combined
+    // picks - a pair and a triple - so the AND logic rides through CI too.
+    const ucSets = ucs.map(u => [u])
+      .concat([['agentic', 'coding'], ['agentic', 'coding', 'longctx']]);
+    // Press exactly the given set of job chips. Each chip click toggles its
+    // pressed state and re-applies, so only the chips out of line get clicked.
+    async function setUcs(ids) {
+      const jobChips = await page.$$('#uc-sel .uc-chip');
+      for (let i = 0; i < jobChips.length; i++) {
+        const id = await jobChips[i].getAttribute('data-uc');
+        const pressed = (await jobChips[i].getAttribute('aria-pressed')) === 'true';
+        if (pressed !== ids.includes(id)) await jobChips[i].click();
+      }
+      await page.waitForTimeout(40);
+    }
 
     for (const chip of chips) {
       await page.selectOption('#rig-chip', chip);
@@ -57,9 +72,8 @@ const FILE = path.resolve(process.argv[2] || 'docs/index.html');
           errs.length = 0;
           await page.selectOption('#rig-mem', mem);
           try { await page.selectOption('#rig-n', n); } catch (e) { /* single-unit chips */ }
-          for (const uc of ucs) {
-            await page.selectOption('#uc-sel', uc);
-            await page.waitForTimeout(35);
+          for (const sel of ucSets) {
+            await setUcs(sel);
             checks++;
           }
           if (errs.length) {
@@ -83,9 +97,14 @@ const FILE = path.resolve(process.argv[2] || 'docs/index.html');
       await page.setViewportSize({ width: vp.w, height: 900 });
       await page.goto('file://' + FILE, { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(400);
-      const ucs = await page.$$eval('#uc-sel option', o => o.map(x => x.value).filter(Boolean));
+      const ucs = await page.$$eval('#uc-sel .uc-chip', o => o.map(x => x.getAttribute('data-uc')));
       for (const uc of ucs) {
-        await page.selectOption('#uc-sel', uc);
+        const jobChips = await page.$$('#uc-sel .uc-chip');
+        for (const c of jobChips) {
+          const id = await c.getAttribute('data-uc');
+          const pressed = (await c.getAttribute('aria-pressed')) === 'true';
+          if (pressed !== (id === uc)) await c.click();
+        }
         await page.waitForTimeout(120);
         const rows = await page.$$eval('.ix-row', rs => rs.filter(r => !r.hidden)
           .map(r => ({ m: r.getAttribute('data-model'),
