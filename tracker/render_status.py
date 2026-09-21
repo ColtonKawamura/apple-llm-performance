@@ -173,6 +173,11 @@ def index_rows(rows):
     """One line per model. The size, engine and headroom cells are all filled in
     by the browser once a cluster is selected - the server-rendered values are
     just the default-cluster answer so the page is not blank without JS."""
+    # One lane per job, server-rendered from USE_CASES in display order - the
+    # same order the chips are built in. A frozen list here would silently drop
+    # a lane when a category is added.
+    lanes = "".join(f'<span class="ix-lane uc-slot-{u["id"]}"><i></i></span>'
+                    for u in USE_CASES)
     out = []
     for m in sorted(MODELS, key=lambda m: m["name"].casefold()):
         eid, c = best_cell(m)
@@ -183,7 +188,8 @@ def index_rows(rows):
         <a class="ix-row v-{SCLASS[c['s']]}" href="#{m['id']}" data-model="{m['id']}"
            data-sw="{SCLASS[c['s']]}" data-swlabel="{html.escape(c['label'])}"
            data-mod="{modality(m)}" data-payload="{payload}">
-          <span class="ix-name"><i class="ix-bar" aria-hidden="true"></i><em>{html.escape(m['name'])}</em></span>
+          <span class="ix-id"><span class="ix-name"><i class="ix-bar ix-bar-avg" aria-hidden="true"></i><em>{html.escape(m['name'])}</em></span>
+          <span class="ix-bars" aria-hidden="true">{lanes}<span class="ix-lane ix-lane-avg"><i></i></span></span></span>
           <span class="ix-status v-{SCLASS[c['s']]}">{html.escape(c['label'])}</span>
           <span class="ix-eng">{html.escape(ENGINE_BY_ID[eid]['name'])}</span>
           <span class="ix-size">{gb:.0f} GB</span>
@@ -504,6 +510,15 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     --accent: #a85a26;
     --critical: #a8352a; --high: #8a5410; --medium: #4a6070; --low: #78838f;
     --ok: #25704e; --ok-tint: #e8f5ee; --warn: #8a5410;
+    /* Per-job colours: one per use case, in display order. They tint the chip
+       when a job is selected and its lane when several are, so a combined pick
+       reads as its parts. Deliberately spread around the wheel and kept clear of
+       the average green (--ok): green is reserved for the average lane, so no
+       category may read as "the average". Add a job, add a colour here. */
+    --bar-agentic: #ea580c; --bar-coding: #2563eb; --bar-terminal: #7c3aed;
+    --bar-computer: #0891b2; --bar-concurrency: #d97706; --bar-longctx: #eab308;
+    --bar-image: #db2777; --bar-video: #c026d3; --bar-voice: #0d9488;
+    --bar-narration: #be123c; --bar-music: #4f46e5;
   }}
   @media (prefers-color-scheme: dark) {{
     :root:not([data-theme="light"]) {{
@@ -513,6 +528,10 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       --accent: #de8a4c;
       --critical: #ef7565; --high: #ddb24f; --medium: #7f97a8; --low: #6d7883;
       --ok: #59bc88; --ok-tint: #12251c; --warn: #ddb24f;
+      --bar-agentic: #fb923c; --bar-coding: #60a5fa; --bar-terminal: #a78bfa;
+      --bar-computer: #22d3ee; --bar-concurrency: #fbbf24; --bar-longctx: #fde047;
+      --bar-image: #f472b6; --bar-video: #e879f9; --bar-voice: #2dd4bf;
+      --bar-narration: #fb7185; --bar-music: #818cf8;
     }}
   }}
   :root[data-theme="dark"] {{
@@ -522,6 +541,10 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     --accent: #de8a4c;
     --critical: #ef7565; --high: #ddb24f; --medium: #7f97a8; --low: #6d7883;
     --ok: #59bc88; --ok-tint: #12251c; --warn: #ddb24f;
+    --bar-agentic: #fb923c; --bar-coding: #60a5fa; --bar-terminal: #a78bfa;
+    --bar-computer: #22d3ee; --bar-concurrency: #fbbf24; --bar-longctx: #fde047;
+    --bar-image: #f472b6; --bar-video: #e879f9; --bar-voice: #2dd4bf;
+    --bar-narration: #fb7185; --bar-music: #818cf8;
   }}
   * {{ box-sizing: border-box; }}
   body {{
@@ -576,9 +599,48 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .uc-chip:hover {{ border-color: var(--muted); color: var(--ink); }}
   .uc-chip:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 1px; }}
   .uc-chip .uc-tick {{ font-size: .8em; line-height: 1; color: var(--ok); visibility: hidden; }}
+  .uc-chip .uc-dot {{ width: .55rem; height: .55rem; border-radius: 50%;
+    background: var(--low); opacity: .5; flex: none; }}
+  /* A selected job tints its chip with its own colour, so a combined pick can
+     be read as its parts. The colours are per-id variables in :root - add a
+     job, add a colour there. */
+  .uc-chip[data-uc="agentic"] .uc-dot {{ background: var(--bar-agentic); }}
+  .uc-chip[data-uc="coding"] .uc-dot {{ background: var(--bar-coding); }}
+  .uc-chip[data-uc="terminal"] .uc-dot {{ background: var(--bar-terminal); }}
+  .uc-chip[data-uc="computer"] .uc-dot {{ background: var(--bar-computer); }}
+  .uc-chip[data-uc="concurrency"] .uc-dot {{ background: var(--bar-concurrency); }}
+  .uc-chip[data-uc="longctx"] .uc-dot {{ background: var(--bar-longctx); }}
+  .uc-chip[data-uc="image"] .uc-dot {{ background: var(--bar-image); }}
+  .uc-chip[data-uc="video"] .uc-dot {{ background: var(--bar-video); }}
+  .uc-chip[data-uc="voice"] .uc-dot {{ background: var(--bar-voice); }}
+  .uc-chip[data-uc="narration"] .uc-dot {{ background: var(--bar-narration); }}
+  .uc-chip[data-uc="music"] .uc-dot {{ background: var(--bar-music); }}
   .uc-chip[aria-pressed="true"] {{ background: var(--ok-tint); border-color: var(--ok);
     color: var(--ink); }}
+  .uc-chip[data-uc="agentic"][aria-pressed="true"] {{ border-color: var(--bar-agentic);
+    background: color-mix(in srgb, var(--bar-agentic) 12%, var(--surface)); }}
+  .uc-chip[data-uc="coding"][aria-pressed="true"] {{ border-color: var(--bar-coding);
+    background: color-mix(in srgb, var(--bar-coding) 12%, var(--surface)); }}
+  .uc-chip[data-uc="terminal"][aria-pressed="true"] {{ border-color: var(--bar-terminal);
+    background: color-mix(in srgb, var(--bar-terminal) 12%, var(--surface)); }}
+  .uc-chip[data-uc="computer"][aria-pressed="true"] {{ border-color: var(--bar-computer);
+    background: color-mix(in srgb, var(--bar-computer) 12%, var(--surface)); }}
+  .uc-chip[data-uc="concurrency"][aria-pressed="true"] {{ border-color: var(--bar-concurrency);
+    background: color-mix(in srgb, var(--bar-concurrency) 12%, var(--surface)); }}
+  .uc-chip[data-uc="longctx"][aria-pressed="true"] {{ border-color: var(--bar-longctx);
+    background: color-mix(in srgb, var(--bar-longctx) 12%, var(--surface)); }}
+  .uc-chip[data-uc="image"][aria-pressed="true"] {{ border-color: var(--bar-image);
+    background: color-mix(in srgb, var(--bar-image) 12%, var(--surface)); }}
+  .uc-chip[data-uc="video"][aria-pressed="true"] {{ border-color: var(--bar-video);
+    background: color-mix(in srgb, var(--bar-video) 12%, var(--surface)); }}
+  .uc-chip[data-uc="voice"][aria-pressed="true"] {{ border-color: var(--bar-voice);
+    background: color-mix(in srgb, var(--bar-voice) 12%, var(--surface)); }}
+  .uc-chip[data-uc="narration"][aria-pressed="true"] {{ border-color: var(--bar-narration);
+    background: color-mix(in srgb, var(--bar-narration) 12%, var(--surface)); }}
+  .uc-chip[data-uc="music"][aria-pressed="true"] {{ border-color: var(--bar-music);
+    background: color-mix(in srgb, var(--bar-music) 12%, var(--surface)); }}
   .uc-chip[aria-pressed="true"] .uc-tick {{ visibility: visible; }}
+  .uc-chip[aria-pressed="true"] .uc-dot {{ opacity: 1; }}
   .uc-out {{ margin: 0 0 .9rem; font-size: .87rem; color: var(--ink-2); }}
   .uc-out strong {{ color: var(--ink); font-weight: 600; }}
   .uc-out .uc-why {{ display: block; margin-top: .2rem; font-size: .78rem; color: var(--muted); }}
@@ -611,20 +673,47 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .ix-row.v-degraded {{ border-left-color: var(--warn); }}
   .ix-row.v-blocked {{ border-left-color: var(--critical); }}
   .ix-row.v-nofit, .ix-row.v-unknown {{ border-left-color: var(--low); }}
+  .ix-id {{ position: relative; display: flex; flex-direction: column;
+    justify-content: center; gap: .3rem; min-width: 0; }}
   .ix-name {{ font-weight: 600; font-size: .92rem; letter-spacing: -.01em;
     position: relative; display: flex; align-items: center; min-width: 0; }}
   .ix-name em {{ font-style: normal; position: relative; }}
-  /* Scored against the leader of the selected job - or the average of its share
-     of each chosen job's leader when several are picked - so the top row is
-     always full. Width is set from JS; models with no number get none. */
+  /* The green bar sits behind the name - scored against the leader of the
+     selected job, or the average of its share of each chosen job's leader when
+     several are picked, so the top row is always full. Width is set from JS;
+     models with no number get none. */
   .ix-bar {{ position: absolute; left: -.35rem; top: 50%; transform: translateY(-50%);
     height: 1.45rem; width: 0; border-radius: 3px; background: var(--ok);
     opacity: .16; transition: width .18s ease; pointer-events: none; }}
   .ix-row.uc-best .ix-bar {{ opacity: .28; }}
+  /* With several jobs chosen, one lane per job stacks below the name in pick
+     order. Each lane is the model's share of that job's own leader, in that
+     job's colour, so a combined pick reads as its parts; the green lane at the
+     end is the average. Widths are set from JS; a lane for a job the model is
+     not ranked in stays an empty track. */
+  .ix-bars {{ display: none; position: relative; }}
+  .ix-row.multi .ix-bars {{ display: flex; flex-direction: column; gap: 2px; }}
+  .ix-lane {{ display: none; position: relative; height: 6px;
+    background: var(--line-soft); border-radius: 3px; overflow: hidden; }}
+  .ix-lane.on {{ display: block; }}
+  .ix-lane > i {{ position: absolute; left: 0; top: 0; bottom: 0; width: 0;
+    border-radius: 3px; transition: width .18s ease; }}
+  .ix-lane-avg > i {{ background: var(--ok); }}
+  .uc-slot-agentic > i {{ background: var(--bar-agentic); }}
+  .uc-slot-coding > i {{ background: var(--bar-coding); }}
+  .uc-slot-terminal > i {{ background: var(--bar-terminal); }}
+  .uc-slot-computer > i {{ background: var(--bar-computer); }}
+  .uc-slot-concurrency > i {{ background: var(--bar-concurrency); }}
+  .uc-slot-longctx > i {{ background: var(--bar-longctx); }}
+  .uc-slot-image > i {{ background: var(--bar-image); }}
+  .uc-slot-video > i {{ background: var(--bar-video); }}
+  .uc-slot-voice > i {{ background: var(--bar-voice); }}
+  .uc-slot-narration > i {{ background: var(--bar-narration); }}
+  .uc-slot-music > i {{ background: var(--bar-music); }}
   /* no comparable figure on the leader's scale */
   .ix-row.no-bar .ix-name em::after {{ content: "\\2020"; margin-left: .3rem;
     font-size: .8em; color: var(--muted); vertical-align: super; line-height: 0; }}
-  @media (prefers-reduced-motion: reduce) {{ .ix-bar {{ transition: none; }} }}
+  @media (prefers-reduced-motion: reduce) {{ .ix-bar, .ix-lane > i {{ transition: none; }} }}
   .ix-status {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .66rem;
     font-weight: 600; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
     padding: .14rem .5rem; border-radius: 4px; border: 1px solid; justify-self: start; }}
@@ -643,7 +732,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
        model drew a shorter bar than one below it. Give the name its own full
        row and put the attributes on shared rows underneath. */
     .ix-row {{ grid-template-columns: 1fr auto; row-gap: .35rem; }}
-    .ix-name {{ grid-column: 1 / -1; grid-row: 1; }}
+    .ix-id {{ grid-column: 1 / -1; grid-row: 1; }}
     .ix-size {{ grid-column: 1; grid-row: 2; text-align: left; }}
     .ix-status {{ grid-column: 2; grid-row: 2; justify-self: end; }}
     .ix-eng {{ grid-column: 1; grid-row: 3; }}
@@ -1442,7 +1531,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     if (ucs.length) ucs.forEach(function (u) {{ mods[u.mod] = true; }});
     var inMod = function (mod) {{ return ucs.length ? !!mods[mod] : mod === "text"; }};
     document.querySelectorAll(".ix-row").forEach(function (r) {{
-      r.classList.remove("uc-best", "uc-out-of-scope");
+      r.classList.remove("uc-best", "uc-out-of-scope", "multi");
       r.hidden = !inMod(r.getAttribute("data-mod") || "text");
     }});
     if (!ucs.length) {{
@@ -1452,6 +1541,12 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         r.classList.remove("no-bar");
         var bar = r.querySelector(".ix-bar");
         if (bar) bar.style.width = "0";
+        var lanes = r.querySelectorAll(".ix-lane");
+        for (var li = 0; li < lanes.length; li++) {{
+          lanes[li].classList.remove("on");
+          var fill = lanes[li].querySelector("i");
+          if (fill) fill.style.width = "0";
+        }}
       }});
     }} else {{
       // Usable = ranked in the (intersection of the) chosen job(s), fits on this
@@ -1502,16 +1597,25 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       // The figure is looked up per job - pos is a position in the first job's
       // rank, which says nothing about the others.
       var sameScale = function (a, b) {{ return (a <= 100) === (b <= 100); }};
+      // One job's share: the model's figure for that job as a share of that
+      // job's leader. The per-job lane is drawn from this; barFor is the
+      // average of the same pieces across the chosen jobs.
+      var barForJob = function (mid, L) {{
+        if (!L.val) return null;
+        if (pos[mid] === undefined) return null;
+        var e = entries[mid].filter(function (x) {{ return x[0] === L.id; }});
+        if (!e.length) return null;
+        var v = num(e[0][2]);
+        if (v === null || !sameScale(v, L.val)) return null;
+        return Math.max(0, Math.min(100, (v / L.val) * 100));
+      }};
       var barFor = function (mid) {{
         if (pos[mid] === undefined) return null;
         var acc = 0, cnt = 0;
         lead.forEach(function (L) {{
-          if (!L.val) return;   // no numeric leader for that job - it cannot compare
-          var e = entries[mid].filter(function (x) {{ return x[0] === L.id; }});
-          if (!e.length) return;   // not ranked in this job at all
-          var v = num(e[0][2]);
-          if (v === null || !sameScale(v, L.val)) return;
-          acc += Math.max(0, Math.min(100, (v / L.val) * 100));
+          var w = barForJob(mid, L);
+          if (w === null) return;   // no numeric leader, unranked, or off scale
+          acc += w;
           cnt++;
         }});
         if (!cnt) return null;
@@ -1532,10 +1636,40 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         var bar = r.querySelector(".ix-bar");
         if (bar) {{
           var w = usable ? barFor(mid) : null;
-          bar.style.width = w === null ? "0" : w.toFixed(1) + "%";
+          // A combined pick shows its bars as lanes below the name (one per
+          // job plus a green average), so the bar behind the name is held at
+          // zero - otherwise the average would be drawn twice.
+          bar.style.width = (w === null || combined) ? "0" : w.toFixed(1) + "%";
           // Only meaningful when at least one chosen job has a numeric leader
           // to compare against; with no benchmark at all, nothing is "off scale".
           r.classList.toggle("no-bar", usable && w === null && anyLead);
+        }}
+        // Combined pick: one coloured lane per chosen job below the name, plus
+        // a green average lane. Single pick keeps the one green bar behind the
+        // name and no lanes, so the single-category view is unchanged.
+        r.classList.toggle("multi", combined);
+        if (combined) {{
+          var lanes = r.querySelectorAll(".ix-lane");
+          for (var li = 0; li < lanes.length; li++) {{
+            lanes[li].classList.remove("on");
+          }}
+          var avgW = usable ? barFor(mid) : null;
+          var hasAny = false;
+          lead.forEach(function (L) {{
+            var lane = r.querySelector(".ix-lane.uc-slot-" + L.id);
+            if (!lane) return;
+            var lw = usable ? barForJob(mid, L) : null;
+            lane.classList.toggle("on", lw !== null);
+            if (lw !== null) hasAny = true;
+            var fill = lane.querySelector("i");
+            if (fill) fill.style.width = lw === null ? "0" : lw.toFixed(1) + "%";
+          }});
+          var avgLane = r.querySelector(".ix-lane.ix-lane-avg");
+          if (avgLane) {{
+            avgLane.classList.toggle("on", avgW !== null || hasAny);
+            var afill = avgLane.querySelector("i");
+            if (afill) afill.style.width = avgW === null ? "0" : avgW.toFixed(1) + "%";
+          }}
         }}
       }});
       // The figure(s) the winner quotes: one per chosen job it has a number for.
@@ -1607,7 +1741,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       b.className = "uc-chip";
       b.setAttribute("data-uc", u.id);
       b.setAttribute("aria-pressed", "false");
-      b.innerHTML = "<span class='uc-tick' aria-hidden='true'>\u2713</span>" +
+      b.innerHTML = "<span class='uc-dot' aria-hidden='true'></span>" +
+                    "<span class='uc-tick' aria-hidden='true'>\u2713</span>" +
                     "<span>" + u.label + "</span>";
       b.addEventListener("click", function () {{
         var on = b.getAttribute("aria-pressed") === "true";
