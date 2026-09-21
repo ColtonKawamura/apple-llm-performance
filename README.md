@@ -3,7 +3,14 @@
 Which open-weight models actually run well on which Apple silicon, and through
 which engine.
 
-**Live site: https://dreamingwell.github.io/apple-llm-performance/**
+**Live site: https://coltonkawamura.github.io/apple-llm-performance/**
+
+This is a fork of
+[dreamingwell/apple-llm-performance](https://github.com/dreamingwell/apple-llm-performance),
+kept in sync with upstream and slowly diverging as it is adapted to its own
+purpose. It is no longer published from the original author's GitHub Pages:
+the canonical home is the Pages site above, built and deployed from `main` by
+`.github/workflows/deploy.yml`.
 
 Pick a CPU model, a memory size and a machine count. The page then tells you,
 per model: whether it runs, which engine to use, which quantisation that engine
