@@ -484,11 +484,11 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="Open weight AI models and their Apple M-series compatibility.">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="DreamingWell">
-<meta property="og:url" content="https://dreamingwell.github.io/apple-llm-performance/">
+<meta property="og:site_name" content="Colton Kawamura">
+<meta property="og:url" content="https://coltonkawamura.github.io/apple-llm-performance/">
 <meta property="og:title" content="Apple LLM Performance Tracker">
 <meta property="og:description" content="Open weight AI models and their Apple M-series compatibility.">
-<meta property="og:image" content="https://dreamingwell.github.io/apple-llm-performance/card.jpg">
+<meta property="og:image" content="https://coltonkawamura.github.io/apple-llm-performance/card.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -496,9 +496,9 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Apple LLM Performance Tracker">
 <meta name="twitter:description" content="Open weight AI models and their Apple M-series compatibility.">
-<meta name="twitter:image" content="https://dreamingwell.github.io/apple-llm-performance/card.jpg">
+<meta name="twitter:image" content="https://coltonkawamura.github.io/apple-llm-performance/card.jpg">
 <meta name="twitter:image:alt" content="Dark card over a glowing Apple Silicon die reading Can Your Mac Run It? - find the best LLM for your Mac, updated daily. Open source on GitHub.">
-<link rel="canonical" href="https://dreamingwell.github.io/apple-llm-performance/">
+<link rel="canonical" href="https://coltonkawamura.github.io/apple-llm-performance/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
@@ -1014,7 +1014,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 
 <div class="wrap">
   <header>
-    <a class="gh" href="https://github.com/dreamingwell/apple-llm-performance"
+    <a class="gh" href="https://github.com/ColtonKawamura/apple-llm-performance"
        target="_blank" rel="noopener" aria-label="Open source on GitHub">
       <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-2.98-.88-2.98-2.9 0-.83.3-1.51.79-2.04-.08-.2-.35-1 .08-2.07 0 0 .65-.2 2.13.79a7.2 7.2 0 0 1 1.94-.26c.66 0 1.32.09 1.94.26 1.48-1 2.13-.79 2.13-.79.43 1.07.16 1.87.08 2.07.49.53.79 1.21.79 2.04 0 2.03-1.21 2.7-2.99 2.9.31.27.58.79.58 1.6 0 1.15-.01 2.09-.01 2.38 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
       <span>Open source</span>

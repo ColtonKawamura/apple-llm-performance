@@ -20,7 +20,7 @@ the other old route - one hop, not two.
 """
 import argparse
 
-TARGET = "https://dreamingwell.github.io/apple-llm-performance/"
+TARGET = "https://coltonkawamura.github.io/apple-llm-performance/"
 TITLE = "Apple LLM Performance Tracker"
 DESC = "Open weight AI models and their Apple M-series compatibility."
 
@@ -34,7 +34,7 @@ HTML = """<!doctype html>
 <meta http-equiv="refresh" content="0; url={target}">
 <meta name="description" content="{desc}">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="DreamingWell">
+<meta property="og:site_name" content="Colton Kawamura">
 <meta property="og:url" content="{target}">
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
