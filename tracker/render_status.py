@@ -553,6 +553,10 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased;
   }}
   .wrap {{ max-width: 64rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }}
+  .fork-note {{ margin: 0 0 1.4rem; padding: .9rem 1.1rem; border-radius: 8px;
+    background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent);
+    font-size: .86rem; line-height: 1.55; color: var(--ink-2); max-width: 54rem; }}
+  .fork-note strong {{ color: var(--ink); font-weight: 600; }}
   header {{ display: flex; flex-direction: column; gap: .5rem; margin-bottom: 2rem; }}
   .eyebrow {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .72rem;
     letter-spacing: .13em; text-transform: uppercase; color: var(--accent); font-weight: 600; }}
@@ -1013,6 +1017,14 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 </style>
 
 <div class="wrap">
+  <p class="fork-note">
+    <strong>Fork notice.</strong> This page is a fork of
+    <a href="https://github.com/dreamingwell/apple-llm-performance" target="_blank" rel="noopener">
+    dreamingwell/apple-llm-performance</a>. Credit for the original project goes to its author &mdash;
+    this fork started from it and is now slowly diverging from the original as it is adapted to my own
+    personal needs. It is maintained for me: if you find it useful, great. It is a work in progress, and
+    some things here may be wrong or break.
+  </p>
   <header>
     <a class="gh" href="https://github.com/ColtonKawamura/apple-llm-performance"
        target="_blank" rel="noopener" aria-label="Open source on GitHub">
