@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Render the vllm-mlx watchlist state file into a model-first status page."""
-import os, re, html, datetime, hashlib, json
+import os, re, html, hashlib, json
 # One record per file under data/, assembled by tracker/registry.py. MODELS and
 # the per-engine matrix used to live in this file and in engines.py; they were
 # split so two agents editing two different models never touch the same file.
@@ -429,9 +429,6 @@ def render_items(keys, rows):
 
 def render():
     rows, releases = read_state()
-    stamp = datetime.datetime.now().astimezone()
-    now = stamp.strftime("%Y-%m-%d %H:%M")
-    now_iso = stamp.isoformat(timespec="seconds")
 
     cards = []
     for m in MODELS:
@@ -473,7 +470,7 @@ def render():
                            for u in USE_CASES])
     bands = json.dumps([[b[0], b[1], b[2], b[3]] for b in BANDS])
 
-    doc = TEMPLATE.format(now=now, now_iso=now_iso, usecases=usecases, bands=bands,
+    doc = TEMPLATE.format(usecases=usecases, bands=bands,
                           cards="".join(cards), index=index_rows(rows),
                           cross=cross_tabs(rows, releases))
     return doc.replace("/apple-llm-performance/card.jpg",
@@ -558,11 +555,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     font-size: .86rem; line-height: 1.55; color: var(--ink-2); max-width: 54rem; }}
   .fork-note strong {{ color: var(--ink); font-weight: 600; }}
   header {{ display: flex; flex-direction: column; gap: .5rem; margin-bottom: 2rem; }}
-  .eyebrow {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .72rem;
-    letter-spacing: .13em; text-transform: uppercase; color: var(--accent); font-weight: 600; }}
   h1 {{ font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 700; margin: 0;
     letter-spacing: -.02em; text-wrap: balance; }}
-  .sub {{ color: var(--muted); margin: 0; max-width: 48rem; }}
   html {{ scroll-behavior: smooth; }}
   @media (prefers-reduced-motion: reduce) {{ html {{ scroll-behavior: auto; }} }}
   .rig {{ background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
@@ -664,8 +658,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     text-transform: uppercase; color: var(--ok); border: 1px solid var(--ok);
     border-radius: 3px; padding: .1em .3em; vertical-align: .1em; }}
   .ix-row.uc-out-of-scope {{ opacity: .5; }}
-  .ix-head {{ font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
-    margin: 0 0 .7rem; font-weight: 600; font-family: "IBM Plex Mono", ui-monospace, monospace; }}
   .ix-rows {{ display: flex; flex-direction: column; gap: 1px; background: var(--line);
     border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }}
   .ix-row {{ display: grid; grid-template-columns: minmax(7rem, 1.5fr) 10.5rem minmax(5rem, .7fr) 5.5rem minmax(6rem, .95fr);
@@ -841,7 +833,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .back-bottom {{ margin: 1.25rem 0 0; }}
   .detail {{ margin-bottom: 2.75rem; }}
   html, body, .wrap {{ overflow-anchor: none; }}
-  .sub-stamp {{ color: var(--muted); white-space: nowrap; }}
   .ix-eng {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .72rem;
     color: var(--muted); white-space: nowrap; }}
   .panel-lead {{ margin: 0 0 1.15rem; font-size: .89rem; color: var(--ink-2); max-width: 54rem; }}
@@ -1031,11 +1022,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-2.98-.88-2.98-2.9 0-.83.3-1.51.79-2.04-.08-.2-.35-1 .08-2.07 0 0 .65-.2 2.13.79a7.2 7.2 0 0 1 1.94-.26c.66 0 1.32.09 1.94.26 1.48-1 2.13-.79 2.13-.79.43 1.07.16 1.87.08 2.07.49.53.79 1.21.79 2.04 0 2.03-1.21 2.7-2.99 2.9.31.27.58.79.58 1.6 0 1.15-.01 2.09-.01 2.38 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
       <span>Open source</span>
     </a>
-    <span class="eyebrow">Top Tier Open Weight Models on Apple Silicon</span>
     <h1>Apple LLM Performance Tracker</h1>
-    <p class="sub">Select your Mac CPU model, RAM, and machine count below. Then view what AI models
-    should run well on it &mdash; and those that won&rsquo;t.
-    <span class="sub-stamp">Updated <time class="ago" datetime="{now_iso}">{now}</time>.</span></p>
   </header>
 
   <form class="rig" id="rig" aria-label="Cluster configuration">
@@ -1056,7 +1043,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 
   <nav class="index" id="list" aria-label="Model index">
     <div class="ix-top">
-      <h2 class="ix-head">Models at a glance</h2>
       <div class="uc-f">
         <span>What for?</span>
         <div class="uc-list" id="uc-sel" role="group" aria-label="Jobs to combine"></div>
@@ -1115,9 +1101,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 
   <footer>
     Polled twice daily against the GitHub API across llama.cpp, Ollama, LM Studio, oMLX, vllm-mlx, mlx-lm and ds4;
-    state changes only &mdash; open&rarr;closed, merged, new release tag. The clock in the intro counts from the
-    last <em>content</em> change, not the last check &mdash; the page is only republished when something actually
-    moves, so a large number there means the watchlist has been quiet.
+    state changes only &mdash; open&rarr;closed, merged, new release tag.
   </footer>
 </div>
 
@@ -1871,30 +1855,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         }});
       }});
     }});
-  }})();
-</script>
-
-<script>
-  (function () {{
-    var el = document.querySelector("time.ago");
-
-    if (!el) return;
-    var t = Date.parse(el.getAttribute("datetime"));
-    if (isNaN(t)) return;
-    var abs = el.textContent;
-    function render() {{
-      var mins = Math.floor((Date.now() - t) / 60000);
-      if (mins < 0) mins = 0;
-      var out;
-      if (mins < 1) out = "just now";
-      else if (mins < 60) out = mins + "m ago";
-      else if (mins < 1440) out = Math.floor(mins / 60) + "h " + (mins % 60) + "m ago";
-      else out = Math.floor(mins / 1440) + "d " + Math.floor((mins % 1440) / 60) + "h ago";
-      el.textContent = out;
-      el.title = abs;
-    }}
-    render();
-    setInterval(render, 60000);
   }})();
 </script>
 """
