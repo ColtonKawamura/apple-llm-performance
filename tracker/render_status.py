@@ -1622,13 +1622,16 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         var ranked = pos[mid] !== undefined;
         if (!ranked) r.classList.add("uc-out-of-scope");
         var usable = usableSet[mid];
-        // three tiers: usable in rank order, then ranked-but-unusable, then unranked
-        var w0 = usable ? barFor(mid) : null;
-        // Sort the usable tier by bar length so the chart reads monotonically;
-        // rows with no comparable figure keep their curated place behind them.
+        // Three tiers, each in the curated best-first rank order: models that
+        // fit this cluster and clear the gate on top, then ranked models that
+        // do not, then models outside the category at the bottom. The bar stays
+        // as a visualization of each model's share of its job's leader; it no
+        // longer drives row order. Sorting by raw bar length mixed benchmarks
+        // the page refuses to rank together, and pushed off-scale (no-bar) rows
+        // below in-scale ones even when the curated rank had them higher.
         r.style.order = usable
-          ? (w0 === null ? 1050 + pos[mid] : Math.round((100 - w0) * 10))
-          : (ranked ? 2000 + pos[mid] : 4000);
+          ? pos[mid]
+          : (ranked ? 1000 + pos[mid] : 4000);
         var bar = r.querySelector(".ix-bar");
         if (bar) {{
           var w = usable ? barFor(mid) : null;
@@ -1679,8 +1682,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       var whySingle = function () {{
         return uc.axis +
           (leadVal === null ? " No comparable numeric benchmark is published for these, so there are no bars."
-                            : " Dimmed rows publish no number for this job. Ordered by bar where a " +
-                              "comparable figure exists; bars are each model's score as a share of the " +
+                            : " Rows run best to worst in this job's curated ranking; the bar is each " +
+                              "model's score as a share of the " +
                               "leader's <em>" + leadMetric + "</em>. Rows quoting a different suite on the " +
                               "same scale are included and are approximate; a row marked \u2020 quotes a " +
                               "figure that is not on that scale at all, so it gets no bar rather than a " +
