@@ -188,7 +188,7 @@ def index_rows(rows):
         <a class="ix-row v-{SCLASS[c['s']]}" href="#{m['id']}" data-model="{m['id']}"
            data-sw="{SCLASS[c['s']]}" data-swlabel="{html.escape(c['label'])}"
            data-mod="{modality(m)}" data-payload="{payload}">
-          <span class="ix-id"><span class="ix-name"><i class="ix-bar ix-bar-avg" aria-hidden="true"></i><em>{html.escape(m['name'])}</em></span>
+          <span class="ix-id"><span class="ix-name"><em>{html.escape(m['name'])}</em></span>
           <span class="ix-bars" aria-hidden="true">{lanes}<span class="ix-lane ix-lane-avg"><i></i></span></span></span>
           <span class="ix-status v-{SCLASS[c['s']]}">{html.escape(c['label'])}</span>
           <span class="ix-eng">{html.escape(ENGINE_BY_ID[eid]['name'])}</span>
@@ -641,6 +641,31 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .uc-chip[aria-pressed="true"] .uc-dot {{ opacity: 1; }}
   .uc-out {{ margin: 0 0 .9rem; font-size: .87rem; color: var(--ink-2); }}
   .uc-out strong {{ color: var(--ink); font-weight: 600; }}
+  /* Legend for the row bars, shown only when two or more jobs are chosen: one
+     swatch per picked job (the chip dots already carry the job names), an
+     arrow, and the green swatch labelled "avg" for the average lane. Hidden
+     (and emptied) whenever the pick is not combined. */
+  .uc-legend {{ display: none; flex-wrap: wrap; align-items: center; gap: .3rem .55rem;
+    margin: 0 0 .55rem; }}
+  .uc-legend.on {{ display: flex; }}
+  .lg-it {{ display: inline-flex; align-items: center; gap: .35rem; }}
+  .lg-swatch {{ width: 14px; height: 6px; border-radius: 3px; background: var(--low); flex: none; }}
+  .uc-legend .uc-slot-agentic {{ background: var(--bar-agentic); }}
+  .uc-legend .uc-slot-coding {{ background: var(--bar-coding); }}
+  .uc-legend .uc-slot-terminal {{ background: var(--bar-terminal); }}
+  .uc-legend .uc-slot-computer {{ background: var(--bar-computer); }}
+  .uc-legend .uc-slot-concurrency {{ background: var(--bar-concurrency); }}
+  .uc-legend .uc-slot-longctx {{ background: var(--bar-longctx); }}
+  .uc-legend .uc-slot-image {{ background: var(--bar-image); }}
+  .uc-legend .uc-slot-video {{ background: var(--bar-video); }}
+  .uc-legend .uc-slot-voice {{ background: var(--bar-voice); }}
+  .uc-legend .uc-slot-narration {{ background: var(--bar-narration); }}
+  .uc-legend .uc-slot-music {{ background: var(--bar-music); }}
+  .lg-swatch-avg {{ width: 22px; height: 6px; border-radius: 3px; background: var(--ok); flex: none;
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ok) 35%, transparent); }}
+  .lg-arr {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600;
+    color: var(--muted); }}
+  .lg-word {{ font-size: .74rem; color: var(--muted); }}
   .uc-out .uc-why {{ display: block; margin-top: .2rem; font-size: .78rem; color: var(--muted); }}
   .uc-fold {{ margin-top: .3rem; }}
   .uc-fold > summary {{ cursor: pointer; list-style: none; display: inline-flex; align-items: center;
@@ -674,21 +699,13 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .ix-name {{ font-weight: 600; font-size: .92rem; letter-spacing: -.01em;
     position: relative; display: flex; align-items: center; min-width: 0; }}
   .ix-name em {{ font-style: normal; position: relative; }}
-  /* The green bar sits behind the name - scored against the leader of the
-     selected job, or the average of its share of each chosen job's leader when
-     several are picked, so the top row is always full. Width is set from JS;
-     models with no number get none. */
-  .ix-bar {{ position: absolute; left: -.35rem; top: 50%; transform: translateY(-50%);
-    height: 1.45rem; width: 0; border-radius: 3px; background: var(--ok);
-    opacity: .16; transition: width .18s ease; pointer-events: none; }}
-  .ix-row.uc-best .ix-bar {{ opacity: .28; }}
-  /* With several jobs chosen, one lane per job stacks below the name in pick
-     order. Each lane is the model's share of that job's own leader, in that
-     job's colour, so a combined pick reads as its parts; the green lane at the
-     end is the average. Widths are set from JS; a lane for a job the model is
-     not ranked in stays an empty track. */
+  /* One thin lane per job, in that job's own colour. One job selected: only
+     its lane shows, under the name. Several: the picked jobs' lanes stack, and
+     the green lane at the end is the average of the coloured ones - green means
+     "average" on this page and nothing else. Widths are set from JS; a lane
+     for a job the model is not ranked in stays an empty track. */
   .ix-bars {{ display: none; position: relative; }}
-  .ix-row.multi .ix-bars {{ display: flex; flex-direction: column; gap: 2px; }}
+  .ix-row.j1 .ix-bars, .ix-row.multi .ix-bars {{ display: flex; flex-direction: column; gap: 2px; }}
   .ix-lane {{ display: none; position: relative; height: 6px;
     background: var(--line-soft); border-radius: 3px; overflow: hidden; }}
   .ix-lane.on {{ display: block; }}
@@ -709,7 +726,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   /* no comparable figure on the leader's scale */
   .ix-row.no-bar .ix-name em::after {{ content: "\\2020"; margin-left: .3rem;
     font-size: .8em; color: var(--muted); vertical-align: super; line-height: 0; }}
-  @media (prefers-reduced-motion: reduce) {{ .ix-bar, .ix-lane > i {{ transition: none; }} }}
+  @media (prefers-reduced-motion: reduce) {{ .ix-lane > i {{ transition: none; }} }}
   .ix-status {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .66rem;
     font-weight: 600; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
     padding: .14rem .5rem; border-radius: 4px; border: 1px solid; justify-self: start; }}
@@ -1048,6 +1065,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         <div class="uc-list" id="uc-sel" role="group" aria-label="Jobs to combine"></div>
       </div>
     </div>
+    <div class="uc-legend" id="uc-legend" aria-hidden="true"></div>
     <p class="uc-out" id="uc-out"></p>
     <div class="ix-rows">{index}
     </div>
@@ -1527,16 +1545,16 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     if (ucs.length) ucs.forEach(function (u) {{ mods[u.mod] = true; }});
     var inMod = function (mod) {{ return ucs.length ? !!mods[mod] : mod === "text"; }};
     document.querySelectorAll(".ix-row").forEach(function (r) {{
-      r.classList.remove("uc-best", "uc-out-of-scope", "multi");
+      r.classList.remove("uc-best", "uc-out-of-scope", "j1", "multi");
       r.hidden = !inMod(r.getAttribute("data-mod") || "text");
     }});
     if (!ucs.length) {{
       if (ucOut) ucOut.innerHTML = "";
+      ucLegend.classList.remove("on");
+      ucLegend.innerHTML = "";
       document.querySelectorAll(".ix-row").forEach(function (r) {{
         r.style.order = "";
-        r.classList.remove("no-bar");
-        var bar = r.querySelector(".ix-bar");
-        if (bar) bar.style.width = "0";
+        r.classList.remove("no-bar", "j1", "multi");
         var lanes = r.querySelectorAll(".ix-lane");
         for (var li = 0; li < lanes.length; li++) {{
           lanes[li].classList.remove("on");
@@ -1545,6 +1563,24 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         }}
       }});
     }} else {{
+      // The legend is the whole of the page's bar grammar: one swatch per
+      // picked job, in pick order, an arrow, and the green swatch labelled
+      // avg for the average lane. It exists only in the combined view - with
+      // one job, the row's own coloured lane is all there is, and the chip
+      // above already maps that job to its colour.
+      if (combined) {{
+        ucLegend.innerHTML = ucs.map(function (u) {{
+          return '<span class="lg-it"><span class="lg-swatch uc-slot-' + u.id + '"></span></span>';
+        }}).join("") +
+          '<span class="lg-arr" aria-hidden="true">\\u2192</span>' +
+          '<span class="lg-it"><span class="lg-swatch-avg"></span><span class="lg-word">avg</span></span>';
+        ucLegend.classList.add("on");
+        ucLegend.setAttribute("aria-hidden", "false");
+      }} else {{
+        ucLegend.classList.remove("on");
+        ucLegend.innerHTML = "";
+        ucLegend.setAttribute("aria-hidden", "true");
+      }}
       // Usable = ranked in EVERY chosen job (a true intersection), fits on this
       // cluster, and clears the strictest of the chosen jobs' fidelity gates.
       // For a single job that reduces to "ranked in the job."
@@ -1640,37 +1676,32 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
           ? (combined ? rankBy.indexOf(mid) : pos[mid])
           : (ranked ? 1000 + pos[mid] : 4000);
         r.style.order = orderIdx;
-        var bar = r.querySelector(".ix-bar");
-        if (bar) {{
-          var w = usable ? barFor(mid) : null;
-          // A combined pick shows its bars as lanes below the name (one per
-          // job plus a green average), so the bar behind the name is held at
-          // zero - otherwise the average would be drawn twice.
-          bar.style.width = (w === null || combined) ? "0" : w.toFixed(1) + "%";
-          // Only meaningful when at least one chosen job has a numeric leader
-          // to compare against; with no benchmark at all, nothing is "off scale".
-          r.classList.toggle("no-bar", usable && w === null && anyLead);
-        }}
-        // Combined pick: one coloured lane per chosen job below the name, plus
-        // a green average lane. Single pick keeps the one green bar behind the
-        // name and no lanes, so the single-category view is unchanged.
+        var w = usable ? barFor(mid) : null;
+        // Only meaningful when at least one chosen job has a numeric leader to
+        // compare against; with no benchmark at all, nothing is "off scale".
+        r.classList.toggle("no-bar", usable && w === null && anyLead);
+        // Every pick draws its thin lanes under the name: one job, its own
+        // coloured lane; several, the picked jobs' lanes plus the green
+        // average lane, which exists only in the combined view.
+        r.classList.toggle("j1", !combined);
         r.classList.toggle("multi", combined);
+        var lanes = r.querySelectorAll(".ix-lane");
+        for (var li = 0; li < lanes.length; li++) {{
+          lanes[li].classList.remove("on");
+        }}
+        var avgW = usable ? barFor(mid) : null;
+        var hasAny = false;
+        lead.forEach(function (L) {{
+          if (!combined && L.id !== ucs[0].id) return;
+          var lane = r.querySelector(".ix-lane.uc-slot-" + L.id);
+          if (!lane) return;
+          var lw = usable ? barForJob(mid, L) : null;
+          lane.classList.toggle("on", lw !== null);
+          if (lw !== null) hasAny = true;
+          var fill = lane.querySelector("i");
+          if (fill) fill.style.width = lw === null ? "0" : lw.toFixed(1) + "%";
+        }});
         if (combined) {{
-          var lanes = r.querySelectorAll(".ix-lane");
-          for (var li = 0; li < lanes.length; li++) {{
-            lanes[li].classList.remove("on");
-          }}
-          var avgW = usable ? barFor(mid) : null;
-          var hasAny = false;
-          lead.forEach(function (L) {{
-            var lane = r.querySelector(".ix-lane.uc-slot-" + L.id);
-            if (!lane) return;
-            var lw = usable ? barForJob(mid, L) : null;
-            lane.classList.toggle("on", lw !== null);
-            if (lw !== null) hasAny = true;
-            var fill = lane.querySelector("i");
-            if (fill) fill.style.width = lw === null ? "0" : lw.toFixed(1) + "%";
-          }});
           var avgLane = r.querySelector(".ix-lane.ix-lane-avg");
           if (avgLane) {{
             avgLane.classList.toggle("on", avgW !== null || hasAny);
@@ -1737,7 +1768,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     history.replaceState(null, "", location.pathname + "?" + p.toString() + (location.hash || ""));
   }}
 
-  var ucSel = document.getElementById("uc-sel"), ucOut = document.getElementById("uc-out");
+  var ucSel = document.getElementById("uc-sel"), ucOut = document.getElementById("uc-out"),
+      ucLegend = document.getElementById("uc-legend");
   if (ucSel) {{
     // One chip per job, in display order. Pressed chips are the chosen jobs;
     // none pressed is the plain list. Chips, not a <select multiple>: the
