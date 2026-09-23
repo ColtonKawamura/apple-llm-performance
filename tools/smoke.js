@@ -82,12 +82,14 @@ const FILE = path.resolve(process.argv[2] || 'docs/index.html');
         }
       }
     }
-  // The ranking bar is drawn behind the model name and sized as a percentage of
-  // that cell, so anything making the cell width vary per row makes the chart lie.
-  // It did: on mobile the name shared a row with the status pill, and a long label
-  // like "Fastest, with caveats" cut the cell from 225px to 128px, drawing a
-  // SHORTER bar for a BETTER-ranked model. Assert bars never grow downward.
-  // reducedMotion matters - the bar has a 180ms width transition and sampling
+  // The ranking bar is a thin lane under the model name, sized as a percentage
+  // of that cell, so anything making the cell width vary per row makes the
+  // chart lie. It did: on mobile the name shared a row with the status pill,
+  // and a long label like "Fastest, with caveats" cut the cell from 225px to
+  // 128px, drawing a SHORTER bar for a BETTER-ranked model. Assert bars never
+  // grow downward. The lane for the chosen job carries the bar; its fill is
+  // zero where the model has no number.
+  // reducedMotion matters - the lane has a 180ms width transition and sampling
   // mid-animation reports inversions that are not real.
   const inversions = [];
   try {
@@ -106,11 +108,11 @@ const FILE = path.resolve(process.argv[2] || 'docs/index.html');
           if (pressed !== (id === uc)) await c.click();
         }
         await page.waitForTimeout(120);
-        const rows = await page.$$eval('.ix-row', rs => rs.filter(r => !r.hidden)
+        const rows = await page.$$eval('.ix-row', (rs, job) => rs.filter(r => !r.hidden)
           .map(r => ({ m: r.getAttribute('data-model'),
                        o: parseInt(getComputedStyle(r).order) || 0,
-                       w: r.querySelector('.ix-bar').getBoundingClientRect().width }))
-          .sort((a, c) => a.o - c.o));
+                       w: r.querySelector('.ix-lane.uc-slot-' + job + ' > i').getBoundingClientRect().width }))
+          .sort((a, c) => a.o - c.o), uc);
         for (let i = 1; i < rows.length; i++) {
           if (rows[i].w > rows[i - 1].w + 1.5) {
             inversions.push(`${vp.n} ${uc}: ${rows[i].m} draws ${rows[i].w.toFixed(0)}px ` +
