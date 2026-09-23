@@ -105,7 +105,22 @@ network):
 python3 tracker/measure.py --model qwen38
 ```
 
-It rewrites the `LADDER` block in that model's file and nothing else.
+It rewrites the `LADDER` key in `data/data.json` and nothing else.
+
+Adding or updating a whole model from a compact description is one command:
+
+```sh
+python3 tracker/add_model.py --in model.json            # dry-run: show the plan
+python3 tracker/add_model.py --in model.json --commit   # write, measure, build,
+                                                        # commit, push, open a PR
+```
+
+It merges the entry, appends the named category ranks, measures the ladder,
+runs the full validate/build/check gate locally, then branches from current
+`main`, commits and pushes (or, with `--direct`, pushes to `main` so the page
+deploys at once). The input's shape is in the script's header. The page's
+policies are still enforced by `validate.py`, which the script runs and refuses
+to bypass.
 
 ## What's where
 
