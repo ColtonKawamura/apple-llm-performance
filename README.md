@@ -109,32 +109,29 @@ It rewrites the `LADDER` block in that model's file and nothing else.
 
 ## What's where
 
-One record, one file. A model, an engine, a use case and an issue tracker each
-own exactly one file, so two people adding two models never touch the same file.
+One file holds the facts: `data/data.json`. Every model, engine, use case and
+issue tracker is one entry in it, so the whole page's input is a single artefact
+you can pull, edit and push from any machine.
 
 ```
-data/models/<id>.py       one model: identity, scores, per-engine status,
-                          measured quant ladder, KV geometry
-data/engines/<id>.py      one engine: what it is, its API, its cross-cutting issues
-data/use_cases/<id>.py    one "What for?" category and its curated ranking
-data/issues/<repo>.py     tracked issues for one upstream repository
-data/pr_keys.py           which issue keys are pull requests
+data/data.json          THE data: models, engines, use cases, tracked issues,
+                        prKeys, plus a _meta header. Plain JSON, no Python.
 
-tracker/registry.py       loads data/ and assembles it; the only file that
-                          knows the schema
-tracker/validate.py       enforces the schema — CI runs this
-tracker/render_status.py  the HTML template and the page's prose
-tracker/bands.py          fidelity thresholds and per-model quant caveats
-tracker/build.py          renders docs/index.html
-tracker/measure.py        re-measures a quant ladder from the Hugging Face API
-tracker/probe.py          refreshes watch-state.txt from the GitHub API
-tracker/watch-state.txt   last polled state of every tracked issue
-tools/check_output.py     sanity-checks the rendered page — CI runs this
-assets/                   social card source and output
-docs/                     GENERATED, gitignored — the built site
+tracker/registry.py     loads data/data.json and assembles it; the only file
+                        that knows the schema
+tracker/validate.py     enforces the schema — CI runs this
+tracker/render_status.py the HTML template and the page's prose
+tracker/bands.py        fidelity thresholds and per-model quant caveats
+tracker/build.py        renders docs/index.html
+tracker/measure.py      re-measures a quant ladder from the Hugging Face API
+tracker/probe.py        refreshes watch-state.txt from the GitHub API
+tracker/watch-state.txt last polled state of every tracked issue
+tools/check_output.py   sanity-checks the rendered page — CI runs this
+assets/                 social card source and output
+docs/                   GENERATED, gitignored — the built site
 ```
 
-Start in `data/models/` — that's where the facts are. Everything in `tracker/`
+Start in `data/data.json` — that's where the facts are. Everything in `tracker/`
 is plumbing around them.
 
 If you are an AI agent working on this repository, read

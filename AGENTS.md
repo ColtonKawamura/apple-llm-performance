@@ -2,14 +2,22 @@
 
 Instructions for AI agents maintaining this repository.
 
-Read this before touching anything. The repository is deliberately structured so
-that many agents can work on it at once without conflicting, and most of that
-structure only works if you follow the file-per-record rule below.
+Read this before touching anything.
 
-**The one rule that matters most:** one record, one file. A model, an engine, a
-use case and an issue tracker each own exactly one file. If your change touches
-one model, it should touch one file under `data/models/`. If you find yourself
-editing a shared file to add a model, you have taken a wrong turn.
+**The one rule that matters most:** the whole page's input is a single file —
+`data/data.json`. One file, every record. A model, an engine, a use case and an
+issue tracker each own exactly one entry in it. If your change touches one
+model, it should touch one entry in `data/data.json` and nothing else. If you
+find yourself adding a new file under `data/` or editing two records in one
+change, you have taken a wrong turn.
+
+**Why one file:** it is the whole dataset, and it has to be. The page is
+updated by agents on many different computers, and the workflow is: pull the
+file, edit the entry you own, validate, push. One file means any machine needs
+to fetch exactly one artefact, there is no question of which files belong
+together, and `git` is the merge layer for everything that is not the same
+record. It is also computer-agnostic: it is plain JSON with no Python, no
+packages and no build step, so any editor on any OS can read and write it.
 
 **Before you open a PR:**
 
@@ -19,32 +27,30 @@ python3 tracker/build.py        # must succeed
 python3 tools/check_output.py   # checks the rendered page
 ```
 
-That is exactly what CI runs, plus an import smoke test. Warnings from
-`validate.py` do not block anything — they flag a record that is merely thin.
+That is exactly what CI runs, plus an import smoke test and a browser smoke
+test. Warnings from `validate.py` do not block anything — they flag a record
+that is merely thin.
 
 ---
 
 ## 1. Why the structure is what it is
 
-The data used to live in two files: a 1,500-line `engines.py` holding every
-model's per-engine status, and a 1,900-line `render_status.py` holding both the
-model list and the entire HTML template. Two agents adding two different models
-conflicted every time, and an agent fixing CSS conflicted with an agent adding a
-benchmark score.
-
-Now:
+The data went through three shapes. First a 1,900-line monolith. Then one file
+per record, which fixed merge conflicts between *different* records — but left
+the page's input scattered across 60 files, so an agent updating the page from
+a second machine had to pull the whole repo and know which files went together.
+Now the records are gathered back into one file, but each record still owns
+exactly one entry in it, and the file is the only data the build reads:
 
 ```
 data/
-  models/<id>.py        one model: identity, scores, per-engine status, quant ladder, KV
-  engines/<id>.py       one engine: what it is, its API, its website, its
-                        cross-cutting issues
-  use_cases/<id>.py     one "What for?" category and its curated ranking
-  issues/<owner>__<repo>.py   tracked issues for one upstream repository
-  pr_keys.py            which issue keys are pull requests (small, shared)
+  data.json             THE data. Every record: models, engines, use cases,
+                        issue trackers, prKeys, and a _meta header.
+                        JSON, no Python, no dependencies.
 
 tracker/
-  registry.py           loads data/ and assembles it. The only file that knows the schema.
+  registry.py           loads data.json and assembles it. The only file that knows
+                        the schema.
   validate.py           enforces the schema. CI runs this.
   render_status.py      the HTML template and the page's prose. No per-model data.
   bands.py              fidelity thresholds and per-model quant caveats
@@ -63,19 +69,102 @@ tools/
   refresh.yml           re-polls issue states twice daily and commits changes
 ```
 
-Conflict surface by task:
+The conflict-surface table is now about *entries*, not files:
 
-| Task | Files you touch |
+| Task | Where you touch |
 |---|---|
-| Add a model | `data/models/<new>.py`, and one line in one `data/use_cases/*.py` per category it belongs to |
-| Correct a model's figure or prose | `data/models/<id>.py` only |
-| Add or update a tracked issue | `data/issues/<repo>.py` only |
-| Add an engine | `data/engines/<new>.py`, plus one cell in each `data/models/*.py` it can load |
+| Add a model | one entry in `data.json` `models`, and one line in one `useCases` `RANK` per category it belongs to |
+| Correct a model's figure or prose | that model's entry only |
+| Add or update a tracked issue | the matching `issues` entry only |
+| Add an engine | one entry in `data.json` `engines`, plus one cell in each model entry it can load |
 | Change the UI | `tracker/render_status.py` only |
 | Change the schema | `tracker/registry.py` **and** `tracker/validate.py`, in a commit of their own |
 
-Two agents adding two models never touch the same file. Two agents adding issues
-to two different upstream repos never touch the same file. That is the point.
+Two agents adding two different models touch two different entries. They can
+still conflict in the same *file* — see section 7, which is now the important
+part of concurrent work.
+
+### The record shapes
+
+Every record keeps the original attribute names, so a record reads the same
+whether you met it as a Python file or as a JSON entry.
+
+**`models`** — one entry per model:
+
+```json
+{
+  "ID": "qwen38",
+  "MODALITY": "text",
+  "NAME": "Qwen3.8-27B",
+  "ARCH": "Dense 27.8B · hybrid GDN (48 linear + 16 full-attn)",
+  "LICENSE": "Apache-2.0",
+  "CONTEXT": "262k (to 1M)",
+  "HF": "Qwen/Qwen3.8-27B",
+  "PARAMS_B": 27.8,
+  "NOTE": "…",
+  "SOURCES": [["Model card (all scores)", "https://huggingface.co/Qwen/Qwen3.8-27B"]],
+  "SCORES": {"agentic": [["Terminal-Bench 2.1", "73.0"]], "coding": [["SWE-bench Pro", "61.7"]]},
+  "BEST_ENGINE": "llamacpp",
+  "QUANT_SOURCES": {"gguf": ["unsloth/Qwen3.8-27B-GGUF"], "mlx": ["mlx-community/Qwen3.8-27B-4bit"]},
+  "LADDER": {"gguf": [{"label": "…", "repo": "…", "gb": 17.56, "kind": "quant", "bpw": 5.05}]},
+  "KV": {"bytes_per_token": 65536, "max_context": 262144, "derivation": "…"},
+  "ENGINES": {
+    "llamacpp": {"status": "works", "label": "Runs", "note": "…", "issues": ["ggml-org/llama.cpp#27335"]}
+  }
+}
+```
+
+Notes: `ID` is lowercase alphanumeric and never changes once published — it is
+the URL fragment. `SOURCES` and score rows are `[label, value]` pairs (JSON has
+no tuples; the registry converts them back). `LADDER` and `QUANT_SOURCES` are
+measured by `tracker/measure.py`, never hand-written. `KV` is
+`null` for media models. `ENGINES` holds one cell per engine of matching
+modality; `status` is `works` / `degraded` / `blocked` / `none`.
+
+**`engines`** — one entry per engine: `ID`, `NAME`, `MODALITIES`, `FORMAT`,
+`INTERFACE`, `API`, `LICENSE`, `REPO` (or `null`), `SITE`, `PROSE_ALIASES`,
+`DISPLAY_ORDER`, `WHAT`, `API_DETAIL`, `RELEASE_FEED` (`null` if unpolled),
+`CROSS_ISSUES`, `QUANT_FAMILY`.
+
+**`useCases`** — one entry per "What for?" category: `ID`, `LABEL`,
+`MODALITY`, `FIDELITY_GATE`, `AXIS`, `RANK` (each row `[model_id, metric,
+value]`), `DISPLAY_ORDER`.
+
+**`issues`** — one entry per upstream repository: `repo`
+(`owner/name`), and `issues` keyed by issue number as a string (JSON object
+keys are strings; the registry coerces them to ints):
+
+```json
+{"repo": "jundot/omlx",
+ "issues": {"2137": {"severity": "medium", "headline": "…", "why": "…"}}}
+```
+
+**`prKeys`** — issue keys that are pull requests, so links go to `/pull/`.
+
+**`_meta`** — `schema_version` and a note. Bump the version only in a commit
+of its own together with the `registry.py`/`validate.py` change, and say in the
+commit what moved.
+
+### Editing the file from any machine
+
+The file is large (250 KB+), so work on it the way you would any big JSON:
+
+```sh
+# read one record without opening the whole file
+python3 - <<'EOF'
+import json
+d = json.load(open('data/data.json'))
+print(json.dumps([m for m in d['models'] if m['ID'] == 'qwen38'], indent=2))
+EOF
+
+# or, if jq is installed
+jq '.models[] | select(.ID == "qwen38")' data/data.json
+```
+
+Edit with any editor. Keep the file's existing formatting (2-space indent,
+inserted entries appended at the end of their array) so a diff shows exactly
+the record that moved. `validate.py` refuses a malformed file before it can
+reach the build.
 
 ---
 
@@ -202,7 +291,7 @@ curl -s "https://huggingface.co/api/models?search=<name>&filter=gguf&sort=downlo
 and `lmstudio-community/` are the serious third-party packagers. Those repo names
 go straight into `QUANT_SOURCES`.
 
-Match on `config.json`'s `model_type`, not the model's marketing name. As of
+Match on `config.json`'s `model_type`, not from the model card prose. As of
 2026-08-27 `deepseek_v4`, `glm5_next`, `qwen4exp` and `minimax_m3` all have **no**
 mlx-lm model class, while `mlx-community` publishes quants for several of them.
 
@@ -250,10 +339,11 @@ explain that its ordering is editorial. An invented number is worse than none.
 
 ## 3. Adding a model, step by step
 
-1. **Create `data/models/<id>.py`.** The `<id>` is lowercase alphanumeric, must
-   match the filename, and never changes once published — it is the URL fragment
-   (`#qwen38`) and people share those links. Copy the closest existing model as
-   your template.
+1. **Add a new entry to `models` in `data/data.json`.** The `ID` is lowercase
+   alphanumeric and never changes once published — it is the URL fragment
+   (`#qwen38`) and people share those links. Copy the closest existing entry as
+   your template (append the new entry at the end of the array, keep 2-space
+   indentation).
 2. **Fill the identity fields.** `NAME`, `ARCH`, `LICENSE`, `CONTEXT`, `HF`,
    `PARAMS_B`, `MODALITY`, `NOTE`, `SOURCES`. For a non-text model use
    `CONTEXT_LABEL` to relabel that spec — `Output`, `Coverage`, `Behaviour` — as
@@ -268,12 +358,12 @@ explain that its ordering is editorial. An invented number is worse than none.
    ```sh
    python3 tracker/measure.py --model <id>
    ```
-   That writes `LADDER` into the model's own file and touches nothing else.
-   Never hand-write a ladder.
+   That writes `LADDER` into the model's entry and touches nothing else in the
+   file. Never hand-write a ladder.
 6. **Fill `KV`.** For text models, count only layers whose cache grows with
-   context — see section 4. For everything else, all three fields are `None`/`""`.
+   context — see section 4. For everything else, all three fields are `null`/`""`.
 7. **Add it to the categories it has numbers for**, one line in each
-   `data/use_cases/*.py` `RANK` list. Leave it out of categories where it
+   `useCases` entry's `RANK` list. Leave it out of categories where it
    publishes nothing; the page dims those rows rather than guessing.
 8. **Validate and build.**
 
@@ -384,12 +474,18 @@ that tries produces a dozen false positives for every real hit. It is a habit,
 and it is the reason the maintenance procedure above says to follow a claim
 through every place it appears.
 
-**Never change a model's `id`.** It is the deep-link fragment.
+**Never change a model's `ID`.** It is the deep-link fragment.
 
 **Do not commit `docs/`.** It is generated and gitignored. CI builds and deploys
 it; committing it would conflict on every parallel PR.
 
 **Do not hand-edit `LADDER`.** Run `tracker/measure.py`.
+
+**Do not reformat `data/data.json`.** If your diff shows a hundred lines moving
+that you did not touch, you re-indented the file or sorted keys. Revert the
+noise and keep only the record you meant to change; a whole-file reformat turns a
+one-record diff into a conflict for everyone else, and it hides the change
+itself from review.
 
 **Escaping traps in `render_status.py`.** The HTML lives in a `str.format`
 template, so every literal `{` or `}` in CSS or JS must be doubled. And never
@@ -436,18 +532,27 @@ on-page controls one mechanism.
 
 ## 7. Working alongside other agents
 
-- **One PR, one concern.** A model addition and a UI change do not belong
-  together; they touch different files for different reasons and a reviewer needs
-  to judge them separately.
-- **Never reformat a file you are not changing.** A whole-file reformat turns a
-  one-line diff into a conflict for everyone else.
-- **Rebase rather than merge** when your branch falls behind. The per-record
-  layout means real conflicts are rare; if you hit one, it is usually two agents
-  editing the same model, and the right answer is to read both versions rather
-  than take yours.
-- **Do not regenerate what you did not change.** `tracker/measure.py --model <id>`
-  touches one file. Running it over everything rewrites 23 files and conflicts
-  with every open PR.
+The data is one file now, so the discipline has moved from "different files" to
+"one entry at a time, small diffs, rebase early".
+
+- **Pull before you edit, rebase before you push.** Two agents on two machines
+  both editing `data/data.json` will collide at the same byte range. `git pull
+  --rebase` and push a clean, current branch; a rebase of two disjoint entries is
+  a mechanical conflict where you keep both hunks. If the conflict is inside one
+  record, the two changes disagreed about the same fact — read both versions and
+  resolve it, do not take either side blindly.
+- **One PR, one record.** A model addition and a UI change do not belong
+  together; they touch different parts of the system for different reasons and a
+  reviewer needs to judge them separately.
+- **Append, don't reorder.** New entries go at the end of their array. Reordering
+  existing entries or keys rewrites the file's diff for no reason. (Display order
+  comes from `DISPLAY_ORDER`, not array position, so appending is always safe.)
+- **Keep the formatting.** 2-space indent, entries as written, `null` not
+  `None`, issue numbers as string keys. `validate.py` does not care, but a
+  reformatted file makes every other agent's diff harder to review.
+- **Do not regenerate what you did not change.** `tracker/measure.py --model
+  <id>` touches one entry. Running it over everything rewrites 32 ladders and
+  buries your change.
 - **If two categories disagree about a model, that is fine.** A model can lead
   coding and be absent from terminal work. Do not "fix" it by adding it
   everywhere.
@@ -472,16 +577,18 @@ The notes are the reason to read this page rather than a spec sheet.
 
 ## 9. Validation reference
 
-`tracker/validate.py` enforces, and CI fails on, all of the following:
+`tracker/validate.py` enforces, and CI fails on, all of the following — all of it
+checked against `data/data.json`:
 
-- ids are lowercase alphanumeric and match their filename
+- `_meta.schema_version` is one this checkout understands
+- model, engine and use-case `ID`s are lowercase alphanumeric and unique
 - modalities are known, and a model only has cells for engines that share its modality
 - statuses are `works` / `degraded` / `blocked` / `none`
 - every cell has a label and a note
-- every cited issue key exists in `data/issues/` and is well-formed
+- every cited issue key exists in the `issues` section and is well-formed
 - `BEST_ENGINE` exists in `ENGINES` and is not `none`
 - `PARAMS_B` is present and non-zero
-- `SOURCES` is non-empty and every entry is `(label, url)`
+- `SOURCES` is non-empty and every entry is `[label, url]`
 - ladders are ordered largest-first, `quant` rungs carry a believable `bpw`
   (0.5–20), `pruned` and `native` rungs carry none
 - `KV` has exactly the three expected keys; only text models declare a per-token
@@ -490,9 +597,10 @@ The notes are the reason to read this page rather than a spec sheet.
 - every engine has a `SITE` URL and a non-empty `PROSE_ALIASES`, and no two
   engines claim the same alias — an ambiguous name would link to the wrong engine
 - use-case ranks cite known models of the matching modality, with no duplicates
-- issue severities are `critical` / `high` / `medium` / `low` and every issue has
-  a stated consequence
-- `pr_keys.py` only lists keys that exist
+- issue severities are `critical` / `high` / `medium` / `low`, issue numbers are
+  positive, and every issue has a stated consequence
+- `prKeys` only lists keys that exist
+- `tracker/watch-state.txt` still covers the tracked issues
 
 Warnings, which do not fail the build: a very short note, a missing ladder for a
 family an in-scope engine loads, an issue tracked but cited nowhere, a modality
