@@ -1545,31 +1545,23 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         }}
       }});
     }} else {{
-      // Usable = ranked in the (intersection of the) chosen job(s), fits on this
+      // Usable = ranked in EVERY chosen job (a true intersection), fits on this
       // cluster, and clears the strictest of the chosen jobs' fidelity gates.
+      // For a single job that reduces to "ranked in the job."
       var usableSet = {{}};
       document.querySelectorAll(".ix-row").forEach(function (r) {{
         var mid = r.getAttribute("data-model");
-        usableSet[mid] = pos[mid] !== undefined && r.__pick && !r.__pick.tooBig &&
+        var inAll = ucs.every(function (u) {{
+          return (entries[mid] || []).some(function (e) {{ return e[0] === u.id; }});
+        }});
+        usableSet[mid] = inAll && r.__pick && !r.__pick.tooBig &&
                          BAND_RANK[r.__pick.band] <= BAND_RANK[gate];
       }});
-      // Winner: strongest model in first-job order that is usable for every job.
-      var winner = null;
-      var first = ucs[0].rank;
-      for (var ri = 0; ri < first.length; ri++) {{
-        var mid = first[ri][0];
-        if (!usableSet[mid]) continue;
-        var row = document.querySelector('.ix-row[data-model="' + mid + '"]');
-        if (!row) continue;
-        winner = {{ row: row, mid: mid }};
-        break;
-      }}
-      // Each chosen job is compared against its own leader - the first model in
-      // that job's ranking that fits and publishes a number - because the jobs
-      // quote different benchmarks and no cross-job scale exists. A model's bar
-      // is the average of its share of the leader across the chosen jobs, so a
-      // combined pick still gets a bar. A job with no numeric leader (editorial
-      // categories) does not enter the average.
+      // Full bar = a perfect score on the job's own benchmark. A percentage
+      // suite is out of 100, so a perfect score is 100. A suite that is not a
+      // percentage (an Elo, an active-parameter note) publishes no maximum, so
+      // the best figure that still fits stands in for 100 - which is why the
+      // leader below is still needed: only as the reference for those suites.
       var lead = [];
       ucs.forEach(function (u) {{
         var lm = null, lv = null;
@@ -1587,22 +1579,22 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       var anyLead = lead.some(function (L) {{ return L.val !== null; }});
       var leadMetric = combined ? null : lead[0].metric;
       var leadVal = combined ? null : lead[0].val;
-      // Compare anything on the leader's scale, not only its exact suite. SWE-bench
-      // Pro against SWE-bench Verified is imprecise; an Elo of 1554 against a
-      // percentage is meaningless. So: both values have to sit in the same band.
-      // The figure is looked up per job - pos is a position in the first job's
-      // rank, which says nothing about the others.
-      var sameScale = function (a, b) {{ return (a <= 100) === (b <= 100); }};
-      // One job's share: the model's figure for that job as a share of that
-      // job's leader. The per-job lane is drawn from this; barFor is the
-      // average of the same pieces across the chosen jobs.
+      // A percentage sits on the 0-100 scale and is compared against 100. A
+      // non-percentage has no published maximum, so it is compared against the
+      // best figure on its own scale (the leader's). An Elo next to a
+      // percentage is never compared directly.
+      var isPct = function (v) {{ return v !== null && v <= 100; }};
+      // One job's share of a perfect score. The per-job lane is drawn from
+      // this; barFor is the average of the same pieces across the chosen jobs.
       var barForJob = function (mid, L) {{
-        if (!L.val) return null;
         if (pos[mid] === undefined) return null;
         var e = entries[mid].filter(function (x) {{ return x[0] === L.id; }});
         if (!e.length) return null;
         var v = num(e[0][2]);
-        if (v === null || !sameScale(v, L.val)) return null;
+        if (v === null) return null;
+        if (isPct(v)) return Math.max(0, Math.min(100, v));
+        if (!L.val) return null;
+        if (isPct(L.val)) return null;
         return Math.max(0, Math.min(100, (v / L.val) * 100));
       }};
       var barFor = function (mid) {{
@@ -1617,21 +1609,37 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         if (!cnt) return null;
         return acc / cnt;
       }};
+      // With several jobs chosen, usable models are ordered by their average of
+      // the per-job share of a perfect score (the green bar) rather than by any
+      // single job's curated rank. A single job keeps its curated order.
+      var rankBy = null;
+      if (combined) {{
+        rankBy = ucs[0].rank.map(function (x) {{ return x[0]; }})
+          .filter(function (m) {{ return usableSet[m]; }})
+          .sort(function (a, b) {{ return (barFor(b) || 0) - (barFor(a) || 0); }});
+      }}
+      // Winner: the top usable model. With one job that is the first entry of
+      // its curated rank; with several it is the highest average of its per-job
+      // share of a perfect score - the head of the same order the rows below use.
+      var winner = null;
+      var worder = combined ? rankBy : ucs[0].rank.map(function (x) {{ return x[0]; }});
+      for (var ri = 0; ri < worder.length; ri++) {{
+        var mid = worder[ri];
+        if (!usableSet[mid]) continue;
+        var row = document.querySelector('.ix-row[data-model="' + mid + '"]');
+        if (!row) continue;
+        winner = {{ row: row, mid: mid }};
+        break;
+      }}
       document.querySelectorAll(".ix-row").forEach(function (r) {{
         var mid = r.getAttribute("data-model");
         var ranked = pos[mid] !== undefined;
         if (!ranked) r.classList.add("uc-out-of-scope");
         var usable = usableSet[mid];
-        // Three tiers, each in the curated best-first rank order: models that
-        // fit this cluster and clear the gate on top, then ranked models that
-        // do not, then models outside the category at the bottom. The bar stays
-        // as a visualization of each model's share of its job's leader; it no
-        // longer drives row order. Sorting by raw bar length mixed benchmarks
-        // the page refuses to rank together, and pushed off-scale (no-bar) rows
-        // below in-scale ones even when the curated rank had them higher.
-        r.style.order = usable
-          ? pos[mid]
+        var orderIdx = usable
+          ? (combined ? rankBy.indexOf(mid) : pos[mid])
           : (ranked ? 1000 + pos[mid] : 4000);
+        r.style.order = orderIdx;
         var bar = r.querySelector(".ix-bar");
         if (bar) {{
           var w = usable ? barFor(mid) : null;
@@ -1682,21 +1690,21 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       var whySingle = function () {{
         return uc.axis +
           (leadVal === null ? " No comparable numeric benchmark is published for these, so there are no bars."
-                            : " Rows run best to worst in this job's curated ranking; the bar is each " +
-                              "model's score as a share of the " +
-                              "leader's <em>" + leadMetric + "</em>. Rows quoting a different suite on the " +
-                              "same scale are included and are approximate; a row marked \u2020 quotes a " +
-                              "figure that is not on that scale at all, so it gets no bar rather than a " +
-                              "fabricated one.");
+                            : " Rows run best to worst in this job's curated ranking; the bar is each "
+                              + "model's score as a share of a perfect score on <em>" + leadMetric
+                              + "</em> (100 for percentage suites). Rows quoting a different suite on "
+                              + "the same scale are included and are approximate; a row marked \\u2020 quotes "
+                              + "a figure that is not on that scale at all, so it gets no bar rather than a "
+                              + "fabricated one.");
       }};
       var whyCombined = function () {{
         return ucs.map(function (u) {{ return u.axis; }}).join(" ") +
-          " With several jobs chosen, the list keeps only models that publish a figure for every one " +
-          "of them. The jobs quote different benchmarks, so each is compared against the leader of its " +
-          "own job and a bar shows the average of those shares; a job with no numeric benchmark does " +
-          "not enter the average, and a row marked \u2020 quotes a figure that is off the leader's scale " +
-          "in at least one job, so that job is skipped for it. The chosen model quotes its figure for " +
-          "each job in the line above.";
+          " With several jobs chosen, the list keeps only models that publish a figure for every one "
+          + "of them. Each job's bar is the model's score as a share of a perfect score on that job's own "
+          + "benchmark, and the green bar is the average of those shares; a job with no numeric benchmark "
+          + "does not enter the average, and a row marked \\u2020 quotes a figure that is off the scale in "
+          + "at least one job, so that job is skipped for it. The chosen model quotes its figure for "
+          + "each job in the line above."; 
       }};
       if (winner) {{
         winner.row.classList.add("uc-best");
