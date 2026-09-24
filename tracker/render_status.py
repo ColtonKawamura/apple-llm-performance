@@ -516,7 +516,11 @@ def render():
                            for u in USE_CASES])
     bands = json.dumps([[b[0], b[1], b[2], b[3]] for b in BANDS])
 
-    doc = TEMPLATE.format(usecases=usecases, bands=bands,
+    # Vitals for the hero band: the same counts the validator prints, rendered
+    # once so the page opens with a sense of scale instead of a wall of rows.
+    n_open = sum(1 for v in rows.values() if v.lower() == "open")
+    stats = (f'{len(MODELS):d}|{len(ENGINES):d}|{len(USE_CASES):d}|{len(META):d}|{n_open:d}')
+    doc = TEMPLATE.format(usecases=usecases, bands=bands, stats=stats,
                           cards="".join(cards), index=index_rows(rows),
                           cross=cross_tabs(rows, releases), news=news_panel())
     return doc.replace("/apple-llm-performance/card.jpg",
@@ -562,51 +566,131 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     --bar-computer: #0891b2; --bar-concurrency: #d97706; --bar-longctx: #eab308;
     --bar-image: #db2777; --bar-video: #c026d3; --bar-voice: #0d9488;
     --bar-narration: #be123c; --bar-music: #4f46e5;
+    --glow-1: rgba(64, 118, 255, .13); --glow-2: rgba(168, 85, 247, .11);
+    --glow-3: rgba(255, 140, 70, .10);
+    --grad-brand: linear-gradient(120deg, #2f5fe0 0%, #7c3aed 50%, #c2410c 100%);
+    --grad-accent: linear-gradient(120deg, #ea580c, #c2410c);
+    --glow-accent: rgba(234, 88, 12, .30);
+    --shadow-1: 0 10px 30px rgba(23, 32, 48, .10);
+    --shadow-2: 0 18px 50px rgba(23, 32, 48, .16);
+    --radius: 16px;
   }}
   @media (prefers-color-scheme: dark) {{
     :root:not([data-theme="light"]) {{
-      --bg: #0e1216; --surface: #161c22; --surface-2: #1b232a;
-      --ink: #e3e8ee; --ink-2: #b9c3cd; --muted: #8894a2;
-      --line: #29333d; --line-soft: #202932;
-      --accent: #de8a4c;
-      --critical: #ef7565; --high: #ddb24f; --medium: #7f97a8; --low: #6d7883;
-      --ok: #59bc88; --ok-tint: #12251c; --warn: #ddb24f;
-      --bar-agentic: #fb923c; --bar-coding: #60a5fa; --bar-terminal: #a78bfa;
-      --bar-computer: #22d3ee; --bar-concurrency: #fbbf24; --bar-longctx: #fde047;
-      --bar-image: #f472b6; --bar-video: #e879f9; --bar-voice: #2dd4bf;
-      --bar-narration: #fb7185; --bar-music: #818cf8;
+      --bg: #05070c; --surface: rgba(255, 255, 255, .038); --surface-2: rgba(255, 255, 255, .07);
+      --ink: #e9edf4; --ink-2: #b4bfcd; --muted: #7d8b9d;
+      --line: rgba(255, 255, 255, .10); --line-soft: rgba(255, 255, 255, .05);
+      --accent: #ff9a5c;
+      --critical: #ff7a6b; --high: #e5bb62; --medium: #8aa0b4; --low: #66727f;
+      --ok: #4cd68a; --ok-tint: rgba(76, 214, 138, .10); --warn: #e5bb62;
+      --bar-agentic: #ffa94d; --bar-coding: #6ea8fe; --bar-terminal: #b39dfa;
+      --bar-computer: #38e1f5; --bar-concurrency: #f7c948; --bar-longctx: #f5d95a;
+      --bar-image: #f783bf; --bar-video: #ea86fa; --bar-voice: #3fe0c5;
+      --bar-narration: #ff8fa3; --bar-music: #93a0fb;
+      --glow-1: rgba(47, 123, 255, .17); --glow-2: rgba(198, 86, 255, .12);
+      --glow-3: rgba(255, 140, 70, .10);
+      --grad-brand: linear-gradient(120deg, #5aa2ff 0%, #b57bfa 48%, #ff9a5c 100%);
+      --grad-accent: linear-gradient(120deg, #ff9a5c, #ff6a4d);
+      --glow-accent: rgba(255, 154, 92, .55);
+      --shadow-1: 0 14px 40px rgba(0, 0, 0, .45);
+      --shadow-2: 0 22px 70px rgba(0, 0, 0, .6);
+      --radius: 16px;
     }}
   }}
   :root[data-theme="dark"] {{
-    --bg: #0e1216; --surface: #161c22; --surface-2: #1b232a;
-    --ink: #e3e8ee; --ink-2: #b9c3cd; --muted: #8894a2;
-    --line: #29333d; --line-soft: #202932;
-    --accent: #de8a4c;
-    --critical: #ef7565; --high: #ddb24f; --medium: #7f97a8; --low: #6d7883;
-    --ok: #59bc88; --ok-tint: #12251c; --warn: #ddb24f;
-    --bar-agentic: #fb923c; --bar-coding: #60a5fa; --bar-terminal: #a78bfa;
-    --bar-computer: #22d3ee; --bar-concurrency: #fbbf24; --bar-longctx: #fde047;
-    --bar-image: #f472b6; --bar-video: #e879f9; --bar-voice: #2dd4bf;
-    --bar-narration: #fb7185; --bar-music: #818cf8;
+    --bg: #05070c; --surface: rgba(255, 255, 255, .038); --surface-2: rgba(255, 255, 255, .07);
+    --ink: #e9edf4; --ink-2: #b4bfcd; --muted: #7d8b9d;
+    --line: rgba(255, 255, 255, .10); --line-soft: rgba(255, 255, 255, .05);
+    --accent: #ff9a5c;
+    --critical: #ff7a6b; --high: #e5bb62; --medium: #8aa0b4; --low: #66727f;
+    --ok: #4cd68a; --ok-tint: rgba(76, 214, 138, .10); --warn: #e5bb62;
+    --bar-agentic: #ffa94d; --bar-coding: #6ea8fe; --bar-terminal: #b39dfa;
+    --bar-computer: #38e1f5; --bar-concurrency: #f7c948; --bar-longctx: #f5d95a;
+    --bar-image: #f783bf; --bar-video: #ea86fa; --bar-voice: #3fe0c5;
+    --bar-narration: #ff8fa3; --bar-music: #93a0fb;
+    --glow-1: rgba(47, 123, 255, .17); --glow-2: rgba(198, 86, 255, .12);
+    --glow-3: rgba(255, 140, 70, .10);
+    --grad-brand: linear-gradient(120deg, #5aa2ff 0%, #b57bfa 48%, #ff9a5c 100%);
+    --grad-accent: linear-gradient(120deg, #ff9a5c, #ff6a4d);
+    --glow-accent: rgba(255, 154, 92, .55);
+    --shadow-1: 0 14px 40px rgba(0, 0, 0, .45);
+    --shadow-2: 0 22px 70px rgba(0, 0, 0, .6);
+    --radius: 16px;
   }}
   * {{ box-sizing: border-box; }}
   body {{
     margin: 0; background: var(--bg); color: var(--ink);
     font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
     font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+    position: relative; min-height: 100vh; overflow-x: hidden;
   }}
+  /* Ambient aurora: three slow-drifting light fields behind everything.
+     Pure gradients - no assets, no layout impact, disabled for reduced motion. */
+  body::before {{
+    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      radial-gradient(52rem 36rem at 82% -12%, var(--glow-1), transparent 62%),
+      radial-gradient(46rem 34rem at 4% 16%, var(--glow-2), transparent 62%),
+      radial-gradient(58rem 42rem at 52% 112%, var(--glow-3), transparent 62%);
+    animation: aurora-drift 26s ease-in-out infinite alternate;
+  }}
+  @keyframes aurora-drift {{
+    0% {{ transform: translate3d(0, 0, 0) scale(1); }}
+    100% {{ transform: translate3d(-1.5rem, 1.2rem, 0) scale(1.06); }}
+  }}
+  body::after {{
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.4px);
+    background-size: 30px 30px;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 26rem);
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 26rem);
+  }}
+  @media (prefers-color-scheme: light) {{
+    body::before {{
+      background:
+        radial-gradient(52rem 36rem at 82% -12%, rgba(64, 118, 255, .14), transparent 62%),
+        radial-gradient(46rem 34rem at 4% 16%, rgba(168, 85, 247, .11), transparent 62%),
+        radial-gradient(58rem 42rem at 52% 112%, rgba(255, 140, 70, .10), transparent 62%);
+    }}
+    body::after {{ background-image: radial-gradient(rgba(20, 30, 48, .07) 1px, transparent 1.4px); }}
+  }}
+  @media (prefers-reduced-motion: reduce) {{ body::before {{ animation: none; }} }}
   .wrap {{ max-width: 64rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }}
-  .fork-note {{ margin: 0 0 1.4rem; padding: .9rem 1.1rem; border-radius: 8px;
-    background: var(--surface); border: 1px solid var(--line); border-left: 3px solid var(--accent);
-    font-size: .86rem; line-height: 1.55; color: var(--ink-2); max-width: 54rem; }}
+  .fork-note {{ margin: 0 0 1.4rem; padding: .9rem 1.1rem .9rem 1.2rem; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--line);
+    font-size: .86rem; line-height: 1.55; color: var(--ink-2); max-width: 54rem;
+    position: relative; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }}
+  .fork-note::before {{ content: ""; position: absolute; left: 0; top: .6rem; bottom: .6rem;
+    width: 3px; border-radius: 3px; background: var(--grad-accent); }}
   .fork-note strong {{ color: var(--ink); font-weight: 600; }}
-  header {{ display: flex; flex-direction: column; gap: .5rem; margin-bottom: 2rem; }}
-  h1 {{ font-size: clamp(1.7rem, 4vw, 2.3rem); font-weight: 700; margin: 0;
-    letter-spacing: -.02em; text-wrap: balance; }}
+  /* Hero band: the title carries the one gradient element on the page - the
+     brand read - and a status line under it turns the data counts into a
+     vitals readout instead of burying them in the footer. */
+  header {{ display: flex; flex-direction: column; gap: .7rem; margin-bottom: 2rem;
+    position: relative; padding-top: .4rem; }}
+  .hero-kicker {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .68rem;
+    letter-spacing: .34em; text-transform: uppercase; color: var(--muted); font-weight: 600; }}
+  h1 {{ font-size: clamp(2.1rem, 5.4vw, 3.3rem); font-weight: 700; margin: 0;
+    letter-spacing: -.03em; line-height: 1.05; text-wrap: balance; }}
+  h1 .grad {{ background: var(--grad-brand); -webkit-background-clip: text;
+    background-clip: text; color: transparent;
+    filter: drop-shadow(0 0 18px var(--glow-accent)); }}
+  .hero-sub {{ margin: 0; font-size: .92rem; color: var(--ink-2); max-width: 44rem; }}
+  .hero-stats {{ display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; margin-top: .35rem; }}
+  .hstat {{ display: inline-flex; align-items: baseline; gap: .45rem; }}
+  .hstat strong {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 1.28rem;
+    font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }}
+  .hstat span {{ font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; }}
+  @media (prefers-reduced-motion: reduce) {{ h1 .grad {{ filter: none; }} }}
   html {{ scroll-behavior: smooth; }}
   @media (prefers-reduced-motion: reduce) {{ html {{ scroll-behavior: auto; }} }}
-  .rig {{ background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-    padding: 1.1rem 1.3rem; margin: 0 0 1.25rem; }}
+  .rig {{ background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1.15rem 1.35rem; margin: 0 0 1.25rem; position: relative; overflow: hidden;
+    box-shadow: var(--shadow-1);
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }}
+  .rig::before {{ content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .22), transparent); }}
   .rig select optgroup {{ font-weight: 600; }}
   .rig-controls {{ display: flex; gap: 1.1rem; flex-wrap: wrap; align-items: flex-end; }}
   .rig-f {{ display: flex; flex-direction: column; gap: .28rem; min-width: 0; }}
@@ -616,8 +700,15 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px;
     padding: .4rem .6rem; min-width: 8.5rem; }}
   .rig select:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 1px; }}
-  .rig-out {{ margin: .9rem 0 0; font-size: .87rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }}
+  .rig-out {{ margin: .9rem 0 0; font-size: .87rem; color: var(--ink-2); font-variant-numeric: tabular-nums;
+    transition: opacity .18s ease, transform .18s ease; }}
   .rig-out strong {{ color: var(--ink); font-weight: 600; }}
+  /* The pooled figure re-renders on every picker change; a quick fade makes the
+     recompute visible without distracting. */
+  .rig-out.pulse {{ opacity: .25; transform: translateY(1px); }}
+  .rig select.chip-glow {{ box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
+    transition: box-shadow .3s ease; }}
+  @media (prefers-reduced-motion: reduce) {{ .rig-out.pulse {{ transition: none; }} }}
   .rig-warn {{ margin: .5rem 0 0; font-size: .8rem; color: var(--critical);
     border-left: 2px solid var(--critical); padding-left: .6rem; }}
   .ix-status.v-toolarge {{ color: var(--low); border-color: var(--line); }}
@@ -722,7 +813,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .uc-fold[open] > summary::after {{ transform: rotate(90deg); }}
   .uc-fold > summary:hover {{ color: var(--ink-2); }}
   .uc-fold .uc-why {{ margin-top: .45rem; }}
-  .ix-row.uc-best {{ background: var(--ok-tint); box-shadow: inset 3px 0 0 0 var(--ok); }}
+  .ix-row.uc-best {{ background: var(--ok-tint); box-shadow: inset 3px 0 0 0 var(--ok),
+    0 0 30px -10px color-mix(in srgb, var(--ok) 55%, transparent); }}
   .ix-row.uc-best:hover, .ix-row.uc-best:focus-visible {{ background: var(--ok-tint); }}
   .ix-row.uc-best .ix-name::after {{ content: "best here"; margin-left: .5rem;
     font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .58rem; letter-spacing: .08em;
@@ -730,12 +822,16 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     border-radius: 3px; padding: .1em .3em; vertical-align: .1em; }}
   .ix-row.uc-out-of-scope {{ opacity: .5; }}
   .ix-rows {{ display: flex; flex-direction: column; gap: 1px; background: var(--line);
-    border: 1px solid var(--line); border-radius: 9px; overflow: hidden; }}
+    border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+    box-shadow: var(--shadow-1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }}
   .ix-row {{ display: grid; grid-template-columns: minmax(7rem, 1.5fr) 10.5rem minmax(5rem, .7fr) 5.5rem minmax(6rem, .95fr);
-    align-items: center; gap: .9rem; padding: .62rem 1rem; background: var(--surface);
+    align-items: center; gap: .9rem; padding: .66rem 1.05rem; background: var(--surface);
     text-decoration: none; color: inherit; border-left: 3px solid var(--medium);
-    transition: background .12s ease; }}
-  .ix-row:hover, .ix-row:focus-visible {{ background: var(--surface-2); }}
+    transition: background .15s ease, transform .15s ease, box-shadow .2s ease; }}
+  .ix-row:hover, .ix-row:focus-visible {{ background: var(--surface-2); transform: translateX(3px); }}
+  .ix-row.v-ready:hover {{ box-shadow: inset 0 0 26px -16px var(--ok); }}
+  .ix-row.v-degraded:hover {{ box-shadow: inset 0 0 26px -16px var(--warn); }}
+  .ix-row.v-blocked:hover {{ box-shadow: inset 0 0 26px -16px var(--critical); }}
   .ix-row.v-ready {{ border-left-color: var(--ok); }}
   .ix-row.v-degraded {{ border-left-color: var(--warn); }}
   .ix-row.v-blocked {{ border-left-color: var(--critical); }}
@@ -752,12 +848,12 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
      for a job the model is not ranked in stays an empty track. */
   .ix-bars {{ display: none; position: relative; }}
   .ix-row.j1 .ix-bars, .ix-row.multi .ix-bars {{ display: flex; flex-direction: column; gap: 2px; }}
-  .ix-lane {{ display: none; position: relative; height: 6px;
+  .ix-lane {{ display: none; position: relative; height: 5px;
     background: var(--line-soft); border-radius: 3px; overflow: hidden; }}
   .ix-lane.on {{ display: block; }}
   .ix-lane > i {{ position: absolute; left: 0; top: 0; bottom: 0; width: 0;
-    border-radius: 3px; transition: width .18s ease; }}
-  .ix-lane-avg > i {{ background: var(--ok); }}
+    border-radius: 3px; transition: width .45s cubic-bezier(.2, .7, .3, 1); }}
+  .ix-lane-avg > i {{ background: var(--ok); box-shadow: 0 0 8px var(--ok); }}
   .uc-slot-agentic > i {{ background: var(--bar-agentic); }}
   .uc-slot-coding > i {{ background: var(--bar-coding); }}
   .uc-slot-terminal > i {{ background: var(--bar-terminal); }}
@@ -769,6 +865,19 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .uc-slot-voice > i {{ background: var(--bar-voice); }}
   .uc-slot-narration > i {{ background: var(--bar-narration); }}
   .uc-slot-music > i {{ background: var(--bar-music); }}
+  /* Glowing lane fills: each job's bar carries a faint bloom of its own colour,
+     so a combined pick reads as light, not paint. */
+  .ix-lane.uc-slot-agentic > i {{ background: var(--bar-agentic); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-agentic) 70%, transparent); }}
+  .ix-lane.uc-slot-coding > i {{ background: var(--bar-coding); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-coding) 70%, transparent); }}
+  .ix-lane.uc-slot-terminal > i {{ background: var(--bar-terminal); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-terminal) 70%, transparent); }}
+  .ix-lane.uc-slot-computer > i {{ background: var(--bar-computer); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-computer) 70%, transparent); }}
+  .ix-lane.uc-slot-concurrency > i {{ background: var(--bar-concurrency); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-concurrency) 70%, transparent); }}
+  .ix-lane.uc-slot-longctx > i {{ background: var(--bar-longctx); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-longctx) 70%, transparent); }}
+  .ix-lane.uc-slot-image > i {{ background: var(--bar-image); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-image) 70%, transparent); }}
+  .ix-lane.uc-slot-video > i {{ background: var(--bar-video); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-video) 70%, transparent); }}
+  .ix-lane.uc-slot-voice > i {{ background: var(--bar-voice); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-voice) 70%, transparent); }}
+  .ix-lane.uc-slot-narration > i {{ background: var(--bar-narration); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-narration) 70%, transparent); }}
+  .ix-lane.uc-slot-music > i {{ background: var(--bar-music); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-music) 70%, transparent); }}
   /* no comparable figure on the leader's scale */
   .ix-row.no-bar .ix-name em::after {{ content: "\\2020"; margin-left: .3rem;
     font-size: .8em; color: var(--muted); vertical-align: super; line-height: 0; }}
@@ -800,7 +909,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .model {{ margin-bottom: 2.5rem; scroll-margin-top: 1rem; }}
   .nofit-row {{ scroll-margin-top: 1rem; }}
   .model-head {{ background: var(--surface); border: 1px solid var(--line);
-    border-top: 3px solid var(--medium); border-radius: 10px 10px 0 0; padding: 1.35rem 1.5rem 1.15rem; }}
+    border-top: 3px solid var(--medium); border-radius: 18px 18px 0 0; padding: 1.5rem 1.6rem 1.2rem;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); position: relative; }}
   .model.v-degraded .model-head {{ border-top-color: var(--warn); }}
   .model.v-blocked .model-head {{ border-top-color: var(--critical); }}
   .model.v-unknown .model-head {{ border-top-color: var(--low); }}
@@ -905,7 +1015,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
      ragged rows horizontally; as a list they stay scannable and there is room
      for the status text beside each name. */
   .eng {{ margin-top: 1px; display: grid; grid-template-columns: 13.5rem 1fr;
-    gap: 1px; background: var(--line); border: 1px solid var(--line); }}
+    gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 0 0 16px 16px;
+    overflow: hidden; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }}
   .eng-tabs {{ display: flex; flex-direction: column; background: var(--surface-2);
     align-content: start; }}
   .eng-panes {{ background: var(--surface); min-width: 0; }}
@@ -1034,8 +1145,10 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   @media (max-width: 640px) {{
     .eng-tab {{ flex: 1 1 100%; }}
   }}
-  .panel {{ background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
-    padding: 1.4rem 1.5rem; margin-bottom: 1rem; }}
+  .panel {{ background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 1.4rem 1.5rem; margin-bottom: 1rem;
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-1); }}
   .panel h2 {{ font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
     margin: 0 0 1rem; font-weight: 600; font-family: "IBM Plex Mono", ui-monospace, monospace; }}
   .panel > ul {{ margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .55rem; }}
@@ -1053,7 +1166,9 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     font-weight: 600; margin: 1.2rem 0 .6rem; }}
   .news-list {{ list-style: none; margin: 0; padding: 0; display: flex;
     flex-direction: column; gap: .85rem; }}
-  .news-item {{ border-left: 2px solid var(--line); padding-left: .85rem; }}
+  .news-item {{ border-left: 2px solid var(--line); padding-left: .85rem;
+    transition: border-color .15s ease, transform .15s ease; }}
+  .news-item:hover {{ border-left-color: var(--accent); transform: translateX(2px); }}
   .news-item h4 {{ margin: 0 0 .18rem; font-size: .95rem; font-weight: 600; line-height: 1.3; }}
   .news-item h4 a {{ color: var(--ink); text-decoration: none; }}
   .news-item h4 a:hover {{ color: var(--accent); text-decoration: underline; }}
@@ -1083,6 +1198,14 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .disclaimer strong {{ color: var(--ink); font-weight: 600; }}
   footer {{ margin-top: 1.25rem; padding-top: 1.2rem; border-top: 1px solid var(--line);
     font-size: .82rem; color: var(--muted); }}
+  footer .live-dot {{ display: inline-block; width: .5rem; height: .5rem; border-radius: 50%;
+    background: var(--ok); margin-right: .4rem; vertical-align: .08em;
+    box-shadow: 0 0 8px var(--ok); animation: live-pulse 2.6s ease-in-out infinite; }}
+  @keyframes live-pulse {{
+    0%, 100% {{ opacity: 1; }}
+    50% {{ opacity: .35; }}
+  }}
+  @media (prefers-reduced-motion: reduce) {{ footer .live-dot {{ animation: none; }} }}
   [hidden] {{ display: none !important; }}
   a {{ color: var(--accent); }}
   :focus-visible {{ outline: 2px solid var(--accent); outline-offset: 2px; }}
@@ -1103,7 +1226,17 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-2.98-.88-2.98-2.9 0-.83.3-1.51.79-2.04-.08-.2-.35-1 .08-2.07 0 0 .65-.2 2.13.79a7.2 7.2 0 0 1 1.94-.26c.66 0 1.32.09 1.94.26 1.48-1 2.13-.79 2.13-.79.43 1.07.16 1.87.08 2.07.49.53.79 1.21.79 2.04 0 2.03-1.21 2.7-2.99 2.9.31.27.58.79.58 1.6 0 1.15-.01 2.09-.01 2.38 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
       <span>Open source</span>
     </a>
-    <h1>Apple LLM Performance Tracker</h1>
+    <span class="hero-kicker">Can your Mac run it</span>
+    <h1>Apple LLM <span class="grad">Performance Tracker</span></h1>
+    <p class="hero-sub">Open-weight models and the Apple silicon that actually runs them -
+    every build measured, every engine tabbed, fit computed live for your cluster.</p>
+    <div class="hero-stats" data-stats="{stats}">
+      <span class="hstat"><strong>0</strong><span>models</span></span>
+      <span class="hstat"><strong>0</strong><span>engines</span></span>
+      <span class="hstat"><strong>0</strong><span>use cases</span></span>
+      <span class="hstat"><strong>0</strong><span>tracked issues</span></span>
+      <span class="hstat"><strong>0</strong><span>open now</span></span>
+    </div>
   </header>
 
   <form class="rig" id="rig" aria-label="Cluster configuration">
@@ -1184,6 +1317,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   </p>
 
   <footer>
+    <span class="live-dot" aria-hidden="true"></span>
     Polled twice daily against the GitHub API across llama.cpp, Ollama, LM Studio, oMLX, vllm-mlx, mlx-lm and ds4;
     state changes only &mdash; open&rarr;closed, merged, new release tag.
   </footer>
@@ -1325,6 +1459,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       fmt(g * n) + " pooled, about " + fmt(cluster) + " usable after the wired-memory limit. " +
       "Per-machine bandwidth " + (M.bw >= 1000 ? (M.bw / 1000).toFixed(1) + " TB/s" : M.bw + " GB/s") + "." +
       (n > 1 ? " Uses " + M.tb + " with " + M.link + " Gb/s connection speed." : "");
+    out.classList.add("pulse");
+    setTimeout(function () {{ out.classList.remove("pulse"); }}, 450);
 
     if (n > 1 && !M.tb5) {{
       warn.hidden = false;
@@ -1934,7 +2070,13 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   chipSel.value = chip;
   fillMem(mem);
   nSel.value = n;
-  chipSel.addEventListener("change", function () {{ chip = chipSel.value; fillMem(parseInt(memSel.value, 10)); apply(); }});
+  chipSel.addEventListener("change", function () {{
+    chip = chipSel.value;
+    fillMem(parseInt(memSel.value, 10));
+    chipSel.classList.add("chip-glow");
+    setTimeout(function () {{ chipSel.classList.remove("chip-glow"); }}, 700);
+    apply();
+  }});
   memSel.addEventListener("change", apply);
   nSel.addEventListener("change", apply);
   apply();
@@ -1964,6 +2106,38 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         }});
       }});
     }});
+  }})();
+</script>
+
+<script data-newblock="2">
+  (function () {{
+    // Count the hero vitals up from zero once, so the opening numbers feel
+    // read, not stamped. Honours reduced motion by jumping straight to the
+    // value. The counts ride in a pipe-delimited data attribute because the
+    // page is otherwise server-rendered with no global object.
+    var el = document.querySelector(".hero-stats[data-stats]");
+    if (!el) return;
+    var parts = el.getAttribute("data-stats").split("|");
+    var cells = el.querySelectorAll(".hstat strong");
+    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce || cells.length !== parts.length) {{
+      for (var i = 0; i < parts.length; i++) {{
+        if (cells[i]) cells[i].textContent = parts[i];
+      }}
+      return;
+    }}
+    var DUR = 900, t0 = null;
+    function tick(ts) {{
+      if (t0 === null) t0 = ts;
+      var p = Math.min(1, (ts - t0) / DUR);
+      var e = 1 - Math.pow(1 - p, 3);   // ease-out cubic
+      for (var i = 0; i < parts.length; i++) {{
+        cells[i].textContent = Math.round(parts[i] * e);
+      }}
+      if (p < 1) requestAnimationFrame(tick);
+      else for (var j = 0; j < parts.length; j++) cells[j].textContent = parts[j];
+    }}
+    requestAnimationFrame(tick);
   }})();
 </script>
 """
