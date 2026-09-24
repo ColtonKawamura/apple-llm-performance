@@ -45,8 +45,8 @@ exactly one entry in it, and the file is the only data the build reads:
 ```
 data/
   data.json             THE data. Every record: models, engines, use cases,
-                        issue trackers, prKeys, and a _meta header.
-                        JSON, no Python, no dependencies.
+                        issue trackers, the news rollups, prKeys, and a _meta
+                        header. JSON, no Python, no dependencies.
 
 tracker/
   registry.py           loads data.json and assembles it. The only file that knows
@@ -57,6 +57,7 @@ tracker/
   build.py              renders docs/index.html
   measure.py            re-measures one model's quant ladder from Hugging Face
   probe.py              re-polls tracked issue states from GitHub
+  collect_news.py       gathers the daily community rollup into the `news` section
   watch-state.txt       last polled state of every tracked issue
   watch.sh              local twice-daily watch loop
 
@@ -76,6 +77,7 @@ The conflict-surface table is now about *entries*, not files:
 | Add a model | one entry in `data.json` `models`, and one line in one `useCases` `RANK` per category it belongs to |
 | Correct a model's figure or prose | that model's entry only |
 | Add or update a tracked issue | the matching `issues` entry only |
+| Refresh the daily news rollup | the `news` section only, via `tracker/collect_news.py` (or one hand-written entry) |
 | Add an engine | one entry in `data.json` `engines`, plus one cell in each model entry it can load |
 | Change the UI | `tracker/render_status.py` only |
 | Change the schema | `tracker/registry.py` **and** `tracker/validate.py`, in a commit of their own |
@@ -140,6 +142,32 @@ keys are strings; the registry coerces them to ints):
 ```
 
 **`prKeys`** — issue keys that are pull requests, so links go to `/pull/`.
+
+**`news`** — the daily community rollup the page's News section renders.
+A list of rollups, newest first; the renderer shows only the first one, and
+`tracker/collect_news.py` keeps at most a week of history so a dated second
+copy never reads as stale. Each rollup is one day:
+
+```json
+{"date": "2026-09-24",
+ "top": [["story title", "one-paragraph summary", "https://…"], "…"],
+ "newModels": [["model name", "what it is, what it costs", "https://…"], "…"]}
+```
+
+- `top` is the three most important Apple-silicon model stories of the day;
+  it is always non-empty.
+- `newModels` is the list of new language models for Apple silicon that
+  shipped in the last day, each with a summary and a link; it may be an
+  empty list on a quiet day, and the page then says so.
+- Every row is `[title, summary, url]`. The summary is the point: a reader
+  should learn what happened without opening the link. A bare title is not a
+  summary, and `validate.py` refuses an empty one.
+
+The rollup is curated, not derived — it is the one section an agent writes
+with judgement, using the discovery sources in section 2. Refresh it with
+`tracker/collect_news.py` (fetches the feeds, ranks the raw signal, and takes
+the finished rollup from a JSON file) or hand one entry into the section. One
+rollup per day; a second entry for the same date replaces the first.
 
 **`_meta`** — `schema_version` and a note. Bump the version only in a commit
 of its own together with the `registry.py`/`validate.py` change, and say in the
@@ -600,6 +628,9 @@ checked against `data/data.json`:
 - issue severities are `critical` / `high` / `medium` / `low`, issue numbers are
   positive, and every issue has a stated consequence
 - `prKeys` only lists keys that exist
+- the `news` rollups carry a `date` of `YYYY-MM-DD` (one per day, newest
+  first), a non-empty `top` list, and `[title, summary, url]` rows with a
+  non-empty summary and an http(s) url in `top` and `newModels`
 - `tracker/watch-state.txt` still covers the tracked issues
 
 Warnings, which do not fail the build: a very short note, a missing ladder for a

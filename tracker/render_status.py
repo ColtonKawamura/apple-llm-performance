@@ -7,7 +7,7 @@ import os, re, html, hashlib, json
 from registry import (ENGINES, ENGINE_BY_ID, EMETA, MATRIX, BEST, engine_order,
                       repo_label, CROSS_BY_ENGINE, RELEASE_FEEDS, FAM,
                       LADDERS, KV, PARAMS, USE_CASES, MODELS, modality, SCLASS,
-                      ENGINE_PROSE_LINKS, PR_KEYS)
+                      ENGINE_PROSE_LINKS, PR_KEYS, NEWS)
 from bands import BANDS, FAM_OVERRIDE, FIDELITY_NOTES
 
 
@@ -404,6 +404,52 @@ def release_rows(releases):
     return "".join(out)
 
 
+def _news_item(title, summary, url):
+    return f"""
+        <li class="news-item">
+          <h4><a class="ref" href="{html.escape(url, quote=True)}" target="_blank" rel="noopener">{html.escape(title)}</a></h4>
+          <p>{html.escape(summary)}</p>
+        </li>"""
+
+
+def _news_sublist(rows, empty):
+    if rows:
+        return f"""<ul class="news-list">{"".join(rows)}</ul>"""
+    return f"""<p class="news-empty">{html.escape(empty)}</p>"""
+
+
+def news_panel():
+    """The daily community snapshot.
+
+    Rendered from the newest rollup in data/data.json (the `news` section,
+    written by tracker/collect_news.py). One file, one rollup at a time - the
+    reader gets today's picture without opening Reddit or a lab blog, and the
+    date in the corner says how fresh the picture is.
+    """
+    if not NEWS:
+        return ""
+    n = NEWS[0]
+    date = n.get("date", "")
+    top = n.get("top") or []
+    top_html = "".join(_news_item(t, s, u) for t, s, u in top)
+    new = n.get("newModels", []) or []
+    new_html = _news_sublist(
+        [_news_item(t, s, u) for t, s, u in new],
+        "Nothing new shipped in the last day. The rollup re-checks on the next update.")
+    return f"""
+  <div class="panel" id="news">
+    <h2>News <span class="news-date">rollup of {html.escape(date)}</span></h2>
+    <p class="panel-lead">A daily snapshot of the local-model community - what shipped, what
+    broke, what is moving on Apple silicon - gathered from r/LocalLLaMA, Hugging Face
+    trending, the lab blogs and the engine release feeds, and summarised here so the
+    picture is readable without the source. Every line links to the story it came from.</p>
+    <h3 class="news-h">Top stories</h3>
+    <ul class="news-list">{top_html}</ul>
+    <h3 class="news-h">New language models for Apple silicon</h3>
+    {new_html}
+  </div>"""
+
+
 def render_items(keys, rows):
     present = [k for k in keys if k in META]
     present.sort(key=lambda k: (SEV_ORDER.get(META[k][0], 9), k))
@@ -472,7 +518,7 @@ def render():
 
     doc = TEMPLATE.format(usecases=usecases, bands=bands,
                           cards="".join(cards), index=index_rows(rows),
-                          cross=cross_tabs(rows, releases))
+                          cross=cross_tabs(rows, releases), news=news_panel())
     return doc.replace("/apple-llm-performance/card.jpg",
                        "/apple-llm-performance/" + card_name())
 
@@ -995,6 +1041,24 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   .panel > ul {{ margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .55rem; }}
   .panel > ul > li {{ font-size: .89rem; color: var(--ink-2); }}
   .panel strong {{ color: var(--ink); font-weight: 600; }}
+
+  /* News - the daily community rollup under the model list. Plain text with a
+     link per story; the h2 carries the rollup date, not a control. */
+  #news {{ margin-top: 1rem; }}
+  #news h2 {{ display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }}
+  .news-date {{ font-size: .72rem; letter-spacing: 0; text-transform: none; font-weight: 400;
+    color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; }}
+  .news-h {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .72rem;
+    letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2);
+    font-weight: 600; margin: 1.2rem 0 .6rem; }}
+  .news-list {{ list-style: none; margin: 0; padding: 0; display: flex;
+    flex-direction: column; gap: .85rem; }}
+  .news-item {{ border-left: 2px solid var(--line); padding-left: .85rem; }}
+  .news-item h4 {{ margin: 0 0 .18rem; font-size: .95rem; font-weight: 600; line-height: 1.3; }}
+  .news-item h4 a {{ color: var(--ink); text-decoration: none; }}
+  .news-item h4 a:hover {{ color: var(--accent); text-decoration: underline; }}
+  .news-item p {{ margin: 0; font-size: .87rem; color: var(--ink-2); line-height: 1.45; }}
+  .news-empty {{ font-size: .87rem; color: var(--muted); margin: 0; }}
   .nofit {{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .9rem; }}
   .nofit-row {{ border-left: 2px solid var(--line); padding-left: .9rem; }}
   .nofit-head {{ display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; }}
@@ -1070,6 +1134,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     <div class="ix-rows">{index}
     </div>
   </nav>
+
+  {news}
 
   <div class="detail" id="detail" hidden>
     <button type="button" class="back" id="back">

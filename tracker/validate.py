@@ -280,6 +280,52 @@ def check_issues(d):
                 err(at, "missing 'why'; an issue with no consequence stated is noise")
 
 
+# --------------------------------------------------------------------- news
+def check_news(d):
+    items = d.get("news")
+    if items is None:
+        return
+    if not isinstance(items, list):
+        err("news", "must be a list of rollups, newest first")
+        return
+    for i, n in enumerate(items):
+        w = f"news[{i}]"
+        date = n.get("date", "")
+        if not isinstance(date, str) or not re.match(r"^\d{4}-\d{2}-\d{2}$", date):
+            err(w, f"date {date!r} must be YYYY-MM-DD")
+        elif i and date == items[i - 1].get("date"):
+            err(w, "same date as the newer rollup; one rollup per day")
+        if not isinstance(n.get("top", []), list) or not n["top"]:
+            err(w, "top must be a non-empty list of [title, summary, url]")
+        for j, row in enumerate(n.get("top", [])):
+            if not isinstance(row, list) or len(row) != 3:
+                err(f"{w}.top[{j}]", f"must be [title, summary, url]; got {row!r}")
+                continue
+            title, summary, url = row
+            if not str(title).strip():
+                err(f"{w}.top[{j}]", "empty title")
+            if not str(summary).strip():
+                err(f"{w}.top[{j}]", "empty summary; the point of the rollup is to read it without the site")
+            if not str(url).startswith("http"):
+                err(f"{w}.top[{j}]", f"url {url!r} must be an http(s) link")
+        new_models = n.get("newModels", [])
+        if new_models is not None:
+            if not isinstance(new_models, list):
+                err(w, "newModels must be a list (empty list when nothing shipped)")
+            else:
+                for j, row in enumerate(new_models):
+                    if not isinstance(row, list) or len(row) != 3:
+                        err(f"{w}.newModels[{j}]", f"must be [title, summary, url]; got {row!r}")
+                        continue
+                    title, summary, url = row
+                    if not str(title).strip():
+                        err(f"{w}.newModels[{j}]", "empty title")
+                    if not str(summary).strip():
+                        err(f"{w}.newModels[{j}]", "empty summary; a new model with no summary does not tell a reader what it is")
+                    if not str(url).startswith("http"):
+                        err(f"{w}.newModels[{j}]", f"url {url!r} must be an http(s) link")
+
+
 # ------------------------------------------------------------------- global
 def check_global(d):
     cited = set()
@@ -383,6 +429,7 @@ def main():
     check_models(d)
     check_use_cases(d)
     check_issues(d)
+    check_news(d)
     check_global(d)
     check_no_shadowing()
     check_watch_state()

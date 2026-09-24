@@ -6457,5 +6457,44 @@
     "waybarrios/vllm-mlx#729",
     "waybarrios/vllm-mlx#731",
     "waybarrios/vllm-mlx#732"
+  ],
+  "news": [
+    {
+      "date": "2026-09-24",
+      "top": [
+        [
+          "r/LocalLLaMA: \"Qwen-3.8-27B is good enough that I stopped using API\"",
+          "The day's top post on the subreddit is a Qwen3.8-27B conversion story - a 27.8B hybrid Gated DeltaNet with 64 KiB of KV per token, so a full 262k context costs about 16 GB of KV instead of a terabyte. The model has 6.7M downloads and 16k likes, SWE-bench Pro of 61.7 and LiveCodeBench-v6 of 90.3, an MLX 4-bit at 16 GB and a GGUF ladder that reaches 6.2 GB. It is already ranked on this page under #qwen38.",
+          "https://www.reddit.com/r/LocalLLaMA/comments/1wp0z3i/qwen3827b_is_good_enough_that_i_stopped_using_api/"
+        ],
+        [
+          "Bonsai 2 27B: a ternary Qwen3.8-27B that runs at ~47 tok/s on an M5 Max laptop",
+          "The hottest repo on Hugging Face trending with ~3M downloads. Prism ML's ternary (2-value) retraining of Qwen3.8-27B puts the whole language model in ~5.9 GB - 9.3x smaller than FP16 - and reports 98.2% of FP16 intelligence across 14 thinking-mode benchmarks, with ~47 tok/s on an Apple M5 Max laptop. Apache-2.0, GGUF, tagged for Metal. If it holds up, 27B-class reasoning moves from a 16 GB build to a 6 GB one.",
+          "https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf"
+        ],
+        [
+          "Xing4.0-29B-A4B: China Telecom's new MoE ships with 256K context",
+          "XingChen (formerly TeleChat) published Xing4.0-29B-A4B this week: 29B total parameters with 4B active per token, mHC + MLA + MTP, 256K native context extensible to 512K, Apache-2.0. It is the first model of its scale trained entirely on Ascend NPUs, and it lands with 41k+ downloads. No MLX or llama.cpp support is announced yet, which is the gap to watch - the architecture is familiar enough that a port is plausible.",
+          "https://huggingface.co/XingChen-AGI/Xing4.0-29B-A4B"
+        ]
+      ],
+      "newModels": [
+        [
+          "Bonsai 2 27B (ternary)",
+          "A ternary retraining of Qwen3.8-27B, not a standard quant: weights are 2-value rather than 4-bit, and the checkpoint is ~5.9 GB with 98.2% of FP16 benchmark performance and ~47 tok/s reported on an M5 Max. Published 2026-09-16, Apache-2.0, GGUF for llama.cpp (Metal tagged).",
+          "https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf"
+        ],
+        [
+          "Xing4.0-29B-A4B",
+          "New 29B-total/4B-active MoE from China Telecom's Xing series, 256K context (to 512K), agent-oriented architecture (mHC + MLA + MTP), Apache-2.0. Published 2026-09-16; no Apple-silicon runtime announced yet - transformers/vLLM/SGLang/KTransformers formats.",
+          "https://huggingface.co/XingChen-AGI/Xing4.0-29B-A4B"
+        ],
+        [
+          "Hemmingway-1",
+          "A 27B creative-writing fine-tune of Qwen3.8-27B from Altworld, pitched at writing that reads like a person. Published 2026-09-20 with Mac and Android apps; licence is CC-BY-NC-4.0, so it is open weights, non-commercial - which is why it is news here rather than a ranked model.",
+          "https://huggingface.co/Altworld/Hemmingway-1"
+        ]
+      ]
+    }
   ]
 }

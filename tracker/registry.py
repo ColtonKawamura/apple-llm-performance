@@ -49,6 +49,12 @@ ENGINE_MODULES = _records("engines")
 USE_CASE_MODULES = _records("useCases")
 ISSUE_MODULES = _records("issues")
 
+# NEWS is the one section that is not a record a machine can re-derive: it is
+# a human-curated daily rollup written into data/data.json by tracker/collect_news.py.
+# Newest rollup first, and only the first one renders - the page is a snapshot,
+# and a dated second copy would read as stale the moment a newer one lands.
+NEWS = list(_D.get("news") or [])
+
 # ISSUE_MODULES are the two-level records {"repo", "issues"}; the validators
 # access .REPO / .ISSUES, so expose them as attributes too.
 for _m in ISSUE_MODULES:
