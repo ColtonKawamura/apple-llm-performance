@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate everything under data/. Run by CI on every push and pull request.
+"""Validate data/data.json, the single file the whole page renders from.
 
     python3 tracker/validate.py
 
@@ -11,24 +11,36 @@ This is the contract an agent has to satisfy. If a rule here feels wrong, change
 the rule in a separate commit from the data, so a reviewer can see which of the
 two moved.
 """
+import json
 import os
 import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
 
 import registry as R  # noqa: E402
+from registry import DATA_FILE  # noqa: E402
 
 ERRORS = []
 WARNINGS = []
 
-ALIAS_OWNER = {}
 SEVERITIES = {"critical", "high", "medium", "low"}
 KINDS = {"quant", "pruned", "native"}
 ID_RE = re.compile(r"^[a-z][a-z0-9]*$")
 ISSUE_RE = re.compile(r"^[\w.-]+/[\w.-]+#\d+$")
+FIDELITY_BANDS = {"full", "mild", "low", "unusable"}
+
+# Every attribute a record must carry, by section. Adding a required field to
+# the page is a two-line change here and in registry.py, and this list is the
+# single place that states it.
+MODEL_FIELDS = ["ID", "MODALITY", "NAME", "ARCH", "LICENSE", "CONTEXT", "HF",
+                "NOTE", "SOURCES", "PARAMS_B", "BEST_ENGINE", "ENGINES"]
+ENGINE_FIELDS = ["ID", "NAME", "MODALITIES", "FORMAT", "INTERFACE", "API",
+                 "LICENSE", "SITE", "PROSE_ALIASES", "WHAT",
+                 "DISPLAY_ORDER", "QUANT_FAMILY"]
+USECASE_FIELDS = ["ID", "LABEL", "MODALITY", "FIDELITY_GATE", "AXIS",
+                  "RANK", "DISPLAY_ORDER"]
 
 
 def err(where, msg):
@@ -39,93 +51,110 @@ def warn(where, msg):
     WARNINGS.append(f"{where}: {msg}")
 
 
+def load_data():
+    try:
+        with open(DATA_FILE, encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        err(DATA_FILE, "missing; it is the single source the page renders from")
+        return None
+    except json.JSONDecodeError as e:
+        err(DATA_FILE, f"is not valid JSON: {e}")
+        return None
+
+
+def check_schema_version(d):
+    meta = d.get("_meta") or {}
+    if meta.get("schema_version") != 1:
+        err(DATA_FILE, f"unsupported _meta.schema_version {meta.get('schema_version')!r}; "
+                       "this checkout's tracker/ code speaks version 1")
+
+
 # ------------------------------------------------------------------- engines
-def check_engines():
+def check_engines(d):
     seen_order = {}
-    for m in R.ENGINE_MODULES:
-        w = m.__source_file__
-        if not ID_RE.match(m.ID):
-            err(w, f"ID {m.ID!r} must be lowercase alphanumeric")
-        if os.path.basename(w) != f"{m.ID}.py":
-            err(w, f"filename must match ID ({m.ID}.py)")
-        for mod in m.MODALITIES:
+    alias_owner = {}
+    for m in d.get("engines", []):
+        w = f"engines[{m.get('ID', '?')}]"
+        if not ID_RE.match(m.get("ID", "")):
+            err(w, f"ID {m.get('ID')!r} must be lowercase alphanumeric")
+        for field in ENGINE_FIELDS:
+            if not m.get(field) and field != "ID":
+                err(w, f"missing or empty {field}")
+        for mod in m.get("MODALITIES", []):
             if mod not in R.MODALITIES:
                 err(w, f"unknown modality {mod!r}; expected one of {R.MODALITIES}")
-        if m.QUANT_FAMILY not in {"gguf", "mlx", "ds4"}:
-            err(w, f"unknown QUANT_FAMILY {m.QUANT_FAMILY!r}")
-        order = getattr(m, "DISPLAY_ORDER", None)
+        if m.get("QUANT_FAMILY") not in {"gguf", "mlx", "ds4"}:
+            err(w, f"unknown QUANT_FAMILY {m.get('QUANT_FAMILY')!r}")
+        order = m.get("DISPLAY_ORDER")
         if order is None:
             err(w, "missing DISPLAY_ORDER")
         elif order in seen_order:
             err(w, f"DISPLAY_ORDER {order} already used by {seen_order[order]}")
         else:
-            seen_order[order] = m.ID
-        for field in ("NAME", "FORMAT", "INTERFACE", "API", "LICENSE", "WHAT", "SITE"):
-            if not getattr(m, field, None):
-                err(w, f"missing or empty {field}")
-        if getattr(m, "SITE", "") and not str(m.SITE).startswith("http"):
-            err(w, f"SITE {m.SITE!r} must be a URL; it is linked from the prose")
-        aliases = getattr(m, "PROSE_ALIASES", None)
-        if not aliases:
-            err(w, "PROSE_ALIASES must list the names this engine goes by in the notes")
-        for alias in aliases or []:
+            seen_order[order] = m["ID"]
+        if m.get("SITE") and not str(m["SITE"]).startswith("http"):
+            err(w, f"SITE {m['SITE']!r} must be a URL; it is linked from the prose")
+        for alias in m.get("PROSE_ALIASES", []):
             if not alias or not alias.strip():
                 err(w, "PROSE_ALIASES contains an empty name")
-            elif alias in ALIAS_OWNER and ALIAS_OWNER[alias] != m.ID:
-                err(w, f"alias {alias!r} is also claimed by {ALIAS_OWNER[alias]!r}; "
+            elif alias in alias_owner and alias_owner[alias] != m["ID"]:
+                err(w, f"alias {alias!r} is also claimed by {alias_owner[alias]!r}; "
                        "an ambiguous name would link to the wrong engine")
             else:
-                ALIAS_OWNER[alias] = m.ID
-        if len(getattr(m, "WHAT", "")) < 80:
+                alias_owner[alias] = m["ID"]
+        if len(m.get("WHAT", "")) < 80:
             warn(w, "WHAT is very short; it is the reader's only description of this engine")
-        feed = getattr(m, "RELEASE_FEED", None)
+        feed = m.get("RELEASE_FEED")
         if feed is not None:
             if feed.get("scheme") not in {"release", "semver", "none"}:
                 err(w, f"RELEASE_FEED scheme {feed.get('scheme')!r} must be release/semver/none")
             if feed.get("scheme") != "none" and not feed.get("repo"):
                 err(w, "RELEASE_FEED needs a repo unless scheme is 'none'")
-        for key in getattr(m, "CROSS_ISSUES", []):
+        for key in m.get("CROSS_ISSUES", []):
             if not ISSUE_RE.match(key):
                 err(w, f"malformed issue key {key!r}; expected owner/repo#123")
             elif key not in R.EMETA:
-                err(w, f"CROSS_ISSUES cites {key} which has no entry in data/issues/")
+                err(w, f"CROSS_ISSUES cites {key} which has no entry in the issues section")
 
 
 # -------------------------------------------------------------------- models
-def check_models():
-    for m in R.MODEL_MODULES:
-        w = m.__source_file__
-        if not ID_RE.match(m.ID):
-            err(w, f"ID {m.ID!r} must be lowercase alphanumeric")
-        if os.path.basename(w) != f"{m.ID}.py":
-            err(w, f"filename must match ID ({m.ID}.py)")
-        if m.MODALITY not in R.MODALITIES:
-            err(w, f"unknown MODALITY {m.MODALITY!r}")
-        for field in ("NAME", "ARCH", "LICENSE", "CONTEXT", "HF", "NOTE"):
-            if not getattr(m, field, None):
+def check_models(d):
+    seen_ids = set()
+    for m in d.get("models", []):
+        w = f"models[{m.get('ID', '?')}]"
+        if not ID_RE.match(m.get("ID", "")):
+            err(w, f"ID {m.get('ID')!r} must be lowercase alphanumeric")
+        if m["ID"] in seen_ids:
+            err(w, "duplicate model ID")
+        seen_ids.add(m["ID"])
+        if m.get("MODALITY") not in R.MODALITIES:
+            err(w, f"unknown MODALITY {m.get('MODALITY')!r}")
+        for field in MODEL_FIELDS:
+            if not m.get(field):
                 err(w, f"missing or empty {field}")
-        if getattr(m, "PARAMS_B", None) in (None, 0):
+        if m.get("PARAMS_B") in (None, 0):
             err(w, "PARAMS_B must be the total parameter count in billions")
-        if not getattr(m, "SOURCES", None):
+        if not m.get("SOURCES"):
             err(w, "SOURCES must cite at least one link; every figure needs a provenance")
-        for src in getattr(m, "SOURCES", []):
-            if len(src) != 2 or not str(src[1]).startswith("http"):
-                err(w, f"malformed SOURCES entry {src!r}; expected (label, url)")
-        if len(getattr(m, "NOTE", "")) < 80:
+        for src in m.get("SOURCES", []):
+            if not isinstance(src, list) or len(src) != 2 or not str(src[1]).startswith("http"):
+                err(w, f"malformed SOURCES entry {src!r}; expected [label, url]")
+        if len(m.get("NOTE", "")) < 80:
             warn(w, "NOTE is very short; it is the reason to read the page over a spec sheet")
 
         # engine cells
-        cells = getattr(m, "ENGINES", {})
+        cells = m.get("ENGINES") or {}
         if not cells:
             err(w, "ENGINES is empty; a model with no engine cell renders no tabs")
         for eid, c in cells.items():
-            at = f"{w} [{eid}]"
+            at = f"{w}.ENGINES[{eid}]"
             if eid not in R.ENGINE_BY_ID:
                 err(at, f"unknown engine {eid!r}")
                 continue
             eng = R.ENGINE_BY_ID[eid]
-            if m.MODALITY not in eng["mods"]:
-                err(at, f"engine handles {eng['mods']} but this model is {m.MODALITY!r}")
+            if m.get("MODALITY") not in eng["mods"]:
+                err(at, f"engine handles {eng['mods']} but this model is {m.get('MODALITY')!r}")
             if c.get("status") not in R.STATUSES:
                 err(at, f"status {c.get('status')!r} must be one of {R.STATUSES}")
             if not c.get("label"):
@@ -136,14 +165,14 @@ def check_models():
                 if not ISSUE_RE.match(key):
                     err(at, f"malformed issue key {key!r}")
                 elif key not in R.EMETA:
-                    err(at, f"cites {key} which has no entry in data/issues/")
-        if m.BEST_ENGINE not in cells:
-            err(w, f"BEST_ENGINE {m.BEST_ENGINE!r} has no cell in ENGINES")
-        elif cells[m.BEST_ENGINE].get("status") == "none":
-            err(w, f"BEST_ENGINE {m.BEST_ENGINE!r} is marked out of scope")
+                    err(at, f"cites {key} which has no entry in the issues section")
+        if m.get("BEST_ENGINE") not in cells:
+            err(w, f"BEST_ENGINE {m.get('BEST_ENGINE')!r} has no cell in ENGINES")
+        elif cells.get(m.get("BEST_ENGINE"), {}).get("status") == "none":
+            err(w, f"BEST_ENGINE {m['BEST_ENGINE']!r} is marked out of scope")
 
         # quant ladder
-        lad = getattr(m, "LADDER", {}) or {}
+        lad = m.get("LADDER") or {}
         # only families an in-scope engine would actually load
         fams = {R.FAM[eid] for eid, c in cells.items()
                 if eid in R.FAM and c.get("status") != "none"}
@@ -153,7 +182,7 @@ def check_models():
         for fam, rungs in lad.items():
             last = None
             for r in rungs:
-                at = f"{w} [{fam} {r.get('label','?')}]"
+                at = f"{w}.LADDER[{fam} {r.get('label', '?')}]"
                 if r.get("kind") not in KINDS:
                     err(at, f"kind {r.get('kind')!r} must be one of {sorted(KINDS)}")
                 if not isinstance(r.get("gb"), (int, float)) or r["gb"] <= 0:
@@ -172,11 +201,11 @@ def check_models():
                 last = r["gb"]
 
         # KV geometry
-        kv = getattr(m, "KV", None)
+        kv = m.get("KV")
         if kv is None or set(kv) != {"bytes_per_token", "max_context", "derivation"}:
             err(w, "KV must be {bytes_per_token, max_context, derivation}")
         elif kv["bytes_per_token"] is not None:
-            if m.MODALITY != "text":
+            if m.get("MODALITY") != "text":
                 err(w, "only text models should declare a per-token KV cost")
             if not kv["derivation"]:
                 err(w, "a KV figure needs a derivation saying which layers were counted")
@@ -185,31 +214,30 @@ def check_models():
 
 
 # ----------------------------------------------------------------- use cases
-def check_use_cases():
+def check_use_cases(d):
     seen_order = {}
-    for m in R.USE_CASE_MODULES:
-        w = m.__source_file__
-        if os.path.basename(w) != f"{m.ID}.py":
-            err(w, f"filename must match ID ({m.ID}.py)")
-        if m.MODALITY not in R.MODALITIES:
-            err(w, f"unknown MODALITY {m.MODALITY!r}")
-        if m.FIDELITY_GATE not in {b[1] for b in R.__dict__.get("BANDS", [])} | {"full", "mild", "low", "unusable"}:
-            err(w, f"FIDELITY_GATE {m.FIDELITY_GATE!r} is not a band name")
-        order = getattr(m, "DISPLAY_ORDER", None)
+    for m in d.get("useCases", []):
+        w = f"useCases[{m.get('ID', '?')}]"
+        if not ID_RE.match(m.get("ID", "")):
+            err(w, f"ID {m.get('ID')!r} must be lowercase alphanumeric")
+        for field in USECASE_FIELDS:
+            if not m.get(field):
+                err(w, f"missing or empty {field}")
+        if m.get("MODALITY") not in R.MODALITIES:
+            err(w, f"unknown MODALITY {m.get('MODALITY')!r}")
+        if m.get("FIDELITY_GATE") not in FIDELITY_BANDS:
+            err(w, f"FIDELITY_GATE {m.get('FIDELITY_GATE')!r} is not a band name")
+        order = m.get("DISPLAY_ORDER")
         if order is None:
             err(w, "missing DISPLAY_ORDER")
         elif order in seen_order:
             err(w, f"DISPLAY_ORDER {order} already used by {seen_order[order]}")
         else:
-            seen_order[order] = m.ID
-        if not m.AXIS:
-            err(w, "AXIS must explain how the ranking was decided")
-        if not m.RANK:
-            err(w, "RANK is empty")
+            seen_order[order] = m["ID"]
         seen = set()
-        for entry in m.RANK:
-            if len(entry) != 3:
-                err(w, f"RANK entry {entry!r} must be (model_id, metric, value)")
+        for entry in m.get("RANK", []):
+            if not isinstance(entry, list) or len(entry) != 3:
+                err(w, f"RANK entry {entry!r} must be [model_id, metric, value]")
                 continue
             mid, metric, value = entry
             if mid not in R.MODEL_BY_ID:
@@ -218,22 +246,30 @@ def check_use_cases():
             if mid in seen:
                 err(w, f"RANK lists {mid!r} twice")
             seen.add(mid)
-            if R.MODEL_BY_ID[mid]["mod"] != m.MODALITY:
+            if R.MODEL_BY_ID[mid]["mod"] != m.get("MODALITY"):
                 err(w, f"RANK cites {mid!r} ({R.MODEL_BY_ID[mid]['mod']}) in a "
-                       f"{m.MODALITY} category")
+                       f"{m.get('MODALITY')} category")
             if not metric or not str(value):
                 err(w, f"RANK entry for {mid!r} needs both a metric name and a value")
 
 
 # -------------------------------------------------------------------- issues
-def check_issues():
+def check_issues(d):
+    repos = set()
     for m in R.ISSUE_MODULES:
-        w = m.__source_file__
-        slug = m.REPO.replace("/", "__").replace(".", "_")
-        if os.path.basename(w) != f"{slug}.py":
-            err(w, f"filename must match REPO ({slug}.py)")
-        for num, meta in m.ISSUES.items():
-            at = f"{w} [#{num}]"
+        repo = m.get("repo", "")
+        w = f"issues[{repo}]"
+        if not re.match(r"^[\w.-]+/[\w.-]+$", repo):
+            err(w, f"repo {repo!r} must be owner/name")
+        elif repo in repos:
+            err(w, "two issue trackers for the same repo; merge them into one entry")
+        repos.add(repo)
+        if not m.get("issues"):
+            err(w, "tracks no issues; a tracker with an empty list is dead weight")
+        # ISSUES is the registry's view of the raw JSON: string keys coerced to
+        # ints, which is the form the page and probe.py consume.
+        for num, meta in (m.get("ISSUES") or {}).items():
+            at = f"{w}['{num}']"
             if not isinstance(num, int) or num <= 0:
                 err(at, "issue number must be a positive integer")
             if meta.get("severity") not in SEVERITIES:
@@ -245,7 +281,7 @@ def check_issues():
 
 
 # ------------------------------------------------------------------- global
-def check_global():
+def check_global(d):
     cited = set()
     for mid, cells in R.MATRIX.items():
         for c in cells.values():
@@ -254,11 +290,11 @@ def check_global():
         cited.update(keys)
     orphans = sorted(set(R.EMETA) - cited)
     if orphans:
-        warn("data/issues", f"{len(orphans)} issues are tracked but cited nowhere: "
-                            + ", ".join(orphans[:6]) + ("..." if len(orphans) > 6 else ""))
-    prose_blocks = [m.NOTE for m in R.MODEL_MODULES]
-    prose_blocks += [c["note"] for m in R.MODEL_MODULES for c in m.ENGINES.values()]
-    prose_blocks += [m.WHAT for m in R.ENGINE_MODULES]
+        warn("issues", f"{len(orphans)} issues are tracked but cited nowhere: "
+                       + ", ".join(orphans[:6]) + ("..." if len(orphans) > 6 else ""))
+    prose_blocks = [m["NOTE"] for m in d.get("models", [])]
+    prose_blocks += [c["note"] for m in d.get("models", []) for c in (m.get("ENGINES") or {}).values()]
+    prose_blocks += [m["WHAT"] for m in d.get("engines", [])]
     haystack = "\n".join(prose_blocks)
     for alias, eid, _site in R.ENGINE_PROSE_LINKS:
         # An alias drawn from the engine's own name is legitimate even when no
@@ -267,27 +303,24 @@ def check_global():
         if alias in R.ENGINE_BY_ID[eid]["name"]:
             continue
         if not re.search(rf"(?<![\w.-]){re.escape(alias)}(?![\w-])", haystack):
-            warn(f"data/engines/{eid}.py",
+            warn(f"engines[{eid}]",
                  f"PROSE_ALIASES lists {alias!r}, which is neither this engine's name "
                  "nor used in any note; nothing will ever link")
 
     for key in sorted(R.PR_KEYS):
         if key not in R.EMETA:
-            err("data/pr_keys.py", f"{key} is listed as a PR but has no issue entry")
-    ids = [m.ID for m in R.MODEL_MODULES]
-    if len(ids) != len(set(ids)):
-        err("data/models", "duplicate model IDs")
+            err("prKeys", f"{key} is listed as a PR but has no issue entry")
     for mod in R.MODALITIES:
         if not any(m["mod"] == mod for m in R.MODELS):
-            warn("data/models", f"no models with modality {mod!r}")
+            warn("models", f"no models with modality {mod!r}")
         if not any(u["mod"] == mod for u in R.USE_CASES):
-            warn("data/use_cases", f"no use case with modality {mod!r}")
+            warn("useCases", f"no use case with modality {mod!r}")
 
 
 # --------------------------------------------------------------- code shape
 # The renderer imports its data from the registry. If it also defines one of
 # those names at module level, the local definition silently wins and the data/
-# files stop mattering - which is exactly how a hand-maintained PR_KEYS set and
+# file stops mattering - which is exactly how a hand-maintained PR_KEYS set and
 # a 30-entry issue table survived the split and shadowed the real ones.
 def check_no_shadowing():
     import ast
@@ -305,7 +338,7 @@ def check_no_shadowing():
     for name in sorted(imported & set(assigned)):
         err(f"tracker/render_status.py:{assigned[name]}",
             f"{name} is imported from the registry and then reassigned here; "
-            "the local value would shadow data/ and render stale facts")
+            "the local value would shadow data/data.json and render stale facts")
 
 
 def check_watch_state():
@@ -341,11 +374,16 @@ def check_watch_state():
 
 
 def main():
-    check_engines()
-    check_models()
-    check_use_cases()
-    check_issues()
-    check_global()
+    d = load_data()
+    if d is None:
+        print("\n1 error, 0 warnings")
+        return 1
+    check_schema_version(d)
+    check_engines(d)
+    check_models(d)
+    check_use_cases(d)
+    check_issues(d)
+    check_global(d)
     check_no_shadowing()
     check_watch_state()
 
@@ -353,8 +391,8 @@ def main():
         print(f"warning: {wmsg}")
     for e in ERRORS:
         print(f"error:   {e}")
-    print(f"\n{len(R.MODEL_MODULES)} models, {len(R.ENGINE_MODULES)} engines, "
-          f"{len(R.USE_CASE_MODULES)} use cases, {len(R.EMETA)} tracked issues")
+    print(f"\n{len(R.MODELS)} models, {len(R.ENGINES)} engines, "
+          f"{len(R.USE_CASES)} use cases, {len(R.EMETA)} tracked issues")
     print(f"{len(ERRORS)} errors, {len(WARNINGS)} warnings")
     return 1 if ERRORS else 0
 

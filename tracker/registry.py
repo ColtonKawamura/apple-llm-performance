@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
-"""Load data/ and present it in the shape the renderer expects.
+"""Load data/data.json and present it in the shape the renderer expects.
 
-The data lives as one file per record - one model, one engine, one use case, one
-issue tracker - so two agents adding two models never touch the same file. This
-module is the only place that knows how those files assemble into the structures
-the page renders from, which means a schema change happens here and in
-tracker/validate.py rather than scattered through the renderer.
+All the records live in one file - data/data.json - one entry per model, engine,
+use case and issue tracker. That makes the whole page's input a single artefact
+you can pull, edit and push from any machine, and it means a schema change
+happens here and in tracker/validate.py rather than scattered through the
+renderer.
 
-Nothing here validates. Loading is deliberately permissive so validate.py can
-report every problem at once with a useful message, rather than the first one as
-a traceback.
+The JSON keeps the records' original attribute names, so the only work done here
+is the mechanical conversion the renderer used to rely on from Python values:
+tuples back to tuples where a renderer compares or formats them, issue numbers
+back to ints (JSON object keys are strings), and the per-engine matrix
+assembled. Nothing validates - loading is deliberately permissive so
+validate.py can report every problem at once with a useful message.
 """
-import importlib.util
+import json
 import os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DATA = os.path.join(ROOT, "data")
+DATA_FILE = os.path.join(DATA, "data.json")
 
 MODALITIES = ["text", "image", "video", "audio"]
 STATUSES = ["works", "degraded", "blocked", "none"]
@@ -25,71 +29,74 @@ STATUSES = ["works", "degraded", "blocked", "none"]
 SCLASS = {"works": "ready", "degraded": "degraded", "blocked": "blocked", "none": "unknown"}
 
 
-def _load_dir(sub):
-    """Import every .py in data/<sub>/ as a module, sorted by filename."""
-    d = os.path.join(DATA, sub)
-    out = []
-    if not os.path.isdir(d):
-        return out
-    for name in sorted(os.listdir(d)):
-        if not name.endswith(".py") or name.startswith("_"):
-            continue
-        path = os.path.join(d, name)
-        spec = importlib.util.spec_from_file_location(f"data_{sub}_{name[:-3]}", path)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        mod.__source_file__ = os.path.relpath(path, ROOT)
-        out.append(mod)
-    return out
+def _load():
+    with open(DATA_FILE, encoding="utf-8") as f:
+        return json.load(f)
 
 
-MODEL_MODULES = _load_dir("models")
-ENGINE_MODULES = _load_dir("engines")
-USE_CASE_MODULES = _load_dir("use_cases")
-ISSUE_MODULES = _load_dir("issues")
+_D = _load()
+
+
+def _records(section):
+    """Records in file order, each remembering where it lives for error messages."""
+    for rec in _D.get(section, []):
+        rec["sourceFile"] = f"data/data.json ({section})"
+    return _D.get(section, [])
+
+
+MODEL_MODULES = _records("models")
+ENGINE_MODULES = _records("engines")
+USE_CASE_MODULES = _records("useCases")
+ISSUE_MODULES = _records("issues")
+
+# ISSUE_MODULES are the two-level records {"repo", "issues"}; the validators
+# access .REPO / .ISSUES, so expose them as attributes too.
+for _m in ISSUE_MODULES:
+    _m["REPO"] = _m.get("repo", "")
+    _m["ISSUES"] = {int(k): dict(v) for k, v in (_m.get("issues") or {}).items()}
 
 
 # --------------------------------------------------------------------- engines
 def _engine(m):
-    e = {"id": m.ID, "name": m.NAME, "mods": list(m.MODALITIES), "fmt": m.FORMAT,
-         "surface": m.INTERFACE, "api": m.API, "lic": m.LICENSE, "repo": m.REPO,
-         "what": m.WHAT, "api_kind": "api"}
-    if getattr(m, "API_DETAIL", None):
-        e["api_detail"] = m.API_DETAIL
+    e = {"id": m["ID"], "name": m["NAME"], "mods": list(m["MODALITIES"]), "fmt": m["FORMAT"],
+         "surface": m["INTERFACE"], "api": m["API"], "lic": m["LICENSE"], "repo": m["REPO"],
+         "what": m["WHAT"], "api_kind": "api"}
+    if m.get("API_DETAIL"):
+        e["api_detail"] = m["API_DETAIL"]
     return e
 
 
 # Tab order comes from each engine's DISPLAY_ORDER, not from the filename, so
 # adding an engine cannot silently reshuffle every card.
-ENGINE_MODULES.sort(key=lambda m: (getattr(m, "DISPLAY_ORDER", 9999), m.ID))
+ENGINE_MODULES.sort(key=lambda m: (m.get("DISPLAY_ORDER", 9999), m["ID"]))
 ENGINES = [_engine(m) for m in ENGINE_MODULES]
 ENGINE_BY_ID = {e["id"]: e for e in ENGINES}
 
-ENGINE_SITES = {m.ID: m.SITE for m in ENGINE_MODULES}
+ENGINE_SITES = {m["ID"]: m["SITE"] for m in ENGINE_MODULES}
 
 # Longest alias first, so "vLLM Metal" is matched before a shorter alias could
 # claim part of it, and "MLX-Audio" before anything that is a prefix of it.
 ENGINE_PROSE_LINKS = sorted(
-    ((alias, m.ID, m.SITE) for m in ENGINE_MODULES for alias in m.PROSE_ALIASES),
+    ((alias, m["ID"], m["SITE"]) for m in ENGINE_MODULES for alias in m.get("PROSE_ALIASES", [])),
     key=lambda t: -len(t[0]))
 
-FAM = {m.ID: m.QUANT_FAMILY for m in ENGINE_MODULES}
-CROSS_BY_ENGINE = {m.ID: list(m.CROSS_ISSUES) for m in ENGINE_MODULES}
-RELEASE_FEEDS = [dict(m.RELEASE_FEED, engine=m.ID)
-                 for m in ENGINE_MODULES if getattr(m, "RELEASE_FEED", None)]
+FAM = {m["ID"]: m["QUANT_FAMILY"] for m in ENGINE_MODULES}
+CROSS_BY_ENGINE = {m["ID"]: list(m.get("CROSS_ISSUES", [])) for m in ENGINE_MODULES}
+RELEASE_FEEDS = [dict(m["RELEASE_FEED"], engine=m["ID"])
+                 for m in ENGINE_MODULES if m.get("RELEASE_FEED")]
 
 
 # ---------------------------------------------------------------------- models
 def _model(m):
-    d = {"id": m.ID, "mod": m.MODALITY, "name": m.NAME, "arch": m.ARCH,
-         "lic": m.LICENSE, "ctx": m.CONTEXT, "hf": m.HF, "note": m.NOTE,
-         "srcs": [tuple(x) for x in m.SOURCES],
-         "agentic": [tuple(x) for x in m.SCORES.get("agentic", [])],
-         "coding": [tuple(x) for x in m.SCORES.get("coding", [])],
+    d = {"id": m["ID"], "mod": m["MODALITY"], "name": m["NAME"], "arch": m["ARCH"],
+         "lic": m["LICENSE"], "ctx": m["CONTEXT"], "hf": m["HF"], "note": m["NOTE"],
+         "srcs": [tuple(x) for x in m.get("SOURCES", [])],
+         "agentic": [tuple(x) for x in m.get("SCORES", {}).get("agentic", [])],
+         "coding": [tuple(x) for x in m.get("SCORES", {}).get("coding", [])],
          "w": 0.0, "est": False}
-    if getattr(m, "CONTEXT_LABEL", None):
-        d["ctx_label"] = m.CONTEXT_LABEL
-    lad = getattr(m, "LADDER", {}) or {}
+    if m.get("CONTEXT_LABEL"):
+        d["ctx_label"] = m["CONTEXT_LABEL"]
+    lad = m.get("LADDER") or {}
     smallest = min((r["gb"] for rungs in lad.values() for r in rungs), default=0.0)
     d["w"] = smallest
     return d
@@ -97,38 +104,35 @@ def _model(m):
 
 MODELS = [_model(m) for m in MODEL_MODULES]
 MODEL_BY_ID = {m["id"]: m for m in MODELS}
-PARAMS = {m.ID: m.PARAMS_B for m in MODEL_MODULES}
-LADDERS = {m.ID: (getattr(m, "LADDER", {}) or {}) for m in MODEL_MODULES}
-QUANT_SOURCES = {m.ID: (getattr(m, "QUANT_SOURCES", {}) or {}) for m in MODEL_MODULES}
-KV = {m.ID: (m.KV["bytes_per_token"], m.KV["max_context"], m.KV["derivation"])
+PARAMS = {m["ID"]: m["PARAMS_B"] for m in MODEL_MODULES}
+LADDERS = {m["ID"]: (m.get("LADDER") or {}) for m in MODEL_MODULES}
+QUANT_SOURCES = {m["ID"]: (m.get("QUANT_SOURCES") or {}) for m in MODEL_MODULES}
+KV = {m["ID"]: (m["KV"]["bytes_per_token"], m["KV"]["max_context"], m["KV"]["derivation"])
       for m in MODEL_MODULES}
-BEST = {m.ID: m.BEST_ENGINE for m in MODEL_MODULES}
+BEST = {m["ID"]: m["BEST_ENGINE"] for m in MODEL_MODULES}
 
 MATRIX = {
-    m.ID: {eid: {"s": c["status"], "label": c["label"], "w": None, "q": None,
-                 "note": c["note"], "items": list(c["issues"])}
-           for eid, c in m.ENGINES.items()}
+    m["ID"]: {eid: {"s": c["status"], "label": c["label"], "w": None, "q": None,
+                    "note": c["note"], "items": list(c["issues"])}
+              for eid, c in m["ENGINES"].items()}
     for m in MODEL_MODULES
 }
 
 
 # ------------------------------------------------------------------ use cases
-USE_CASE_MODULES.sort(key=lambda m: (getattr(m, "DISPLAY_ORDER", 9999), m.ID))
-USE_CASES = [{"id": m.ID, "label": m.LABEL, "mod": m.MODALITY, "gate": m.FIDELITY_GATE,
-              "axis": m.AXIS, "rank": [tuple(r) for r in m.RANK]}
+USE_CASE_MODULES.sort(key=lambda m: (m.get("DISPLAY_ORDER", 9999), m["ID"]))
+USE_CASES = [{"id": m["ID"], "label": m["LABEL"], "mod": m["MODALITY"], "gate": m["FIDELITY_GATE"],
+              "axis": m["AXIS"], "rank": [tuple(r) for r in m["RANK"]]}
              for m in USE_CASE_MODULES]
 
 
 # ---------------------------------------------------------------------- issues
 EMETA = {}
 for _m in ISSUE_MODULES:
-    for _num, _meta in _m.ISSUES.items():
-        EMETA[f"{_m.REPO}#{_num}"] = (_meta["severity"], _meta["headline"], _meta["why"])
+    for _num, _meta in _m["ISSUES"].items():
+        EMETA[f"{_m['REPO']}#{_num}"] = (_meta["severity"], _meta["headline"], _meta["why"])
 
-_pr = importlib.util.spec_from_file_location("data_pr_keys", os.path.join(DATA, "pr_keys.py"))
-_prm = importlib.util.module_from_spec(_pr)
-_pr.loader.exec_module(_prm)
-PR_KEYS = set(_prm.PR_KEYS)
+PR_KEYS = set(_D.get("prKeys", []))
 
 
 # ------------------------------------------------------------------- derived

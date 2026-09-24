@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
-"""Re-measure one model's quant ladder from Hugging Face and rewrite its file.
+"""Re-measure one model's quant ladder from Hugging Face and update data/data.json.
 
     python3 tracker/measure.py --model qwen38
     python3 tracker/measure.py --model qwen38 --dry-run
-    python3 tracker/measure.py --all            # rewrites 20+ files; see AGENTS.md
+    python3 tracker/measure.py --all            # rewrites 20+ ladders; see AGENTS.md
 
-Scoped to one model on purpose. The LADDER block lives in data/models/<id>.py, so
-measuring one model touches one file and cannot conflict with another agent's
-model. --all exists for a deliberate sweep, not for routine work: it rewrites
-every model file and will collide with every open pull request.
+Scoped to one model on purpose: it rewrites only that model's LADDER key inside
+the central data/data.json, so measuring one model cannot touch another model's
+record. --all exists for a deliberate sweep, not for routine work: it rewrites
+every model's ladder in the file.
 
 gb is summed repo bytes. bpw is gb*8/PARAMS_B, which is the *effective* bits per
 weight rather than whatever the quant is named - the two diverge badly on MoE
@@ -28,7 +28,6 @@ import os
 import re
 import sys
 import urllib.request
-from pprint import pformat
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -118,7 +117,7 @@ def thin(rungs, keep=9):
 
 def measure(mid):
     mod = MODULE[mid]
-    srcs = getattr(mod, "QUANT_SOURCES", {}) or {}
+    srcs = mod.get("QUANT_SOURCES") or {}
     if not srcs:
         print(f"{mid}: no QUANT_SOURCES to measure", file=sys.stderr)
         return None
@@ -126,7 +125,7 @@ def measure(mid):
     # both Flash and Pro - so without a filter each model absorbs the other's
     # files and the bits-per-weight figure comes out nonsense.
     filters = {fam: re.compile(pat, re.I)
-               for fam, pat in (getattr(mod, "QUANT_FILTER", {}) or {}).items()}
+               for fam, pat in (mod.get("QUANT_FILTER") or {}).items()}
     ladder = {}
     for fam, repos in srcs.items():
         rungs = []
@@ -149,36 +148,37 @@ def show(mid, ladder):
             print(f"    {r['gb']:8.2f} GB  {b}  {r['label'][:64]}")
 
 
-def splice(path, ladder):
-    """Replace only the LADDER assignment, leaving every other byte alone."""
+def write_ladder(mid, ladder):
+    """Rewrite only this model's ladder key in data/data.json.
+
+    The file is one entry per record, so the only bytes that may move are this
+    model's LADDER value. Re-serialised with the same stable formatting the
+    file was written in, so the diff is exactly the ladder.
+    """
+    path = os.path.join(ROOT, "data", "data.json")
     with open(path, encoding="utf-8") as f:
-        src = f.read()
-    m = re.search(r"^LADDER = ", src, re.M)
-    if not m:
-        raise SystemExit(f"{path}: no LADDER assignment to replace")
-    i = src.index("{", m.end())
-    depth, j = 0, i
-    while j < len(src):
-        if src[j] == "{":
-            depth += 1
-        elif src[j] == "}":
-            depth -= 1
-            if depth == 0:
-                j += 1
-                break
-        j += 1
-    new = src[:m.end()] + pformat(ladder, width=96, sort_dicts=False) + src[j:]
-    with open(path, "w", encoding="utf-8") as f:
-        f.write(new)
+        d = json.load(f)
+    changed = False
+    for m in d["models"]:
+        if m["ID"] == mid:
+            if m.get("LADDER") != ladder:
+                m["LADDER"] = ladder
+                changed = True
+            break
+    if changed:
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(d, f, indent=2, ensure_ascii=False)
+            f.write("\n")
+    return changed
 
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     g = ap.add_mutually_exclusive_group(required=True)
-    g.add_argument("--model", help="model id, matching data/models/<id>.py")
+    g.add_argument("--model", help="model id, as in data/data.json")
     g.add_argument("--all", action="store_true",
-                   help="sweep every model; rewrites every file, conflicts with open PRs")
+                   help="sweep every model; rewrites every ladder in data/data.json")
     ap.add_argument("--dry-run", action="store_true", help="print the ladder, write nothing")
     a = ap.parse_args()
 
@@ -194,22 +194,19 @@ def main():
         show(mid, ladder)
         if a.dry_run:
             continue
-        path = os.path.join(ROOT, "data", "models", f"{mid}.py")
-        before = open(path, encoding="utf-8").read()
-        splice(path, ladder)
-        if open(path, encoding="utf-8").read() != before:
+        if write_ladder(mid, ladder):
             changed.append(mid)
 
     if a.dry_run:
         print("\ndry run: nothing written")
     elif changed:
-        print(f"\nrewrote: {', '.join(changed)}")
+        print(f"\nupdated ladder for: {', '.join(changed)}")
         print("now run: python3 tracker/validate.py && python3 tracker/build.py")
     else:
         print("\nno change")
 
 
-MODULE = {m.ID: m for m in R.MODEL_MODULES}
+MODULE = {m["ID"]: m for m in R.MODEL_MODULES}
 
 if __name__ == "__main__":
     main()

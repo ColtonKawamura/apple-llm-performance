@@ -3,10 +3,10 @@
 The page is only as good as its facts. Corrections are more welcome than
 additions, and measurements are more welcome than either.
 
-Everything renders from plain Python data structures, one file per record, so
-most contributions are a few lines in one file. There are no dependencies:
-`python3 tracker/validate.py` checks your change and `python3 tracker/build.py`
-regenerates the site.
+Everything renders from a single JSON file — `data/data.json` — one entry per
+record, so most contributions are a few lines in one place. There are no
+dependencies: `python3 tracker/validate.py` checks your change and
+`python3 tracker/build.py` regenerates the site.
 
 If you are an AI agent, read [AGENTS.md](AGENTS.md) instead — it is the same
 information at the depth an agent needs, plus the rules that keep concurrent
@@ -15,8 +15,8 @@ contributions from colliding.
 ## Especially wanted
 
 **New and useful models.** If open weights have shipped and the thing runs on
-Apple silicon, we want it on the page. Adding one is a new file in
-`data/models/` plus a line in each category it belongs to.
+Apple silicon, we want it on the page. Adding one is a new entry in the `models`
+array of `data/data.json` plus a line in each category it belongs to.
 
 **Numbers measured on real hardware.** Nothing on this page has been benchmarked
 on Apple silicon by us — it is all published specifications and arithmetic. If
@@ -45,8 +45,8 @@ Useful issues usually contain one of:
 ### Correcting a figure or a note
 
 Everything about a model — architecture, licence, context, benchmark scores, the
-summary paragraph, and its status on every engine — is in
-`data/models/<id>.py`. One model, one file.
+summary paragraph, and its status on every engine — is one entry in the `models`
+array of `data/data.json`. One model, one entry.
 
 Keep the model-level `NOTE` engine-neutral. Anything true only of one runtime
 belongs in that runtime's cell in `ENGINES`, or the two contradict each other as
@@ -54,12 +54,13 @@ engines change.
 
 ### Adding a model
 
-1. Copy the closest existing `data/models/<id>.py` and fill it in: identity
+1. Add a new entry to the `models` array in `data/data.json` (append at the end,
+   copy the closest existing entry as a template) and fill it in: identity
    fields, `MODALITY`, `NOTE`, `SOURCES`, `PARAMS_B`, an `ENGINES` cell per
    engine that could load it, `BEST_ENGINE`, `QUANT_SOURCES`, and `KV`.
 2. `python3 tracker/measure.py --model <id>` fills in `LADDER` from the Hugging
    Face API. Don't hand-write it.
-3. Add a line to each `data/use_cases/*.py` `RANK` list the model has published
+3. Add a line to each `useCases` entry's `RANK` list the model has published
    numbers for. Leave it out of the others; the page dims those rows rather than
    guessing.
 4. `python3 tracker/validate.py` then `python3 tracker/build.py`, and look at
@@ -79,20 +80,21 @@ engine's architecture table or model directory, and check `config.json`'s
 
 ### Adding an engine
 
-A new `data/engines/<id>.py` — identity, `MODALITIES`, `API_DETAIL`,
-`QUANT_FAMILY`, `RELEASE_FEED`, `CROSS_ISSUES`, a `SITE` and `PROSE_ALIASES`
-(the renderer links the first mention of each engine in each note to its site,
-so you never hand-link an engine name), and a `DISPLAY_ORDER` that decides where
-its tab sits — plus a cell in the `ENGINES` dict of every model it can load. The last part is the work; there is no way around describing each
-model on the new engine.
+A new entry in the `engines` array of `data/data.json` — identity,
+`MODALITIES`, `API_DETAIL`, `QUANT_FAMILY`, `RELEASE_FEED`, `CROSS_ISSUES`, a
+`SITE` and `PROSE_ALIASES` (the renderer links the first mention of each engine
+in each note to its site, so you never hand-link an engine name), and a
+`DISPLAY_ORDER` that decides where its tab sits — plus a cell in the `ENGINES`
+object of every model it can load. The last part is the work; there is no way
+around describing each model on the new engine.
 
 ### Adding a tracked issue
 
-Add it to `data/issues/<owner>__<repo>.py` with a severity, a headline and a
-sentence on why it matters, then cite its key from the relevant model's engine
-cell or from that engine's `CROSS_ISSUES`. `tracker/probe.py` derives its
-watchlist from that metadata, so it starts polling on the next run with no
-second edit.
+Add it to the `issues` entry for that repository in `data/data.json` with a
+severity, a headline and a sentence on why it matters, then cite its key from
+the relevant model's engine cell or from that engine's `CROSS_ISSUES`.
+`tracker/probe.py` derives its watchlist from that metadata, so it starts
+polling on the next run with no second edit.
 
 Only list issues that apply on Apple silicon. Upstream threads are dominated by
 CUDA, ROCm and Vulkan reports that are irrelevant here, and including them makes
@@ -116,7 +118,8 @@ python3 tools/check_output.py
 ```
 
 That is the whole test suite, and it is what CI runs. `validate.py` checks every
-record in `data/` and reports every problem it finds rather than the first.
+record in `data/data.json` and reports every problem it finds rather than the
+first.
 `build.py` fails loudly on a malformed template and refuses to emit a page
 containing control characters — a real bug that shipped once, from a Python
 octal escape in a CSS rule. `check_output.py` catches a template field that
