@@ -82,16 +82,22 @@ const FILE = path.resolve(process.argv[2] || 'docs/index.html');
         }
       }
     }
-  // The ranking bar is a thin lane under the model name, sized as a percentage
-  // of that cell, so anything making the cell width vary per row makes the
-  // chart lie. It did: on mobile the name shared a row with the status pill,
-  // and a long label like "Fastest, with caveats" cut the cell from 225px to
-  // 128px, drawing a SHORTER bar for a BETTER-ranked model. Assert bars never
-  // grow downward. The lane for the chosen job carries the bar; its fill is
-  // zero where the model has no number.
-  // reducedMotion matters - the lane has a 180ms width transition and sampling
-  // mid-animation reports inversions that are not real.
-  const inversions = [];
+  // Each job's lane is a fill inside the track that sits in the row's .ix-id
+  // cell (the name above it), and its width is a percentage of that track. So
+  // anything making the track width vary per row makes the chart lie. It did:
+  // on mobile the name shared a row with the status pill, and a long label like
+  // "Fastest, with caveats" cut the cell from 225px to 128px, drawing a
+  // SHORTER bar for a BETTER-ranked model.
+  //
+  // The fill itself is deliberately NOT monotonic down the list: rows follow
+  // the category's curated ranking, and the fill is the model's share of a
+  // perfect score on that category's own benchmark, which is not one scale -
+  // agentic mixes several suites, image is editorial, longctx ranks on KV
+  // cost. Only the track width is an invariant: 50% of one track must be 50%
+  // of every track. Assert that, per category, per viewport.
+  // reducedMotion matters - the lane fill has a 180ms width transition and
+  // sampling mid-animation reports widths that are not real.
+  const trackIssues = [];
   try {
     const page = await browser.newPage({ viewport: { width: 390, height: 900 },
                                          reducedMotion: 'reduce' });
@@ -108,25 +114,21 @@ const FILE = path.resolve(process.argv[2] || 'docs/index.html');
           if (pressed !== (id === uc)) await c.click();
         }
         await page.waitForTimeout(120);
-        const rows = await page.$$eval('.ix-row', (rs, job) => rs.filter(r => !r.hidden)
-          .map(r => ({ m: r.getAttribute('data-model'),
-                       o: parseInt(getComputedStyle(r).order) || 0,
-                       w: r.querySelector('.ix-lane.uc-slot-' + job + ' > i').getBoundingClientRect().width }))
-          .sort((a, c) => a.o - c.o), uc);
-        for (let i = 1; i < rows.length; i++) {
-          if (rows[i].w > rows[i - 1].w + 1.5) {
-            inversions.push(`${vp.n} ${uc}: ${rows[i].m} draws ${rows[i].w.toFixed(0)}px ` +
-              `below ${rows[i - 1].m} at ${rows[i - 1].w.toFixed(0)}px`);
-          }
+        const widths = await page.$$eval('.ix-row', rs => rs.filter(r => !r.hidden)
+          .map(r => Math.round(r.querySelector('.ix-id').getBoundingClientRect().width * 2) / 2));
+        const distinct = [...new Set(widths)];
+        if (distinct.length > 1) {
+          trackIssues.push(`${vp.n} ${uc}: lane track width varies between rows ` +
+            `(${Math.min(...distinct)}px to ${Math.max(...distinct)}px)`);
         }
         checks++;
       }
     }
     await page.close();
   } catch (e) {
-    failures.push('bar monotonicity check: ' + e.message.slice(0, 90));
+    failures.push('lane track check: ' + e.message.slice(0, 90));
   }
-  if (inversions.length) failures.push(...[...new Set(inversions)].slice(0, 6));
+  if (trackIssues.length) failures.push(...[...new Set(trackIssues)].slice(0, 6));
   } finally {
     await browser.close();
   }
