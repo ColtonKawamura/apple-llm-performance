@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Render the vllm-mlx watchlist state file into a model-first status page."""
 import os, re, html, hashlib, json
+from urllib.parse import urlparse
 # One record per file under data/, assembled by tracker/registry.py. MODELS and
 # the per-engine matrix used to live in this file and in engines.py; they were
 # split so two agents editing two different models never touch the same file.
@@ -188,14 +189,33 @@ def index_rows(rows):
         <a class="ix-row v-{SCLASS[c['s']]}" href="#{m['id']}" data-model="{m['id']}"
            data-sw="{SCLASS[c['s']]}" data-swlabel="{html.escape(c['label'])}"
            data-mod="{modality(m)}" data-payload="{payload}">
+          <span class="ix-rank" aria-hidden="true"></span>
           <span class="ix-id"><span class="ix-name"><em>{html.escape(m['name'])}</em></span>
           <span class="ix-bars" aria-hidden="true">{lanes}<span class="ix-lane ix-lane-avg"><i></i></span></span></span>
-          <span class="ix-status v-{SCLASS[c['s']]}">{html.escape(c['label'])}</span>
-          <span class="ix-eng">{html.escape(ENGINE_BY_ID[eid]['name'])}</span>
-          <span class="ix-size">{gb:.0f} GB</span>
-          <span class="ix-meta fit"></span>
+          {support_strip(m)}
+          <span class="ix-verdict"><span class="ix-status v-{SCLASS[c['s']]}">{html.escape(c['label'])}</span>
+          <span class="ix-eng">{html.escape(ENGINE_BY_ID[eid]['name'])}</span></span>
+          <span class="ix-fit"><span class="ix-fit-top"><span class="ix-size">{gb:.0f} GB</span>
+          <span class="ix-meta fit"></span></span>
+          <span class="ix-meter" aria-hidden="true"><i></i></span></span>
         </a>""")
     return "".join(out)
+
+
+def support_strip(m):
+    """One square per engine of the model's modality, coloured by its status -
+    a caniuse-style support row. Fixed engine order so the columns line up
+    down the list; an engine with no cell for this model shows as empty."""
+    mid, mod = m["id"], modality(m)
+    cells = []
+    for e in ENGINES:
+        if mod not in e["mods"]:
+            continue
+        c = MATRIX[mid].get(e["id"])
+        sc = SCLASS[c["s"]] if c else "unknown"
+        tip = f"{e['name']}: {c['label'] if c and c['s'] != 'none' else 'not supported'}"
+        cells.append(f'<i class="sq s-{sc}" title="{html.escape(tip, quote=True)}"></i>')
+    return f'<span class="ix-strip" role="img" aria-label="Engine support">{"".join(cells)}</span>'
 
 
 def src_links(m):
@@ -205,10 +225,17 @@ def src_links(m):
 
 
 def scores(pairs):
-    return "".join(
-        f"""<div class="score"><span class="score-k">{html.escape(k)}</span>"""
-        f"""<span class="score-v">{html.escape(v)}</span></div>"""
-        for k, v in pairs)
+    """Score rows with a bar behind every figure that sits on a 0-100 scale.
+    An Elo or a note has no published maximum, so it gets the figure alone."""
+    out = []
+    for k, v in pairs:
+        mm = re.match(r"\s*(-?\d+(?:\.\d+)?)\s*%?\s*$", v)
+        w = float(mm.group(1)) if mm else None
+        bar = (f'<span class="score-bar"><i style="width:{max(0.0, min(100.0, w)):.1f}%"></i></span>'
+               if w is not None and 0 <= w <= 100 else '<span class="score-bar none"></span>')
+        out.append(f"""<div class="score"><span class="score-k">{html.escape(k)}</span>"""
+                   f"""{bar}<span class="score-v">{html.escape(v)}</span></div>""")
+    return "".join(out)
 
 
 # Text that must not be linkified: an existing anchor, a code span, or any tag.
@@ -321,17 +348,19 @@ def engine_tabs(m, rows):
         sizing = "" if c["s"] in ("blocked", "none") else f"""
           {engine_build(mid, eid)}
           <div class="eng-fit s-{sc}"{w_attr}></div>
+          <div class="mem-bar" hidden aria-hidden="true"><i class="mb-w"></i><i class="mb-o"></i><i class="mb-f"></i></div>
+          <div class="ladder-wrap" hidden><span class="ctx-k">Quant ladder <em>&middot; bar height = size on disk, dashed line = usable memory</em></span>
+            <div class="ladder"></div></div>
           <p class="fidelity" hidden></p>
           <div class="ctx-wrap" hidden><span class="ctx-k">Concurrent contexts in the KV headroom</span>
-            <table class="ctx"><thead><tr><th>Context each</th><th>KV per stream</th><th>Streams</th></tr></thead>
-            <tbody></tbody></table>
+            <div class="ctx"></div>
             <p class="ctx-why"></p></div>"""
         panes.append(f"""
         <div class="eng-pane" id="{mid}-{eid}" role="tabpanel" aria-labelledby="{mid}-{eid}-tab"
              data-eng="{eid}"{'' if i == 0 else ' hidden'}>
           <dl class="eng-meta">{engine_meta_line(e)}</dl>{sizing}
           <p class="eng-note">{prose(c['note'])}</p>
-          <p class="blockers-label">{n_open} open of {len(c['items'])} tracked on this engine</p>
+          <p class="blockers-label"><b>{n_open}</b> open <span>of {len(c['items'])} tracked on this engine</span></p>
           {body}
         </div>""")
     return f"""
@@ -404,17 +433,22 @@ def release_rows(releases):
     return "".join(out)
 
 
-def _news_item(title, summary, url):
+def _news_item(title, summary, url, n=None):
+    num = f'<span class="news-n">{n:02d}</span>' if n else ""
+    host = re.sub(r"^www\.", "", urlparse(url).netloc)
     return f"""
         <li class="news-item">
-          <h4><a class="ref" href="{html.escape(url, quote=True)}" target="_blank" rel="noopener">{html.escape(title)}</a></h4>
-          <p>{html.escape(summary)}</p>
+          <a class="news-card" href="{html.escape(url, quote=True)}" target="_blank" rel="noopener">
+            {num}<span class="news-host">{html.escape(host)}</span>
+            <h4>{html.escape(title)}</h4>
+            <p>{html.escape(summary)}</p>
+          </a>
         </li>"""
 
 
 def _news_sublist(rows, empty):
     if rows:
-        return f"""<ul class="news-list">{"".join(rows)}</ul>"""
+        return f"""<ul class="news-list news-new">{"".join(rows)}</ul>"""
     return f"""<p class="news-empty">{html.escape(empty)}</p>"""
 
 
@@ -431,23 +465,31 @@ def news_panel():
     n = NEWS[0]
     date = n.get("date", "")
     top = n.get("top") or []
-    top_html = "".join(_news_item(t, s, u) for t, s, u in top)
+    top_html = "".join(_news_item(t, s, u, i + 1) for i, (t, s, u) in enumerate(top))
     new = n.get("newModels", []) or []
     new_html = _news_sublist(
         [_news_item(t, s, u) for t, s, u in new],
         "Nothing new shipped in the last day. The rollup re-checks on the next update.")
     return f"""
-  <div class="panel" id="news">
+  <section class="panel" id="news">
     <h2>News <span class="news-date">rollup of {html.escape(date)}</span></h2>
-    <p class="panel-lead">A daily snapshot of the local-model community - what shipped, what
-    broke, what is moving on Apple silicon - gathered from r/LocalLLaMA, Hugging Face
-    trending, the lab blogs and the engine release feeds, and summarised here so the
-    picture is readable without the source. Every line links to the story it came from.</p>
+    <p class="panel-lead">What shipped, broke and moved on Apple silicon today &mdash; from
+    r/LocalLLaMA, Hugging Face, the lab blogs and the engine release feeds.</p>
     <h3 class="news-h">Top stories</h3>
-    <ul class="news-list">{top_html}</ul>
+    <ul class="news-list news-top">{top_html}</ul>
     <h3 class="news-h">New language models for Apple silicon</h3>
     {new_html}
-  </div>"""
+  </section>"""
+
+
+def score_block(m):
+    cols = [(cat, m[k]) for cat, k in (("Agentic", "agentic"), ("Coding", "coding")) if m[k]]
+    if not cols:
+        return ""
+    body = "".join(f"""<div class="score-col"><span class="score-cat">{cat}</span>{scores(p)}</div>"""
+                   for cat, p in cols)
+    return f"""<div class="scores-wrap"><span class="q-cat">Benchmark scores</span>
+          <div class="scores">{body}</div></div>"""
 
 
 def render_items(keys, rows):
@@ -467,8 +509,8 @@ def render_items(keys, rows):
             <span class="pill {cls}">{txt}</span>
             <span class="sev-tag">{SEV_LABEL[sev]}</span>
           </div>
-          <h4>{html.escape(headline)}</h4>
-          <p>{prose(why)}</p>
+          <details class="row-body"><summary><h4>{html.escape(headline)}</h4></summary>
+          <p>{prose(why)}</p></details>
         </li>""")
     return "".join(out)
 
@@ -494,16 +536,14 @@ def render():
           <div><dt>License</dt><dd>{html.escape(m['lic'])}</dd></div>
           <div><dt>{html.escape(m.get('ctx_label', 'Context'))}</dt><dd>{html.escape(m['ctx'])}</dd></div>
         </dl>
+        <div class="model-gauge" hidden aria-hidden="true">
+          <div class="mem-bar"><i class="mb-w"></i><i class="mb-o"></i><i class="mb-f"></i></div>
+          <div class="mg-key"><span class="k-w">weights</span><span class="k-o">overhead</span><span class="k-f">free for KV</span></div>
+        </div>
         <p class="model-fit"></p>
         <p class="model-note">{prose(m['note'])}</p>
         <div class="srcs"><span class="q-cat">Sources</span>{src_links(m)}</div>
-        <details class="scores-wrap">
-          <summary>Benchmark scores</summary>
-          <div class="scores">
-            <div class="score-col"><span class="score-cat">Agentic</span>{scores(m['agentic'])}</div>
-            <div class="score-col"><span class="score-cat">Coding</span>{scores(m['coding'])}</div>
-          </div>
-        </details>
+        {score_block(m)}
       </div>
       {engine_tabs(m, rows)}
     </section>""")
@@ -520,11 +560,552 @@ def render():
     # once so the page opens with a sense of scale instead of a wall of rows.
     n_open = sum(1 for v in rows.values() if v.lower() == "open")
     stats = (f'{len(MODELS):d}|{len(ENGINES):d}|{len(USE_CASES):d}|{len(META):d}|{n_open:d}')
-    doc = TEMPLATE.format(usecases=usecases, bands=bands, stats=stats,
+    doc = TEMPLATE.format(style=STYLE, usecases=usecases, bands=bands, stats=stats,
                           cards="".join(cards), index=index_rows(rows),
                           cross=cross_tabs(rows, releases), news=news_panel())
     return doc.replace("/apple-llm-performance/card.jpg",
                        "/apple-llm-performance/" + card_name())
+
+
+STYLE = r"""
+  /* Visual-first dashboard: a blueprint grid, bento tiles, and every number
+     that can be a shape drawn as one. Inspired by caniuse's support grid,
+     Grafana stat and gauge panels, and leaderboard layouts. Plain CSS, no
+     assets. Kept outside the str.format template so braces need no doubling. */
+  :root {
+    --bg: #f3f3ee; --bg-grid: rgba(14, 18, 28, .055);
+    --panel: #ffffff; --panel-2: #f6f6f1; --panel-3: #ecece5;
+    --ink: #0d1017; --ink-2: #3b4250; --muted: #6b7280;
+    --line: #dedfd6; --line-soft: #ebebe4;
+    --accent: #4d7c0f; --accent-2: #0e7490; --accent-ink: #ffffff;
+    --lime: #84cc16; --cyan: #06b6d4;
+    --critical: #dc2626; --high: #d97706; --medium: #64748b; --low: #9ca3af;
+    --ok: #16a34a; --ok-tint: rgba(22, 163, 74, .09); --warn: #d97706;
+    --bar-agentic: #ea580c; --bar-coding: #2563eb; --bar-terminal: #7c3aed;
+    --bar-computer: #0891b2; --bar-concurrency: #d97706; --bar-longctx: #ca8a04;
+    --bar-image: #db2777; --bar-video: #c026d3; --bar-voice: #0d9488;
+    --bar-narration: #be123c; --bar-music: #4f46e5;
+    --shadow: 0 1px 0 rgba(14, 18, 28, .04), 0 8px 24px -12px rgba(14, 18, 28, .18);
+    --r: 18px; --r-sm: 10px;
+    --f-disp: "Space Grotesk", "Inter", system-ui, sans-serif;
+    --f-body: "Inter", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #08090c; --bg-grid: rgba(255, 255, 255, .045);
+      --panel: #101217; --panel-2: #161920; --panel-3: #1d2029;
+      --ink: #f1f3f7; --ink-2: #aab1bf; --muted: #6f7787;
+      --line: #242832; --line-soft: #1b1e26;
+      --accent: #c5f24a; --accent-2: #4fd8f0; --accent-ink: #0d1400;
+      --lime: #c5f24a; --cyan: #4fd8f0;
+      --critical: #ff5f5f; --high: #ffb13b; --medium: #8a97ab; --low: #5a6273;
+      --ok: #3ee07f; --ok-tint: rgba(62, 224, 127, .08); --warn: #ffb13b;
+      --bar-agentic: #ffa94d; --bar-coding: #6ea8fe; --bar-terminal: #b39dfa;
+      --bar-computer: #38e1f5; --bar-concurrency: #f7c948; --bar-longctx: #f5d95a;
+      --bar-image: #f783bf; --bar-video: #ea86fa; --bar-voice: #3fe0c5;
+      --bar-narration: #ff8fa3; --bar-music: #93a0fb;
+      --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 16px 40px -20px rgba(0, 0, 0, .8);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #08090c; --bg-grid: rgba(255, 255, 255, .045);
+    --panel: #101217; --panel-2: #161920; --panel-3: #1d2029;
+    --ink: #f1f3f7; --ink-2: #aab1bf; --muted: #6f7787;
+    --line: #242832; --line-soft: #1b1e26;
+    --accent: #c5f24a; --accent-2: #4fd8f0; --accent-ink: #0d1400;
+    --lime: #c5f24a; --cyan: #4fd8f0;
+    --critical: #ff5f5f; --high: #ffb13b; --medium: #8a97ab; --low: #5a6273;
+    --ok: #3ee07f; --ok-tint: rgba(62, 224, 127, .08); --warn: #ffb13b;
+    --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 16px 40px -20px rgba(0, 0, 0, .8);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  html, body, .wrap { overflow-anchor: none; }
+  body {
+    margin: 0; color: var(--ink); background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--bg-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--bg-grid) 1px, transparent 1px);
+    background-size: 44px 44px; background-position: -1px -1px;
+    font-family: var(--f-body); font-size: 15px; line-height: 1.55;
+    -webkit-font-smoothing: antialiased; min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(70rem 30rem at 50% -8rem, color-mix(in srgb, var(--lime) 16%, transparent), transparent 70%),
+                linear-gradient(180deg, transparent 40rem, var(--bg) 70rem);
+  }
+  a { color: var(--accent-2); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+  code { font-family: var(--f-mono); font-size: .84em; background: var(--panel-3);
+    border-radius: 5px; padding: .08em .35em; }
+  .wrap { max-width: 74rem; margin: 0 auto; padding: 1.25rem 1.5rem 5rem; }
+
+  /* ---------- hero ---------- */
+  .fork-note { margin: 0 0 2.2rem; display: flex; flex-wrap: wrap; align-items: center; gap: .15rem .45rem;
+    font-size: .78rem; color: var(--muted); }
+  .fork-note a { color: var(--ink-2); }
+  .fork-tag { font-family: var(--f-mono); font-size: .64rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--accent-ink); background: var(--accent);
+    border-radius: 999px; padding: .12rem .5rem; }
+  header { display: flex; flex-direction: column; gap: .9rem; margin-bottom: 2rem; }
+  .hero-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .hero-kicker { display: inline-flex; align-items: center; gap: .55rem; font-family: var(--f-mono);
+    font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-2); font-weight: 500; }
+  .live-dot { width: .55rem; height: .55rem; border-radius: 50%; background: var(--ok); flex: none;
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); animation: ping 2.4s ease-out infinite; }
+  @keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); }
+    80%, 100% { box-shadow: 0 0 0 .6rem transparent; } }
+  .gh { display: inline-flex; align-items: center; gap: .45rem; text-decoration: none; color: var(--ink);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 999px;
+    padding: .38rem .85rem .38rem .7rem; font-size: .8rem; font-weight: 600; box-shadow: var(--shadow); }
+  .gh:hover { border-color: var(--accent); }
+  h1 { font-family: var(--f-disp); font-size: clamp(2.4rem, 7vw, 4.6rem); font-weight: 700; margin: 0;
+    letter-spacing: -.045em; line-height: .95; text-wrap: balance; }
+  h1 .grad { background: linear-gradient(95deg, var(--lime), var(--cyan)); -webkit-background-clip: text;
+    background-clip: text; color: transparent; }
+  .hero-sub { margin: 0; font-size: 1.05rem; color: var(--ink-2); max-width: 40rem; }
+  .hero-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .6rem; margin-top: .6rem; }
+  .hstat { position: relative; display: flex; flex-direction: column; gap: .1rem; padding: .85rem 1rem;
+    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+    overflow: hidden; }
+  .hstat strong { font-family: var(--f-disp); font-size: 2rem; font-weight: 700; line-height: 1;
+    letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+  .hstat span { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--muted); }
+  .hstat-open strong { color: var(--warn); }
+  .hstat-bar { display: block; height: 4px; margin-top: .45rem; border-radius: 4px; background: var(--panel-3); overflow: hidden; }
+  .hstat-bar b { display: block; height: 100%; width: 0; background: var(--warn); border-radius: 4px;
+    transition: width 1s cubic-bezier(.2, .7, .3, 1); }
+  @media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hstat-open { grid-column: span 2; } }
+
+  /* ---------- section labels ---------- */
+  .sec-k, .uc-f > .sec-k { font-family: var(--f-mono); font-size: .68rem; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); display: block; margin-bottom: .75rem; }
+
+  /* ---------- rig ---------- */
+  .rig { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 1.2rem 1.3rem 1.25rem; margin: 0 0 1rem; box-shadow: var(--shadow); }
+  .rig-controls { display: flex; gap: .7rem; flex-wrap: wrap; align-items: flex-end; }
+  .rig-f { display: flex; flex-direction: column; gap: .3rem; min-width: 0; flex: 1 1 9rem; max-width: 14rem; }
+  .rig-f > span { font-size: .7rem; font-weight: 600; color: var(--muted); }
+  .rig select { font: inherit; font-size: .95rem; font-weight: 600; color: var(--ink); appearance: none;
+    -webkit-appearance: none; background-color: var(--panel-2);
+    background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+    background-position: calc(100% - 16px) 55%, calc(100% - 11px) 55%; background-size: 5px 5px; background-repeat: no-repeat;
+    border: 1px solid var(--line); border-radius: 12px; padding: .6rem 2rem .6rem .8rem; width: 100%; cursor: pointer; }
+  .rig select:hover { border-color: var(--muted); }
+  .rig select optgroup { font-weight: 600; }
+  .rig select.chip-glow { box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 30%, transparent); transition: box-shadow .3s ease; }
+  .rig-out { margin: 1rem 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(9.5rem, 1fr)); gap: .5rem;
+    transition: opacity .18s ease; }
+  .rig-out.pulse { opacity: .35; }
+  .tile { display: flex; flex-direction: column; gap: .12rem; padding: .7rem .85rem; border-radius: 12px;
+    background: var(--panel-2); border: 1px solid var(--line-soft); min-width: 0; }
+  .tile-k { font-family: var(--f-mono); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .tile-v { font-family: var(--f-disp); font-size: 1.35rem; font-weight: 700; letter-spacing: -.03em;
+    line-height: 1.15; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile-s { font-size: .72rem; color: var(--muted); }
+  .tile-hi { background: color-mix(in srgb, var(--accent) 12%, var(--panel)); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
+  .tile-hi .tile-v { color: var(--accent); }
+  .rig-gauge { margin-top: .8rem; }
+  .rg-bar { display: flex; gap: 4px; height: 14px; }
+  .rg-seg { flex: 1; border-radius: 4px; overflow: hidden; position: relative;
+    background: repeating-linear-gradient(135deg, var(--panel-3) 0 4px, transparent 4px 8px); border: 1px solid var(--line); }
+  .rg-seg i { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, var(--lime), var(--cyan)); }
+  .rg-key { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .4rem; font-family: var(--f-mono); font-size: .66rem; color: var(--muted); }
+  .rg-key span::before, .mg-key span::before { content: ""; display: inline-block; width: .6rem; height: .6rem;
+    border-radius: 2px; margin-right: .35rem; vertical-align: -.05em; }
+  .rg-key .k-u::before { background: linear-gradient(90deg, var(--lime), var(--cyan)); }
+  .rg-key .k-r::before { background: repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px); }
+  .rig-warn { margin: .8rem 0 0; font-size: .82rem; color: var(--critical); padding: .55rem .75rem; border-radius: 10px;
+    background: color-mix(in srgb, var(--critical) 9%, transparent); border: 1px solid color-mix(in srgb, var(--critical) 35%, transparent); }
+
+  /* ---------- use-case chips ---------- */
+  .index { margin: 0 0 2.5rem; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
+    padding: 1.2rem 1.3rem 1rem; box-shadow: var(--shadow); }
+  .ix-top { margin-bottom: .8rem; }
+  .uc-f { display: flex; flex-direction: column; }
+  .uc-list { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; }
+  .uc-chip { margin: 0; display: inline-flex; align-items: center; gap: .45rem; font: inherit; font-size: .82rem;
+    font-weight: 600; color: var(--ink-2); cursor: pointer; background: var(--panel-2);
+    border: 1px solid var(--line); border-radius: 10px; padding: .45rem .8rem .45rem .6rem;
+    transition: border-color .12s ease, background .12s ease, color .12s ease; }
+  .uc-chip:hover { border-color: var(--muted); color: var(--ink); }
+  .uc-chip .uc-tick { display: none; }
+  .uc-chip .uc-dot { width: .8rem; height: .8rem; border-radius: 4px; flex: none; background: var(--low);
+    box-shadow: inset 0 0 0 2px var(--panel-2); border: 2px solid var(--low); }
+  .uc-chip[aria-pressed="true"] { color: var(--ink); }
+  .uc-chip[aria-pressed="true"] .uc-dot { box-shadow: none; }
+  .uc-chip[data-uc="agentic"] { --c: var(--bar-agentic); }
+  .uc-chip[data-uc="coding"] { --c: var(--bar-coding); }
+  .uc-chip[data-uc="terminal"] { --c: var(--bar-terminal); }
+  .uc-chip[data-uc="computer"] { --c: var(--bar-computer); }
+  .uc-chip[data-uc="concurrency"] { --c: var(--bar-concurrency); }
+  .uc-chip[data-uc="longctx"] { --c: var(--bar-longctx); }
+  .uc-chip[data-uc="image"] { --c: var(--bar-image); }
+  .uc-chip[data-uc="video"] { --c: var(--bar-video); }
+  .uc-chip[data-uc="voice"] { --c: var(--bar-voice); }
+  .uc-chip[data-uc="narration"] { --c: var(--bar-narration); }
+  .uc-chip[data-uc="music"] { --c: var(--bar-music); }
+  .uc-chip .uc-dot { background: var(--c, var(--low)); border-color: var(--c, var(--low)); }
+  .uc-chip[aria-pressed="true"] { border-color: var(--c, var(--ok));
+    background: color-mix(in srgb, var(--c, var(--ok)) 14%, var(--panel));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--c, var(--ok)) 16%, transparent); }
+  .uc-legend { display: none; flex-wrap: wrap; align-items: center; gap: .3rem .55rem; margin: 0 0 .6rem; }
+  .uc-legend.on { display: flex; }
+  .lg-it { display: inline-flex; align-items: center; gap: .35rem; }
+  .lg-swatch { width: 16px; height: 6px; border-radius: 3px; background: var(--low); flex: none; }
+  .lg-swatch-avg { width: 24px; height: 6px; border-radius: 3px; background: var(--ok); flex: none; }
+  .lg-arr { font-family: var(--f-mono); color: var(--muted); }
+  .lg-word { font-size: .74rem; color: var(--muted); }
+  .uc-legend .uc-slot-agentic { background: var(--bar-agentic); }
+  .uc-legend .uc-slot-coding { background: var(--bar-coding); }
+  .uc-legend .uc-slot-terminal { background: var(--bar-terminal); }
+  .uc-legend .uc-slot-computer { background: var(--bar-computer); }
+  .uc-legend .uc-slot-concurrency { background: var(--bar-concurrency); }
+  .uc-legend .uc-slot-longctx { background: var(--bar-longctx); }
+  .uc-legend .uc-slot-image { background: var(--bar-image); }
+  .uc-legend .uc-slot-video { background: var(--bar-video); }
+  .uc-legend .uc-slot-voice { background: var(--bar-voice); }
+  .uc-legend .uc-slot-narration { background: var(--bar-narration); }
+  .uc-legend .uc-slot-music { background: var(--bar-music); }
+  .uc-out { margin: 0 0 .9rem; font-size: .88rem; color: var(--ink-2); }
+  .uc-out:not(:empty) { padding: .85rem 1rem .85rem 3.1rem; border-radius: 14px; position: relative;
+    background: color-mix(in srgb, var(--ok) 8%, var(--panel-2)); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); }
+  .uc-out:not(:empty)::before { content: "\2605"; position: absolute; left: .85rem; top: .7rem;
+    width: 1.6rem; height: 1.6rem; display: grid; place-items: center; border-radius: 8px;
+    background: var(--ok); color: var(--bg); font-size: .9rem; }
+  .uc-out strong { color: var(--ink); font-weight: 700; }
+  .uc-out .uc-why { display: block; margin-top: .3rem; font-size: .78rem; color: var(--muted); }
+  .uc-fold { margin-top: .35rem; }
+  .uc-fold > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: .3rem;
+    font-size: .76rem; font-weight: 600; color: var(--accent-2); width: fit-content; }
+  .uc-fold > summary::-webkit-details-marker { display: none; }
+  .uc-fold > summary::after { content: "\203A"; transition: transform .15s ease; }
+  .uc-fold[open] > summary::after { transform: rotate(90deg); }
+
+  /* ---------- model list ---------- */
+  .ix-head, .ix-row { display: grid; align-items: center; gap: 1rem;
+    grid-template-columns: 2rem minmax(0, 1fr) 7.6rem 10.5rem 13rem; }
+  .ix-head { padding: .2rem .9rem .45rem; font-family: var(--f-mono); font-size: .6rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); }
+  .ix-head span:last-child { text-align: left; }
+  .ix-rows { display: flex; flex-direction: column; gap: 4px; }
+  .ix-row { padding: .7rem .9rem; background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 12px;
+    text-decoration: none; color: inherit; position: relative;
+    transition: background .15s ease, border-color .15s ease, transform .15s ease; }
+  .ix-row:hover, .ix-row:focus-visible { background: var(--panel-3); border-color: var(--line); transform: translateY(-1px); }
+  .ix-row.uc-out-of-scope { opacity: .45; }
+  .ix-row.v-toolarge { opacity: .7; }
+  .ix-rank { font-family: var(--f-disp); font-weight: 700; font-size: 1rem; color: var(--muted);
+    font-variant-numeric: tabular-nums; text-align: center; display: grid; place-items: center; height: 2rem;
+    border-radius: 8px; }
+  .ix-rank:empty::before { content: ""; width: .6rem; height: .6rem; border-radius: 50%; background: var(--low); }
+  .ix-row.v-ready .ix-rank:empty::before { background: var(--ok); box-shadow: 0 0 10px color-mix(in srgb, var(--ok) 60%, transparent); }
+  .ix-row.v-degraded .ix-rank:empty::before { background: var(--warn); }
+  .ix-row.v-blocked .ix-rank:empty::before { background: var(--critical); }
+  .ix-row[data-rank="1"] .ix-rank { background: var(--accent); color: var(--accent-ink); }
+  .ix-row[data-rank="2"] .ix-rank, .ix-row[data-rank="3"] .ix-rank { background: var(--panel); color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--line); }
+  .ix-row.uc-best { background: color-mix(in srgb, var(--accent) 9%, var(--panel-2));
+    border-color: color-mix(in srgb, var(--accent) 55%, transparent); }
+  .ix-row.uc-best .ix-name::after { content: "best"; margin-left: .5rem; font-family: var(--f-mono); font-size: .58rem;
+    font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent-ink); background: var(--accent);
+    border-radius: 999px; padding: .1em .5em; }
+  .ix-id { display: flex; flex-direction: column; justify-content: center; gap: .35rem; min-width: 0; }
+  .ix-name { font-weight: 600; font-size: .95rem; letter-spacing: -.01em; display: flex; align-items: center; min-width: 0; }
+  .ix-name em { font-style: normal; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ix-row.no-bar .ix-name em::after { content: "\2020"; margin-left: .3rem; font-size: .8em; color: var(--muted); vertical-align: super; }
+  .ix-bars { display: none; }
+  .ix-row.j1 .ix-bars, .ix-row.multi .ix-bars { display: flex; flex-direction: column; gap: 3px; }
+  .ix-lane { display: none; position: relative; height: 6px; background: var(--panel-3); border-radius: 3px; overflow: hidden; }
+  .ix-lane.on { display: block; }
+  .ix-lane > i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 3px;
+    transition: width .45s cubic-bezier(.2, .7, .3, 1); }
+  .ix-lane-avg > i { background: var(--ok); }
+  .uc-slot-agentic > i { background: var(--bar-agentic); }
+  .uc-slot-coding > i { background: var(--bar-coding); }
+  .uc-slot-terminal > i { background: var(--bar-terminal); }
+  .uc-slot-computer > i { background: var(--bar-computer); }
+  .uc-slot-concurrency > i { background: var(--bar-concurrency); }
+  .uc-slot-longctx > i { background: var(--bar-longctx); }
+  .uc-slot-image > i { background: var(--bar-image); }
+  .uc-slot-video > i { background: var(--bar-video); }
+  .uc-slot-voice > i { background: var(--bar-voice); }
+  .uc-slot-narration > i { background: var(--bar-narration); }
+  .uc-slot-music > i { background: var(--bar-music); }
+  .ix-strip { display: flex; gap: 3px; flex-wrap: wrap; }
+  .sq { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--panel-3);
+    box-shadow: inset 0 0 0 1px var(--line); }
+  .sq.s-ready { background: var(--ok); box-shadow: none; }
+  .sq.s-degraded { background: var(--warn); box-shadow: none; }
+  .sq.s-blocked { background: var(--critical); box-shadow: none; }
+  .ix-verdict { display: flex; flex-direction: column; gap: .2rem; min-width: 0; }
+  .ix-status { font-size: .74rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    display: inline-flex; align-items: center; gap: .35rem; color: var(--ink-2); }
+  .ix-status::before { content: ""; width: .5rem; height: .5rem; border-radius: 50%; background: var(--low); flex: none; }
+  .ix-status.v-ready { color: var(--ok); } .ix-status.v-ready::before { background: var(--ok); }
+  .ix-status.v-degraded { color: var(--warn); } .ix-status.v-degraded::before { background: var(--warn); }
+  .ix-status.v-blocked { color: var(--critical); } .ix-status.v-blocked::before { background: var(--critical); }
+  .ix-status.v-toolarge, .ix-status.v-unknown, .ix-status.v-nofit { color: var(--muted); }
+  .ix-eng { font-family: var(--f-mono); font-size: .7rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ix-fit { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+  .ix-fit-top { display: flex; justify-content: space-between; align-items: baseline; gap: .5rem; }
+  .ix-size { font-family: var(--f-mono); font-size: .8rem; font-weight: 700; color: var(--ink); white-space: nowrap; }
+  .ix-meta { font-family: var(--f-mono); font-size: .68rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ix-meter { display: block; height: 7px; border-radius: 4px; background: var(--panel-3); overflow: hidden;
+    box-shadow: inset 0 0 0 1px var(--line-soft); }
+  .ix-meter i { display: block; height: 100%; width: 0; border-radius: 4px; background: var(--medium);
+    transition: width .45s cubic-bezier(.2, .7, .3, 1); }
+  .ix-row.v-ready .ix-meter i { background: linear-gradient(90deg, var(--lime), var(--cyan)); }
+  .ix-row.v-degraded .ix-meter i { background: var(--warn); }
+  .ix-row.v-blocked .ix-meter i { background: var(--critical); }
+  .ix-row.v-toolarge .ix-meter i { background: repeating-linear-gradient(135deg, var(--critical) 0 4px, transparent 4px 7px); }
+  .ix-key { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem .5rem; margin-top: .8rem;
+    font-family: var(--f-mono); font-size: .66rem; color: var(--muted); }
+  .ix-key .sq { width: 10px; height: 10px; margin-left: .4rem; }
+  .ix-key-m { display: inline-block; width: 36px; height: 7px; border-radius: 4px; background: var(--panel-3); margin-left: .8rem; overflow: hidden; }
+  .ix-key-m i { display: block; width: 60%; height: 100%; background: linear-gradient(90deg, var(--lime), var(--cyan)); }
+  @media (max-width: 860px) {
+    .ix-head { display: none; }
+    .ix-row { grid-template-columns: 2rem minmax(0, 1fr) auto; row-gap: .5rem; column-gap: .7rem; }
+    .ix-rank { grid-column: 1; grid-row: 1 / span 2; align-self: start; }
+    .ix-id { grid-column: 2 / -1; grid-row: 1; }
+    .ix-verdict { grid-column: 2; grid-row: 2; }
+    .ix-strip { grid-column: 3; grid-row: 2; justify-content: flex-end; max-width: 7rem; }
+    .ix-fit { grid-column: 2 / -1; grid-row: 3; }
+  }
+  @media (prefers-reduced-motion: reduce) { .ix-lane > i, .ix-meter i, .hstat-bar b { transition: none; } .live-dot { animation: none; } }
+
+  /* ---------- detail card ---------- */
+  .detail { margin-bottom: 2.5rem; }
+  .back { appearance: none; cursor: pointer; font: inherit; font-size: .84rem; font-weight: 600; color: var(--ink);
+    background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: .45rem 1rem .45rem .8rem;
+    margin: 0 0 1rem; display: inline-flex; align-items: center; gap: .45rem; box-shadow: var(--shadow); }
+  .back:hover { border-color: var(--accent); }
+  .back-bottom { margin: 1.25rem 0 0; }
+  .model { margin-bottom: 2.5rem; scroll-margin-top: 1rem; }
+  .detail .model { margin-bottom: 0; }
+  .model-head { position: relative; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r) var(--r) 0 0;
+    padding: 1.6rem 1.6rem 1.3rem; overflow: hidden; }
+  .model-head::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 4px; background: var(--medium); }
+  .model.v-ready .model-head::before { background: linear-gradient(90deg, var(--lime), var(--cyan)); }
+  .model.v-degraded .model-head::before { background: var(--warn); }
+  .model.v-blocked .model-head::before { background: var(--critical); }
+  .model.v-toolarge .model-head::before, .model.v-unknown .model-head::before { background: var(--low); }
+  .model-id { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; margin-bottom: 1rem; }
+  .model-id h2 { font-family: var(--f-disp); font-size: clamp(1.6rem, 4vw, 2.4rem); font-weight: 700; margin: 0; letter-spacing: -.035em; line-height: 1.05; }
+  .verdict { font-size: .78rem; font-weight: 700; padding: .3rem .75rem; border-radius: 999px; color: var(--ink-2);
+    background: var(--panel-3); display: inline-flex; align-items: center; gap: .4rem; }
+  .verdict::before { content: ""; width: .5rem; height: .5rem; border-radius: 50%; background: currentColor; }
+  .verdict.v-ready { color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); }
+  .verdict.v-degraded { color: var(--warn); background: color-mix(in srgb, var(--warn) 13%, transparent); }
+  .verdict.v-blocked { color: var(--critical); background: color-mix(in srgb, var(--critical) 13%, transparent); }
+  .verdict.v-toolarge, .verdict.v-unknown { color: var(--muted); }
+  .spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: .5rem; margin: 0 0 1rem; }
+  .spec div { display: flex; flex-direction: column; gap: .15rem; min-width: 0; padding: .65rem .8rem;
+    background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 12px; }
+  .spec dt, .eng-meta dt, .api-row dt { font-family: var(--f-mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .spec dd { margin: 0; font-size: .86rem; font-weight: 600; color: var(--ink); }
+  .model-gauge { margin: 0 0 .5rem; }
+  .mem-bar { display: flex; height: 16px; border-radius: 6px; overflow: hidden; background: var(--panel-3);
+    box-shadow: inset 0 0 0 1px var(--line); }
+  .mem-bar i { display: block; height: 100%; width: 0; transition: width .45s cubic-bezier(.2, .7, .3, 1); }
+  .mem-bar .mb-w { background: linear-gradient(90deg, var(--lime), var(--cyan)); }
+  .mem-bar .mb-o { background: repeating-linear-gradient(135deg, var(--muted) 0 3px, transparent 3px 6px); }
+  .mem-bar .mb-f { background: color-mix(in srgb, var(--accent-2) 22%, transparent); }
+  .mg-key { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: .4rem; font-family: var(--f-mono); font-size: .64rem; color: var(--muted); }
+  .mg-key .k-w::before { background: linear-gradient(90deg, var(--lime), var(--cyan)); }
+  .mg-key .k-o::before { background: repeating-linear-gradient(135deg, var(--muted) 0 2px, transparent 2px 4px); }
+  .mg-key .k-f::before { background: color-mix(in srgb, var(--accent-2) 35%, transparent); }
+  .model-fit { margin: .2rem 0 .9rem; font-family: var(--f-mono); font-size: .8rem; color: var(--ink); }
+  .model-fit.toolarge { color: var(--critical); }
+  .model-note { margin: 0 0 1rem; font-size: .92rem; color: var(--ink-2); max-width: 54rem; }
+  .srcs { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin: 0 0 .4rem; }
+  .q-cat { font-family: var(--f-mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-right: .2rem; }
+  .src { font-size: .74rem; font-weight: 500; color: var(--ink-2); text-decoration: none; border: 1px solid var(--line);
+    border-radius: 999px; padding: .15rem .6rem; background: var(--panel-2); }
+  .src:hover { border-color: var(--accent-2); color: var(--ink); }
+  .scores-wrap { margin-top: 1.1rem; padding-top: 1rem; border-top: 1px dashed var(--line); }
+  .scores { display: grid; grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr)); gap: 1rem 2rem; margin-top: .6rem; }
+  .score-col { display: flex; flex-direction: column; gap: .45rem; min-width: 0; }
+  .score-cat { font-size: .78rem; font-weight: 700; color: var(--ink); }
+  .score { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) 4.2rem; align-items: center; gap: .7rem; }
+  .score-k { font-size: .76rem; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .score-bar { height: 8px; border-radius: 4px; background: var(--panel-3); overflow: hidden; }
+  .score-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--lime)); border-radius: 4px; }
+  .score-bar.none { background: repeating-linear-gradient(90deg, var(--line) 0 3px, transparent 3px 7px); height: 2px; }
+  .score-v { font-family: var(--f-mono); font-size: .78rem; font-weight: 700; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* engine rail */
+  .eng { display: grid; grid-template-columns: 14rem 1fr; background: var(--panel); border: 1px solid var(--line);
+    border-top: 0; border-radius: 0 0 var(--r) var(--r); overflow: hidden; }
+  .eng-tabs { display: flex; flex-direction: column; gap: 3px; padding: .6rem; background: var(--panel-2);
+    border-right: 1px solid var(--line); }
+  .eng-panes { min-width: 0; }
+  .eng-tab { appearance: none; border: 1px solid transparent; cursor: pointer; text-align: left; background: transparent;
+    color: var(--ink-2); padding: .55rem .7rem; border-radius: 10px; display: flex; flex-direction: column; gap: .1rem; font: inherit; }
+  .eng-tab:hover { background: var(--panel-3); color: var(--ink); }
+  .eng-tab[aria-selected="true"] { background: var(--panel); color: var(--ink); border-color: var(--line); box-shadow: var(--shadow); }
+  .eng-tab-n { font-size: .85rem; font-weight: 700; }
+  .eng-tab-s { font-size: .68rem; color: var(--muted); display: inline-flex; align-items: center; gap: .35rem; }
+  .eng-tab-s.s-ready::before, .eng-tab-s.s-degraded::before, .eng-tab-s.s-blocked::before, .eng-tab-s.s-unknown::before {
+    content: ""; width: .5rem; height: .5rem; border-radius: 2px; flex: none; }
+  .eng-tab-s.s-ready::before { background: var(--ok); }
+  .eng-tab-s.s-degraded::before { background: var(--warn); }
+  .eng-tab-s.s-blocked::before { background: var(--critical); }
+  .eng-tab-s.s-unknown::before { background: var(--low); }
+  .eng-pane { padding: 1.3rem 1.4rem 1.4rem; display: flex; flex-direction: column; gap: .9rem; min-width: 0; }
+  .eng-meta { margin: 0; display: flex; flex-wrap: wrap; gap: .4rem; }
+  .eng-meta div { display: flex; flex-direction: column; gap: .05rem; padding: .4rem .65rem; border-radius: 10px;
+    background: var(--panel-2); border: 1px solid var(--line-soft); min-width: 0; }
+  .eng-meta dd { margin: 0; font-size: .8rem; font-weight: 600; color: var(--ink); }
+  .rel-note { font-weight: 400; color: var(--muted); font-size: .72rem; }
+  .eng-build { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; padding: .7rem .85rem; border-radius: 12px;
+    background: color-mix(in srgb, var(--accent-2) 7%, var(--panel-2)); border: 1px solid var(--line); }
+  .eng-build-k { font-family: var(--f-mono); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .eng-build a, .eng-build span:not(.eng-build-k) { font-family: var(--f-mono); font-size: .8rem; font-weight: 700; word-break: break-all; }
+  .eng-build.none span:not(.eng-build-k) { color: var(--muted); font-weight: 400; }
+  .build-bpw { font-size: .68rem !important; padding: .15em .55em; border-radius: 999px; background: var(--panel-3); }
+  .build-bpw:empty { display: none; }
+  .build-bpw.b-full { color: var(--ok); background: color-mix(in srgb, var(--ok) 13%, transparent); }
+  .build-bpw.b-mild, .build-bpw.b-low, .build-bpw.b-pruned { color: var(--warn); background: color-mix(in srgb, var(--warn) 13%, transparent); }
+  .build-bpw.b-unusable { color: var(--critical); background: color-mix(in srgb, var(--critical) 13%, transparent); }
+  .eng-fit { font-family: var(--f-mono); font-size: .8rem; color: var(--ink); }
+  .eng-fit:empty { display: none; }
+  .eng-fit.toolarge { color: var(--critical); }
+  .ladder-wrap, .ctx-wrap { display: flex; flex-direction: column; gap: .5rem; padding: .9rem 1rem; border-radius: 12px;
+    background: var(--panel-2); border: 1px solid var(--line-soft); }
+  .ctx-k { font-size: .78rem; font-weight: 700; color: var(--ink); }
+  .ctx-k em { font-style: normal; font-weight: 400; font-size: .7rem; color: var(--muted); }
+  .ladder { position: relative; display: flex; align-items: flex-end; gap: 3px; height: 84px;
+    border-bottom: 1px solid var(--line); padding-top: 4px; }
+  .lb { flex: 1 1 0; min-width: 3px; max-width: 26px; border-radius: 3px 3px 0 0; background: var(--panel-3);
+    box-shadow: inset 0 0 0 1px var(--line); }
+  .lb.fits.b-full { background: var(--ok); box-shadow: none; }
+  .lb.fits.b-mild, .lb.fits.b-low, .lb.fits.b-pruned { background: var(--warn); box-shadow: none; }
+  .lb.fits.b-unusable { background: var(--critical); box-shadow: none; }
+  .lb.pick { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .lb-line { position: absolute; left: 0; right: 0; border-top: 1.5px dashed var(--critical); pointer-events: none; }
+  .lb-line em { position: absolute; right: 0; bottom: 2px; font-style: normal; font-family: var(--f-mono); font-size: .6rem;
+    color: var(--critical); background: var(--panel-2); padding: 0 .25rem; }
+  .ladder-cap { margin: 0; font-family: var(--f-mono); font-size: .68rem; color: var(--muted); }
+  .ladder-cap b { color: var(--ink); }
+  .fidelity { margin: 0; font-size: .84rem; color: var(--ink-2); padding: .7rem .85rem; border-radius: 12px;
+    background: color-mix(in srgb, var(--warn) 9%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 35%, transparent); }
+  .fidelity.b-unusable { background: color-mix(in srgb, var(--critical) 9%, transparent); border-color: color-mix(in srgb, var(--critical) 35%, transparent); }
+  .fidelity strong { color: var(--ink); }
+  .fidelity.b-unusable strong { color: var(--critical); }
+  .ctx { display: flex; flex-direction: column; gap: .35rem; }
+  .cx { display: grid; grid-template-columns: 11rem 4.5rem minmax(0, 1fr) 5.5rem; align-items: center; gap: .7rem;
+    font-size: .78rem; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .cx-h { font-family: var(--f-mono); font-size: .58rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .cx-l em { font-style: normal; color: var(--muted); font-size: .7rem; }
+  .cx-kv { font-family: var(--f-mono); font-size: .72rem; }
+  .cx-bar { height: 10px; border-radius: 3px; background: var(--panel-3); overflow: hidden; }
+  .cx-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--lime)); border-radius: 3px; }
+  .ctx-n { font-family: var(--f-mono); font-weight: 700; color: var(--ink); text-align: right; }
+  .ctx-n.none { color: var(--critical); font-weight: 400; font-size: .7rem; }
+  .ctx-cap .ctx-n { color: var(--ok); }
+  .ctx-why { margin: .2rem 0 0; font-size: .72rem; color: var(--muted); }
+  .eng-note { margin: 0; font-size: .9rem; color: var(--ink-2); max-width: 56rem; }
+  .eng-clear { margin: 0; font-size: .82rem; color: var(--muted); }
+  .blockers-label { margin: .2rem 0 0; font-size: .78rem; color: var(--muted); display: flex; align-items: baseline; gap: .35rem; }
+  .blockers-label b { font-family: var(--f-disp); font-size: 1.4rem; color: var(--ink); line-height: 1; }
+  @media (max-width: 820px) {
+    .eng { grid-template-columns: 1fr; }
+    .eng-tabs { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+    .eng-tab { flex: 0 0 auto; }
+    .cx { grid-template-columns: 7.5rem 3.8rem minmax(0, 1fr) 4.5rem; gap: .45rem; }
+    .score { grid-template-columns: minmax(0, 7rem) minmax(0, 1fr) 3.8rem; }
+  }
+
+  /* issues */
+  .rows, .cross-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+  .row { --sev: var(--medium); background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 12px;
+    padding: .65rem .85rem .65rem 1rem; position: relative; overflow: hidden; }
+  .row::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--sev); }
+  .row.sev-critical { --sev: var(--critical); }
+  .row.sev-high { --sev: var(--high); }
+  .row.sev-medium { --sev: var(--medium); }
+  .row.sev-low { --sev: var(--low); }
+  .row-head { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: .2rem; }
+  .ref { font-family: var(--f-mono); font-size: .74rem; font-weight: 700; color: var(--accent-2); text-decoration: none; }
+  .ref:hover { text-decoration: underline; }
+  .pill { font-size: .64rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: .12rem .5rem;
+    border-radius: 999px; background: var(--panel-3); color: var(--ink-2); }
+  .pill.merged { color: var(--ok); background: color-mix(in srgb, var(--ok) 14%, transparent); }
+  .pill.closed { color: var(--muted); }
+  .sev-tag { margin-left: auto; font-size: .64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--sev); }
+  .row-body > summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: .4rem; }
+  .row-body > summary::-webkit-details-marker { display: none; }
+  .row-body > summary::after { content: "+"; margin-left: auto; font-family: var(--f-mono); color: var(--muted); }
+  .row-body[open] > summary::after { content: "\2212"; }
+  .row h4 { font-size: .88rem; font-weight: 600; margin: 0; }
+  .row p { margin: .35rem 0 0; font-size: .84rem; color: var(--ink-2); max-width: 54rem; }
+  .row p code, .eng-note code, .model-note code { font-size: .8em; }
+
+  /* ---------- panels ---------- */
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 1.3rem 1.4rem;
+    margin-bottom: 1rem; box-shadow: var(--shadow); }
+  .panel h2 { font-family: var(--f-disp); font-size: 1.25rem; letter-spacing: -.02em; margin: 0 0 .8rem; font-weight: 700; }
+  .panel-lead { margin: 0 0 1rem; font-size: .88rem; color: var(--ink-2); max-width: 56rem; }
+  .panel > ul, .panel-fold > ul { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .55rem; }
+  .panel-fold > ul > li { font-size: .87rem; color: var(--ink-2); }
+  .panel strong { color: var(--ink); }
+  .panel-fold > summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: .6rem; }
+  .panel-fold > summary::-webkit-details-marker { display: none; }
+  .panel-fold > summary::before { content: "+"; display: grid; place-items: center; width: 1.6rem; height: 1.6rem;
+    border-radius: 8px; background: var(--panel-3); color: var(--ink); font-family: var(--f-mono); font-weight: 700; flex: none; }
+  .panel-fold[open] > summary::before { content: "\2212"; background: var(--accent); color: var(--accent-ink); }
+  .panel-fold > summary h2 { margin: 0; }
+  .panel-fold > ul, .panel-fold > .panel-lead { margin-top: 1.1rem; }
+  .api { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .5rem; }
+  .api-row { background: var(--panel-2); border: 1px solid var(--line-soft); border-radius: 12px; padding: .7rem .85rem;
+    display: flex; flex-direction: column; gap: .25rem; }
+  .api-row dd { margin: 0; font-size: .82rem; color: var(--ink-2); }
+  .api-row:last-child { border-color: color-mix(in srgb, var(--warn) 40%, transparent); }
+  .api-row:last-child dt { color: var(--warn); }
+
+  /* ---------- news ---------- */
+  #news { margin: -1rem 0 2.5rem; }
+  #news h2 { display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
+  .news-date { font-family: var(--f-mono); font-size: .7rem; font-weight: 500; letter-spacing: 0; color: var(--muted); }
+  .news-h { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; margin: 1.2rem 0 .6rem; }
+  .news-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .6rem;
+    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); }
+  .news-card { display: flex; flex-direction: column; gap: .4rem; height: 100%; padding: 1rem 1.05rem; border-radius: 14px;
+    background: var(--panel-2); border: 1px solid var(--line-soft); color: inherit; text-decoration: none;
+    transition: transform .15s ease, border-color .15s ease; }
+  .news-card:hover, .news-card:focus-visible { transform: translateY(-2px); border-color: var(--accent-2); }
+  .news-n { font-family: var(--f-disp); font-size: 2rem; font-weight: 700; line-height: 1; letter-spacing: -.04em;
+    background: linear-gradient(95deg, var(--lime), var(--cyan)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .news-host { font-family: var(--f-mono); font-size: .62rem; color: var(--muted); text-transform: lowercase; }
+  .news-item h4 { margin: 0; font-size: .92rem; font-weight: 700; line-height: 1.3; color: var(--ink); }
+  .news-item p { margin: 0; font-size: .8rem; color: var(--ink-2); line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .news-empty { font-size: .84rem; color: var(--muted); margin: 0; }
+
+  /* ---------- footer ---------- */
+  .disclaimer { margin: 2rem 0 0; font-size: .76rem; color: var(--muted); max-width: 56rem; }
+  .disclaimer strong { color: var(--ink-2); }
+  footer { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--line); font-size: .76rem; color: var(--muted);
+    display: flex; align-items: center; gap: .5rem; }
+  @media (max-width: 560px) {
+    .wrap { padding: 1rem .9rem 4rem; }
+    .rig, .index, .panel { padding: 1rem; }
+    .model-head { padding: 1.3rem 1.1rem 1.1rem; }
+    .eng-pane { padding: 1rem; }
+    .cx-kv, .cx-h span:nth-child(2) { display: none; }
+    .cx { grid-template-columns: 7.5rem minmax(0, 1fr) 4.5rem; }
+  }
+"""
 
 
 TEMPLATE = """<title>Apple LLM Performance Tracker</title>
@@ -548,698 +1129,37 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 <link rel="canonical" href="https://coltonkawamura.github.io/apple-llm-performance/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
-<style>
-  :root {{
-    --bg: #eef1f5; --surface: #ffffff; --surface-2: #f6f8fa;
-    --ink: #141a20; --ink-2: #3d4854; --muted: #5f6b78;
-    --line: #d9e0e8; --line-soft: #e8edf2;
-    --accent: #a85a26;
-    --critical: #a8352a; --high: #8a5410; --medium: #4a6070; --low: #78838f;
-    --ok: #25704e; --ok-tint: #e8f5ee; --warn: #8a5410;
-    /* Per-job colours: one per use case, in display order. They tint the chip
-       when a job is selected and its lane when several are, so a combined pick
-       reads as its parts. Deliberately spread around the wheel and kept clear of
-       the average green (--ok): green is reserved for the average lane, so no
-       category may read as "the average". Add a job, add a colour here. */
-    --bar-agentic: #ea580c; --bar-coding: #2563eb; --bar-terminal: #7c3aed;
-    --bar-computer: #0891b2; --bar-concurrency: #d97706; --bar-longctx: #eab308;
-    --bar-image: #db2777; --bar-video: #c026d3; --bar-voice: #0d9488;
-    --bar-narration: #be123c; --bar-music: #4f46e5;
-    --glow-1: rgba(64, 118, 255, .13); --glow-2: rgba(168, 85, 247, .11);
-    --glow-3: rgba(255, 140, 70, .10);
-    --grad-brand: linear-gradient(120deg, #2f5fe0 0%, #7c3aed 50%, #c2410c 100%);
-    --grad-accent: linear-gradient(120deg, #ea580c, #c2410c);
-    --glow-accent: rgba(234, 88, 12, .30);
-    --shadow-1: 0 10px 30px rgba(23, 32, 48, .10);
-    --shadow-2: 0 18px 50px rgba(23, 32, 48, .16);
-    --radius: 16px;
-  }}
-  @media (prefers-color-scheme: dark) {{
-    :root:not([data-theme="light"]) {{
-      --bg: #05070c; --surface: rgba(255, 255, 255, .038); --surface-2: rgba(255, 255, 255, .07);
-      --ink: #e9edf4; --ink-2: #b4bfcd; --muted: #7d8b9d;
-      --line: rgba(255, 255, 255, .10); --line-soft: rgba(255, 255, 255, .05);
-      --accent: #ff9a5c;
-      --critical: #ff7a6b; --high: #e5bb62; --medium: #8aa0b4; --low: #66727f;
-      --ok: #4cd68a; --ok-tint: rgba(76, 214, 138, .10); --warn: #e5bb62;
-      --bar-agentic: #ffa94d; --bar-coding: #6ea8fe; --bar-terminal: #b39dfa;
-      --bar-computer: #38e1f5; --bar-concurrency: #f7c948; --bar-longctx: #f5d95a;
-      --bar-image: #f783bf; --bar-video: #ea86fa; --bar-voice: #3fe0c5;
-      --bar-narration: #ff8fa3; --bar-music: #93a0fb;
-      --glow-1: rgba(47, 123, 255, .17); --glow-2: rgba(198, 86, 255, .12);
-      --glow-3: rgba(255, 140, 70, .10);
-      --grad-brand: linear-gradient(120deg, #5aa2ff 0%, #b57bfa 48%, #ff9a5c 100%);
-      --grad-accent: linear-gradient(120deg, #ff9a5c, #ff6a4d);
-      --glow-accent: rgba(255, 154, 92, .55);
-      --shadow-1: 0 14px 40px rgba(0, 0, 0, .45);
-      --shadow-2: 0 22px 70px rgba(0, 0, 0, .6);
-      --radius: 16px;
-    }}
-  }}
-  :root[data-theme="dark"] {{
-    --bg: #05070c; --surface: rgba(255, 255, 255, .038); --surface-2: rgba(255, 255, 255, .07);
-    --ink: #e9edf4; --ink-2: #b4bfcd; --muted: #7d8b9d;
-    --line: rgba(255, 255, 255, .10); --line-soft: rgba(255, 255, 255, .05);
-    --accent: #ff9a5c;
-    --critical: #ff7a6b; --high: #e5bb62; --medium: #8aa0b4; --low: #66727f;
-    --ok: #4cd68a; --ok-tint: rgba(76, 214, 138, .10); --warn: #e5bb62;
-    --bar-agentic: #ffa94d; --bar-coding: #6ea8fe; --bar-terminal: #b39dfa;
-    --bar-computer: #38e1f5; --bar-concurrency: #f7c948; --bar-longctx: #f5d95a;
-    --bar-image: #f783bf; --bar-video: #ea86fa; --bar-voice: #3fe0c5;
-    --bar-narration: #ff8fa3; --bar-music: #93a0fb;
-    --glow-1: rgba(47, 123, 255, .17); --glow-2: rgba(198, 86, 255, .12);
-    --glow-3: rgba(255, 140, 70, .10);
-    --grad-brand: linear-gradient(120deg, #5aa2ff 0%, #b57bfa 48%, #ff9a5c 100%);
-    --grad-accent: linear-gradient(120deg, #ff9a5c, #ff6a4d);
-    --glow-accent: rgba(255, 154, 92, .55);
-    --shadow-1: 0 14px 40px rgba(0, 0, 0, .45);
-    --shadow-2: 0 22px 70px rgba(0, 0, 0, .6);
-    --radius: 16px;
-  }}
-  * {{ box-sizing: border-box; }}
-  body {{
-    margin: 0; background: var(--bg); color: var(--ink);
-    font-family: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    font-size: 16px; line-height: 1.55; -webkit-font-smoothing: antialiased;
-    position: relative; min-height: 100vh; overflow-x: hidden;
-  }}
-  /* Ambient aurora: three slow-drifting light fields behind everything.
-     Pure gradients - no assets, no layout impact, disabled for reduced motion. */
-  body::before {{
-    content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
-    background:
-      radial-gradient(52rem 36rem at 82% -12%, var(--glow-1), transparent 62%),
-      radial-gradient(46rem 34rem at 4% 16%, var(--glow-2), transparent 62%),
-      radial-gradient(58rem 42rem at 52% 112%, var(--glow-3), transparent 62%);
-    animation: aurora-drift 26s ease-in-out infinite alternate;
-  }}
-  @keyframes aurora-drift {{
-    0% {{ transform: translate3d(0, 0, 0) scale(1); }}
-    100% {{ transform: translate3d(-1.5rem, 1.2rem, 0) scale(1.06); }}
-  }}
-  body::after {{
-    content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none;
-    background-image: radial-gradient(rgba(255, 255, 255, .05) 1px, transparent 1.4px);
-    background-size: 30px 30px;
-    -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 26rem);
-    mask-image: linear-gradient(180deg, rgba(0, 0, 0, .5), transparent 26rem);
-  }}
-  @media (prefers-color-scheme: light) {{
-    body::before {{
-      background:
-        radial-gradient(52rem 36rem at 82% -12%, rgba(64, 118, 255, .14), transparent 62%),
-        radial-gradient(46rem 34rem at 4% 16%, rgba(168, 85, 247, .11), transparent 62%),
-        radial-gradient(58rem 42rem at 52% 112%, rgba(255, 140, 70, .10), transparent 62%);
-    }}
-    body::after {{ background-image: radial-gradient(rgba(20, 30, 48, .07) 1px, transparent 1.4px); }}
-  }}
-  @media (prefers-reduced-motion: reduce) {{ body::before {{ animation: none; }} }}
-  .wrap {{ max-width: 64rem; margin: 0 auto; padding: 3rem 1.5rem 5rem; }}
-  .fork-note {{ margin: 0 0 1.4rem; padding: .9rem 1.1rem .9rem 1.2rem; border-radius: 12px;
-    background: var(--surface); border: 1px solid var(--line);
-    font-size: .86rem; line-height: 1.55; color: var(--ink-2); max-width: 54rem;
-    position: relative; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }}
-  .fork-note::before {{ content: ""; position: absolute; left: 0; top: .6rem; bottom: .6rem;
-    width: 3px; border-radius: 3px; background: var(--grad-accent); }}
-  .fork-note strong {{ color: var(--ink); font-weight: 600; }}
-  /* Hero band: the title carries the one gradient element on the page - the
-     brand read - and a status line under it turns the data counts into a
-     vitals readout instead of burying them in the footer. */
-  header {{ display: flex; flex-direction: column; gap: .7rem; margin-bottom: 2rem;
-    position: relative; padding-top: .4rem; }}
-  .hero-kicker {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .68rem;
-    letter-spacing: .34em; text-transform: uppercase; color: var(--muted); font-weight: 600; }}
-  h1 {{ font-size: clamp(2.1rem, 5.4vw, 3.3rem); font-weight: 700; margin: 0;
-    letter-spacing: -.03em; line-height: 1.05; text-wrap: balance; }}
-  h1 .grad {{ background: var(--grad-brand); -webkit-background-clip: text;
-    background-clip: text; color: transparent;
-    filter: drop-shadow(0 0 18px var(--glow-accent)); }}
-  .hero-sub {{ margin: 0; font-size: .92rem; color: var(--ink-2); max-width: 44rem; }}
-  .hero-stats {{ display: flex; flex-wrap: wrap; gap: .5rem 1.6rem; margin-top: .35rem; }}
-  .hstat {{ display: inline-flex; align-items: baseline; gap: .45rem; }}
-  .hstat strong {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 1.28rem;
-    font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; letter-spacing: -.02em; }}
-  .hstat span {{ font-size: .72rem; letter-spacing: .08em; text-transform: uppercase;
-    color: var(--muted); font-weight: 600; }}
-  @media (prefers-reduced-motion: reduce) {{ h1 .grad {{ filter: none; }} }}
-  html {{ scroll-behavior: smooth; }}
-  @media (prefers-reduced-motion: reduce) {{ html {{ scroll-behavior: auto; }} }}
-  .rig {{ background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 1.15rem 1.35rem; margin: 0 0 1.25rem; position: relative; overflow: hidden;
-    box-shadow: var(--shadow-1);
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }}
-  .rig::before {{ content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .22), transparent); }}
-  .rig select optgroup {{ font-weight: 600; }}
-  .rig-controls {{ display: flex; gap: 1.1rem; flex-wrap: wrap; align-items: flex-end; }}
-  .rig-f {{ display: flex; flex-direction: column; gap: .28rem; min-width: 0; }}
-  .rig-f > span {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .64rem;
-    letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }}
-  .rig select {{ font-family: inherit; font-size: .88rem; font-weight: 500; color: var(--ink);
-    background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px;
-    padding: .4rem .6rem; min-width: 8.5rem; }}
-  .rig select:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 1px; }}
-  .rig-out {{ margin: .9rem 0 0; font-size: .87rem; color: var(--ink-2); font-variant-numeric: tabular-nums;
-    transition: opacity .18s ease, transform .18s ease; }}
-  .rig-out strong {{ color: var(--ink); font-weight: 600; }}
-  /* The pooled figure re-renders on every picker change; a quick fade makes the
-     recompute visible without distracting. */
-  .rig-out.pulse {{ opacity: .25; transform: translateY(1px); }}
-  .rig select.chip-glow {{ box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent);
-    transition: box-shadow .3s ease; }}
-  @media (prefers-reduced-motion: reduce) {{ .rig-out.pulse {{ transition: none; }} }}
-  .rig-warn {{ margin: .5rem 0 0; font-size: .8rem; color: var(--critical);
-    border-left: 2px solid var(--critical); padding-left: .6rem; }}
-  .ix-status.v-toolarge {{ color: var(--low); border-color: var(--line); }}
-  .ix-row.v-toolarge {{ border-left-color: var(--low); opacity: .78; }}
-  .verdict.v-toolarge {{ color: var(--low); border-color: var(--line); background: var(--surface-2); }}
-  .model.v-toolarge .model-head {{ border-top-color: var(--low); }}
-  .index {{ margin: 0 0 2.75rem; }}
-  .ix-top {{ display: flex; flex-direction: column; align-items: flex-start; gap: .5rem;
-    margin-bottom: .85rem; }}
-  .uc-f {{ display: flex; flex-direction: column; align-items: flex-start; gap: .45rem; }}
-  .uc-f > span {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .64rem;
-    letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }}
-  /* Jobs are combinable: every checked chip is ANDed, and the best row is the
-     strongest model that fits for each one. A bare <select multiple> needs a
-     modifier key to multi-pick and hides the current choice, so the chips are
-     hand-rolled instead. */
-  .uc-list {{ display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0;
-    list-style: none; max-width: 54rem; }}
-  .uc-chip {{ margin: 0; display: inline-flex; align-items: center; gap: .4rem;
-    font-size: .78rem; font-weight: 500; color: var(--ink-2); cursor: pointer;
-    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-    padding: .22rem .7rem; transition: border-color .12s ease, background .12s ease, color .12s ease; }}
-  .uc-chip:hover {{ border-color: var(--muted); color: var(--ink); }}
-  .uc-chip:focus-visible {{ outline: 2px solid var(--accent); outline-offset: 1px; }}
-  .uc-chip .uc-tick {{ font-size: .8em; line-height: 1; color: var(--ok); visibility: hidden; }}
-  .uc-chip .uc-dot {{ width: .55rem; height: .55rem; border-radius: 50%;
-    background: var(--low); opacity: .5; flex: none; }}
-  /* A selected job tints its chip with its own colour, so a combined pick can
-     be read as its parts. The colours are per-id variables in :root - add a
-     job, add a colour there. */
-  .uc-chip[data-uc="agentic"] .uc-dot {{ background: var(--bar-agentic); }}
-  .uc-chip[data-uc="coding"] .uc-dot {{ background: var(--bar-coding); }}
-  .uc-chip[data-uc="terminal"] .uc-dot {{ background: var(--bar-terminal); }}
-  .uc-chip[data-uc="computer"] .uc-dot {{ background: var(--bar-computer); }}
-  .uc-chip[data-uc="concurrency"] .uc-dot {{ background: var(--bar-concurrency); }}
-  .uc-chip[data-uc="longctx"] .uc-dot {{ background: var(--bar-longctx); }}
-  .uc-chip[data-uc="image"] .uc-dot {{ background: var(--bar-image); }}
-  .uc-chip[data-uc="video"] .uc-dot {{ background: var(--bar-video); }}
-  .uc-chip[data-uc="voice"] .uc-dot {{ background: var(--bar-voice); }}
-  .uc-chip[data-uc="narration"] .uc-dot {{ background: var(--bar-narration); }}
-  .uc-chip[data-uc="music"] .uc-dot {{ background: var(--bar-music); }}
-  .uc-chip[aria-pressed="true"] {{ background: var(--ok-tint); border-color: var(--ok);
-    color: var(--ink); }}
-  .uc-chip[data-uc="agentic"][aria-pressed="true"] {{ border-color: var(--bar-agentic);
-    background: color-mix(in srgb, var(--bar-agentic) 12%, var(--surface)); }}
-  .uc-chip[data-uc="coding"][aria-pressed="true"] {{ border-color: var(--bar-coding);
-    background: color-mix(in srgb, var(--bar-coding) 12%, var(--surface)); }}
-  .uc-chip[data-uc="terminal"][aria-pressed="true"] {{ border-color: var(--bar-terminal);
-    background: color-mix(in srgb, var(--bar-terminal) 12%, var(--surface)); }}
-  .uc-chip[data-uc="computer"][aria-pressed="true"] {{ border-color: var(--bar-computer);
-    background: color-mix(in srgb, var(--bar-computer) 12%, var(--surface)); }}
-  .uc-chip[data-uc="concurrency"][aria-pressed="true"] {{ border-color: var(--bar-concurrency);
-    background: color-mix(in srgb, var(--bar-concurrency) 12%, var(--surface)); }}
-  .uc-chip[data-uc="longctx"][aria-pressed="true"] {{ border-color: var(--bar-longctx);
-    background: color-mix(in srgb, var(--bar-longctx) 12%, var(--surface)); }}
-  .uc-chip[data-uc="image"][aria-pressed="true"] {{ border-color: var(--bar-image);
-    background: color-mix(in srgb, var(--bar-image) 12%, var(--surface)); }}
-  .uc-chip[data-uc="video"][aria-pressed="true"] {{ border-color: var(--bar-video);
-    background: color-mix(in srgb, var(--bar-video) 12%, var(--surface)); }}
-  .uc-chip[data-uc="voice"][aria-pressed="true"] {{ border-color: var(--bar-voice);
-    background: color-mix(in srgb, var(--bar-voice) 12%, var(--surface)); }}
-  .uc-chip[data-uc="narration"][aria-pressed="true"] {{ border-color: var(--bar-narration);
-    background: color-mix(in srgb, var(--bar-narration) 12%, var(--surface)); }}
-  .uc-chip[data-uc="music"][aria-pressed="true"] {{ border-color: var(--bar-music);
-    background: color-mix(in srgb, var(--bar-music) 12%, var(--surface)); }}
-  .uc-chip[aria-pressed="true"] .uc-tick {{ visibility: visible; }}
-  .uc-chip[aria-pressed="true"] .uc-dot {{ opacity: 1; }}
-  .uc-out {{ margin: 0 0 .9rem; font-size: .87rem; color: var(--ink-2); }}
-  .uc-out strong {{ color: var(--ink); font-weight: 600; }}
-  /* Legend for the row bars, shown only when two or more jobs are chosen: one
-     swatch per picked job (the chip dots already carry the job names), an
-     arrow, and the green swatch labelled "avg" for the average lane. Hidden
-     (and emptied) whenever the pick is not combined. */
-  .uc-legend {{ display: none; flex-wrap: wrap; align-items: center; gap: .3rem .55rem;
-    margin: 0 0 .55rem; }}
-  .uc-legend.on {{ display: flex; }}
-  .lg-it {{ display: inline-flex; align-items: center; gap: .35rem; }}
-  .lg-swatch {{ width: 14px; height: 6px; border-radius: 3px; background: var(--low); flex: none; }}
-  .uc-legend .uc-slot-agentic {{ background: var(--bar-agentic); }}
-  .uc-legend .uc-slot-coding {{ background: var(--bar-coding); }}
-  .uc-legend .uc-slot-terminal {{ background: var(--bar-terminal); }}
-  .uc-legend .uc-slot-computer {{ background: var(--bar-computer); }}
-  .uc-legend .uc-slot-concurrency {{ background: var(--bar-concurrency); }}
-  .uc-legend .uc-slot-longctx {{ background: var(--bar-longctx); }}
-  .uc-legend .uc-slot-image {{ background: var(--bar-image); }}
-  .uc-legend .uc-slot-video {{ background: var(--bar-video); }}
-  .uc-legend .uc-slot-voice {{ background: var(--bar-voice); }}
-  .uc-legend .uc-slot-narration {{ background: var(--bar-narration); }}
-  .uc-legend .uc-slot-music {{ background: var(--bar-music); }}
-  .lg-swatch-avg {{ width: 22px; height: 6px; border-radius: 3px; background: var(--ok); flex: none;
-    box-shadow: 0 0 0 1px color-mix(in srgb, var(--ok) 35%, transparent); }}
-  .lg-arr {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600;
-    color: var(--muted); }}
-  .lg-word {{ font-size: .74rem; color: var(--muted); }}
-  .uc-out .uc-why {{ display: block; margin-top: .2rem; font-size: .78rem; color: var(--muted); }}
-  .uc-fold {{ margin-top: .3rem; }}
-  .uc-fold > summary {{ cursor: pointer; list-style: none; display: inline-flex; align-items: center;
-    gap: .3rem; font-size: .78rem; color: var(--accent); border-bottom: 1px dotted currentColor;
-    width: fit-content; }}
-  .uc-fold > summary::-webkit-details-marker {{ display: none; }}
-  .uc-fold > summary::after {{ content: "\\203A"; font-size: .9em; transition: transform .15s ease; }}
-  .uc-fold[open] > summary::after {{ transform: rotate(90deg); }}
-  .uc-fold > summary:hover {{ color: var(--ink-2); }}
-  .uc-fold .uc-why {{ margin-top: .45rem; }}
-  .ix-row.uc-best {{ background: var(--ok-tint); box-shadow: inset 3px 0 0 0 var(--ok),
-    0 0 30px -10px color-mix(in srgb, var(--ok) 55%, transparent); }}
-  .ix-row.uc-best:hover, .ix-row.uc-best:focus-visible {{ background: var(--ok-tint); }}
-  .ix-row.uc-best .ix-name::after {{ content: "best here"; margin-left: .5rem;
-    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .58rem; letter-spacing: .08em;
-    text-transform: uppercase; color: var(--ok); border: 1px solid var(--ok);
-    border-radius: 3px; padding: .1em .3em; vertical-align: .1em; }}
-  .ix-row.uc-out-of-scope {{ opacity: .5; }}
-  .ix-rows {{ display: flex; flex-direction: column; gap: 1px; background: var(--line);
-    border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
-    box-shadow: var(--shadow-1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }}
-  .ix-row {{ display: grid; grid-template-columns: minmax(7rem, 1.5fr) 10.5rem minmax(5rem, .7fr) 5.5rem minmax(6rem, .95fr);
-    align-items: center; gap: .9rem; padding: .66rem 1.05rem; background: var(--surface);
-    text-decoration: none; color: inherit; border-left: 3px solid var(--medium);
-    transition: background .15s ease, transform .15s ease, box-shadow .2s ease; }}
-  .ix-row:hover, .ix-row:focus-visible {{ background: var(--surface-2); transform: translateX(3px); }}
-  .ix-row.v-ready:hover {{ box-shadow: inset 0 0 26px -16px var(--ok); }}
-  .ix-row.v-degraded:hover {{ box-shadow: inset 0 0 26px -16px var(--warn); }}
-  .ix-row.v-blocked:hover {{ box-shadow: inset 0 0 26px -16px var(--critical); }}
-  .ix-row.v-ready {{ border-left-color: var(--ok); }}
-  .ix-row.v-degraded {{ border-left-color: var(--warn); }}
-  .ix-row.v-blocked {{ border-left-color: var(--critical); }}
-  .ix-row.v-nofit, .ix-row.v-unknown {{ border-left-color: var(--low); }}
-  .ix-id {{ position: relative; display: flex; flex-direction: column;
-    justify-content: center; gap: .3rem; min-width: 0; }}
-  .ix-name {{ font-weight: 600; font-size: .92rem; letter-spacing: -.01em;
-    position: relative; display: flex; align-items: center; min-width: 0; }}
-  .ix-name em {{ font-style: normal; position: relative; }}
-  /* One thin lane per job, in that job's own colour. One job selected: only
-     its lane shows, under the name. Several: the picked jobs' lanes stack, and
-     the green lane at the end is the average of the coloured ones - green means
-     "average" on this page and nothing else. Widths are set from JS; a lane
-     for a job the model is not ranked in stays an empty track. */
-  .ix-bars {{ display: none; position: relative; }}
-  .ix-row.j1 .ix-bars, .ix-row.multi .ix-bars {{ display: flex; flex-direction: column; gap: 2px; }}
-  .ix-lane {{ display: none; position: relative; height: 5px;
-    background: var(--line-soft); border-radius: 3px; overflow: hidden; }}
-  .ix-lane.on {{ display: block; }}
-  .ix-lane > i {{ position: absolute; left: 0; top: 0; bottom: 0; width: 0;
-    border-radius: 3px; transition: width .45s cubic-bezier(.2, .7, .3, 1); }}
-  .ix-lane-avg > i {{ background: var(--ok); box-shadow: 0 0 8px var(--ok); }}
-  .uc-slot-agentic > i {{ background: var(--bar-agentic); }}
-  .uc-slot-coding > i {{ background: var(--bar-coding); }}
-  .uc-slot-terminal > i {{ background: var(--bar-terminal); }}
-  .uc-slot-computer > i {{ background: var(--bar-computer); }}
-  .uc-slot-concurrency > i {{ background: var(--bar-concurrency); }}
-  .uc-slot-longctx > i {{ background: var(--bar-longctx); }}
-  .uc-slot-image > i {{ background: var(--bar-image); }}
-  .uc-slot-video > i {{ background: var(--bar-video); }}
-  .uc-slot-voice > i {{ background: var(--bar-voice); }}
-  .uc-slot-narration > i {{ background: var(--bar-narration); }}
-  .uc-slot-music > i {{ background: var(--bar-music); }}
-  /* Glowing lane fills: each job's bar carries a faint bloom of its own colour,
-     so a combined pick reads as light, not paint. */
-  .ix-lane.uc-slot-agentic > i {{ background: var(--bar-agentic); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-agentic) 70%, transparent); }}
-  .ix-lane.uc-slot-coding > i {{ background: var(--bar-coding); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-coding) 70%, transparent); }}
-  .ix-lane.uc-slot-terminal > i {{ background: var(--bar-terminal); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-terminal) 70%, transparent); }}
-  .ix-lane.uc-slot-computer > i {{ background: var(--bar-computer); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-computer) 70%, transparent); }}
-  .ix-lane.uc-slot-concurrency > i {{ background: var(--bar-concurrency); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-concurrency) 70%, transparent); }}
-  .ix-lane.uc-slot-longctx > i {{ background: var(--bar-longctx); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-longctx) 70%, transparent); }}
-  .ix-lane.uc-slot-image > i {{ background: var(--bar-image); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-image) 70%, transparent); }}
-  .ix-lane.uc-slot-video > i {{ background: var(--bar-video); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-video) 70%, transparent); }}
-  .ix-lane.uc-slot-voice > i {{ background: var(--bar-voice); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-voice) 70%, transparent); }}
-  .ix-lane.uc-slot-narration > i {{ background: var(--bar-narration); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-narration) 70%, transparent); }}
-  .ix-lane.uc-slot-music > i {{ background: var(--bar-music); box-shadow: 0 0 8px color-mix(in srgb, var(--bar-music) 70%, transparent); }}
-  /* no comparable figure on the leader's scale */
-  .ix-row.no-bar .ix-name em::after {{ content: "\\2020"; margin-left: .3rem;
-    font-size: .8em; color: var(--muted); vertical-align: super; line-height: 0; }}
-  @media (prefers-reduced-motion: reduce) {{ .ix-lane > i {{ transition: none; }} }}
-  .ix-status {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .66rem;
-    font-weight: 600; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
-    padding: .14rem .5rem; border-radius: 4px; border: 1px solid; justify-self: start; }}
-  .ix-status.v-ready {{ color: var(--ok); border-color: var(--ok); }}
-  .ix-status.v-degraded {{ color: var(--warn); border-color: var(--warn); }}
-  .ix-status.v-blocked {{ color: var(--critical); border-color: var(--critical); }}
-  .ix-status.v-nofit, .ix-status.v-unknown {{ color: var(--low); border-color: var(--line); }}
-  .ix-size {{ text-align: right; font-variant-numeric: tabular-nums; font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .78rem;
-    color: var(--ink-2); font-variant-numeric: tabular-nums; text-align: right; white-space: nowrap; }}
-  .ix-meta {{ font-size: .76rem; color: var(--muted); text-align: right; white-space: nowrap; }}
-  @media (max-width: 34rem) {{
-    /* The bar is a percentage of .ix-name, so every name cell has to be the same
-       width or the chart lies about the ranking. Sharing a row with the status
-       pill made the cell as wide as whatever the pill left over - a long label
-       like "Fastest, with caveats" cut it from 225px to 128px, so a top-ranked
-       model drew a shorter bar than one below it. Give the name its own full
-       row and put the attributes on shared rows underneath. */
-    .ix-row {{ grid-template-columns: 1fr auto; row-gap: .35rem; }}
-    .ix-id {{ grid-column: 1 / -1; grid-row: 1; }}
-    .ix-size {{ grid-column: 1; grid-row: 2; text-align: left; }}
-    .ix-status {{ grid-column: 2; grid-row: 2; justify-self: end; }}
-    .ix-eng {{ grid-column: 1; grid-row: 3; }}
-    .ix-meta {{ grid-column: 2; grid-row: 3; text-align: right; }}
-  }}
-  .model {{ margin-bottom: 2.5rem; scroll-margin-top: 1rem; }}
-  .nofit-row {{ scroll-margin-top: 1rem; }}
-  .model-head {{ background: var(--surface); border: 1px solid var(--line);
-    border-top: 3px solid var(--medium); border-radius: 18px 18px 0 0; padding: 1.5rem 1.6rem 1.2rem;
-    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); position: relative; }}
-  .model.v-degraded .model-head {{ border-top-color: var(--warn); }}
-  .model.v-blocked .model-head {{ border-top-color: var(--critical); }}
-  .model.v-unknown .model-head {{ border-top-color: var(--low); }}
-  .model.v-ready .model-head {{ border-top-color: var(--ok); }}
-  .model-id {{ display: flex; align-items: center; gap: .75rem; flex-wrap: wrap; margin-bottom: .9rem; }}
-  .model-id h2 {{ font-size: 1.35rem; font-weight: 700; margin: 0; letter-spacing: -.02em; }}
-  .verdict {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .7rem; font-weight: 600;
-    letter-spacing: .06em; text-transform: uppercase; padding: .22rem .6rem; border-radius: 4px; border: 1px solid; }}
-  .verdict.v-degraded {{ color: var(--warn); border-color: var(--warn); background: var(--surface-2); }}
-  .verdict.v-blocked {{ color: var(--critical); border-color: var(--critical); background: var(--surface-2); }}
-  .verdict.v-unknown {{ color: var(--low); border-color: var(--line); background: var(--surface-2); }}
-  .verdict.v-ready {{ color: var(--ok); border-color: var(--ok); background: var(--surface-2); }}
-  .vram {{ display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap;
-    padding: .6rem .9rem; margin: 0 0 .7rem; border-radius: 6px;
-    background: var(--surface-2); border: 1px solid var(--line-soft); border-left: 3px solid var(--accent); }}
-  .vram.tight {{ border-left-color: var(--critical); }}
-  .vram-k {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .66rem;
-    letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }}
-  .vram-v {{ font-size: .87rem; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }}
-  .quants {{ display: flex; flex-direction: column; gap: .3rem; margin: 0 0 .9rem; }}
-  .q-cat {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .64rem;
-    letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }}
-  .q {{ display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; font-size: .82rem; }}
-  .q.alt {{ opacity: .72; }}
-  .q-repo {{ font-family: "IBM Plex Mono", ui-monospace, monospace; color: var(--accent);
-    text-decoration: none; border-bottom: 1px solid transparent; word-break: break-all; }}
-  .q-repo:hover, .q-repo:focus-visible {{ border-bottom-color: var(--accent); }}
-  .q-repo.none {{ color: var(--muted); font-style: italic; border: none; }}
-  .q-size {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-weight: 600;
-    color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }}
-  .q-note {{ font-size: .76rem; color: var(--muted); }}
-  .srcs {{ display: flex; align-items: baseline; gap: .55rem; flex-wrap: wrap; margin: 0 0 .8rem; }}
-  .src {{ font-size: .76rem; color: var(--accent); text-decoration: none;
-    border: 1px solid var(--line); border-radius: 4px; padding: .1rem .45rem; background: var(--surface-2); }}
-  .src:hover, .src:focus-visible {{ border-color: var(--accent); }}
-  .nofit-row .srcs {{ margin-top: .4rem; margin-bottom: 0; }}
-  .scores {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .9rem 1.6rem;
-    margin: 0 0 1rem; padding: .85rem 1rem; background: var(--surface-2);
-    border: 1px solid var(--line-soft); border-radius: 7px; }}
-  .score-col {{ display: flex; flex-direction: column; gap: .32rem; min-width: 0; }}
-  .score-cat {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .66rem;
-    letter-spacing: .1em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: .1rem; }}
-  .score {{ display: flex; justify-content: space-between; align-items: baseline; gap: .8rem;
-    border-bottom: 1px dotted var(--line); padding-bottom: .2rem; }}
-  .score-k {{ font-size: .8rem; color: var(--ink-2); }}
-  .score-v {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .82rem;
-    font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }}
-  .spec {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
-    gap: .8rem 1.4rem; margin: 0 0 .95rem; }}
-  .spec div {{ display: flex; flex-direction: column; gap: .1rem; min-width: 0; }}
-  .spec dt {{ font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }}
-  .spec dd {{ margin: 0; font-size: .85rem; color: var(--ink); font-weight: 500; }}
-  .model-note {{ margin: 0 0 .8rem; font-size: .91rem; color: var(--ink-2); max-width: 52rem; }}
-  .blockers-label {{ margin: 0; font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); }}
-  .rows {{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px;
-    background: var(--line); border: 1px solid var(--line); border-top: none; border-radius: 0 0 10px 10px; overflow: hidden; }}
-  .row {{ background: var(--surface); border-left: 3px solid var(--medium); padding: .9rem 1.15rem; }}
-  .row.sev-critical {{ border-left-color: var(--critical); }}
-  .row.sev-high {{ border-left-color: var(--high); }}
-  .row.sev-medium {{ border-left-color: var(--medium); }}
-  .row.sev-low {{ border-left-color: var(--low); }}
-  .row-head {{ display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; margin-bottom: .3rem; }}
-  .ref {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .8rem; font-weight: 500;
-    color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }}
-  .ref:hover, .ref:focus-visible {{ border-bottom-color: var(--accent); }}
-  .pill {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .66rem; font-weight: 600;
-    letter-spacing: .05em; text-transform: uppercase; padding: .14rem .45rem; border-radius: 4px; border: 1px solid var(--line); }}
-  .pill.open {{ color: var(--ink-2); background: var(--surface-2); }}
-  .pill.merged {{ color: var(--ok); background: var(--surface-2); border-color: var(--ok); }}
-  .pill.closed {{ color: var(--muted); background: var(--surface-2); }}
-  .sev-tag {{ font-size: .71rem; color: var(--muted); margin-left: auto; letter-spacing: .04em; }}
-  .row h4 {{ font-size: .93rem; font-weight: 600; margin: 0 0 .22rem; letter-spacing: -.005em; }}
-  .row p {{ margin: 0; font-size: .86rem; color: var(--ink-2); max-width: 52rem; }}
-
-  .model-fit {{ margin: 0; font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: .8rem; color: var(--ink-2); }}
-  .model-fit.toolarge {{ color: var(--critical); }}
-  header {{ position: relative; }}
-  .gh {{ position: absolute; top: 0; right: 0; display: inline-flex; align-items: center;
-    gap: .4rem; text-decoration: none; color: var(--ink-2);
-    border: 1px solid var(--line); border-radius: 999px; padding: .3rem .7rem .3rem .6rem;
-    background: var(--surface); font-size: .78rem; font-weight: 500; }}
-  .gh:hover {{ color: var(--ink); border-color: var(--accent); }}
-  .gh svg {{ flex: none; }}
-  @media (max-width: 620px) {{ header {{ padding-top: 2.2rem; }} }}
-  .back {{ appearance: none; cursor: pointer; font: inherit; font-size: .82rem; font-weight: 500;
-    color: var(--ink-2); background: var(--surface); border: 1px solid var(--line);
-    border-radius: 999px; padding: .35rem .9rem .35rem .75rem; margin: 0 0 1.1rem;
-    display: inline-flex; align-items: center; gap: .4rem; }}
-  .back:hover {{ color: var(--ink); border-color: var(--accent); }}
-  .detail .model {{ margin-bottom: 0; }}
-  .back-bottom {{ margin: 1.25rem 0 0; }}
-  .detail {{ margin-bottom: 2.75rem; }}
-  html, body, .wrap {{ overflow-anchor: none; }}
-  .ix-eng {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .72rem;
-    color: var(--muted); white-space: nowrap; }}
-  .panel-lead {{ margin: 0 0 1.15rem; font-size: .89rem; color: var(--ink-2); max-width: 54rem; }}
-  .panel.wide {{ padding-bottom: 1.35rem; }}
-
-  /* A vertical rail rather than a tab strip. Eight engines wrapped into two
-     ragged rows horizontally; as a list they stay scannable and there is room
-     for the status text beside each name. */
-  .eng {{ margin-top: 1px; display: grid; grid-template-columns: 13.5rem 1fr;
-    gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 0 0 16px 16px;
-    overflow: hidden; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }}
-  .eng-tabs {{ display: flex; flex-direction: column; background: var(--surface-2);
-    align-content: start; }}
-  .eng-panes {{ background: var(--surface); min-width: 0; }}
-  .eng-tab {{ appearance: none; border: 0; cursor: pointer; text-align: left;
-    background: var(--surface-2); color: var(--muted);
-    padding: .55rem .8rem; display: flex; flex-direction: column; gap: .1rem;
-    font: inherit; border-left: 2px solid transparent;
-    border-bottom: 1px solid var(--line-soft); }}
-  .eng-tab:hover {{ background: var(--surface); color: var(--ink-2); }}
-  .eng-tab[aria-selected="true"] {{ background: var(--surface); color: var(--ink);
-    border-left-color: var(--accent); }}
-  .eng-tab-n {{ font-size: .82rem; font-weight: 600; letter-spacing: -.005em; }}
-  .eng-tab-s {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .6rem;
-    letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }}
-  .eng-tab[aria-selected="true"] .eng-tab-s.s-ready {{ color: var(--ok); }}
-  .eng-tab[aria-selected="true"] .eng-tab-s.s-degraded {{ color: var(--warn); }}
-  .eng-tab[aria-selected="true"] .eng-tab-s.s-blocked {{ color: var(--critical); }}
-  .eng-tab .eng-tab-s.s-ready::before,
-  .eng-tab .eng-tab-s.s-degraded::before,
-  .eng-tab .eng-tab-s.s-blocked::before,
-  .eng-tab .eng-tab-s.s-unknown::before {{
-    content: ""; display: inline-block; width: .4rem; height: .4rem; border-radius: 50%;
-    margin-right: .32rem; vertical-align: baseline; }}
-  .eng-tab .eng-tab-s.s-ready::before {{ background: var(--ok); }}
-  .eng-tab .eng-tab-s.s-degraded::before {{ background: var(--warn); }}
-  .eng-tab .eng-tab-s.s-blocked::before {{ background: var(--critical); }}
-  .eng-tab .eng-tab-s.s-unknown::before {{ background: var(--low); }}
-  @media (max-width: 820px) {{
-    .eng {{ grid-template-columns: 1fr; }}
-    .eng-tabs {{ flex-direction: row; flex-wrap: wrap; gap: 1px; background: var(--line); }}
-    .eng-tab {{ flex: 1 1 9rem; border-left: 0; border-bottom: 0;
-      border-top: 2px solid transparent; }}
-    .eng-tab[aria-selected="true"] {{ border-top-color: var(--accent); }}
-  }}
-  .eng-pane {{ background: var(--surface); padding: 1.15rem 1.2rem 1.2rem;
-    display: flex; flex-direction: column; gap: .8rem; min-width: 0; }}
-  .model-fit {{ margin: 0 0 .35rem; }}
-  .panel-fold > summary {{ cursor: pointer; list-style: none; display: flex; align-items: center;
-    gap: .45rem; }}
-  .panel-fold > summary::-webkit-details-marker {{ display: none; }}
-  .panel-fold > summary::before {{ content: "+"; font-size: .95rem; line-height: 1;
-    color: var(--accent); width: .7rem; }}
-  .panel-fold[open] > summary::before {{ content: "\\2212"; }}
-  .panel-fold > summary h2 {{ margin: 0; }}
-  .panel-fold > summary:hover h2 {{ color: var(--ink-2); }}
-  .panel-fold > ul {{ margin-top: 1.1rem; }}
-  .panel-fold > .panel-lead {{ margin-top: 1.1rem; }}
-  .scores-wrap {{ margin-top: .9rem; border-top: 1px solid var(--line-soft); padding-top: .7rem; }}
-  .scores-wrap > summary {{ cursor: pointer; font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
-    font-weight: 600; list-style: none; display: flex; align-items: center; gap: .4rem; }}
-  .scores-wrap > summary::-webkit-details-marker {{ display: none; }}
-  .scores-wrap > summary::before {{ content: "+"; font-size: .85rem; line-height: 1;
-    color: var(--accent); width: .7rem; }}
-  .scores-wrap[open] > summary::before {{ content: "\\2212"; }}
-  .scores-wrap > summary:hover {{ color: var(--ink-2); }}
-  .scores-wrap .scores {{ margin-top: .6rem; }}
-  .build-bpw {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .72rem;
-    letter-spacing: .03em; padding: .1em .45em; border-radius: 4px; border: 1px solid var(--line); }}
-  .build-bpw.b-full {{ color: var(--ok); border-color: var(--ok); }}
-  .build-bpw.b-mild, .build-bpw.b-low, .build-bpw.b-pruned {{ color: var(--warn); border-color: var(--warn); }}
-  .build-bpw.b-unusable {{ color: var(--critical); border-color: var(--critical); }}
-  .fidelity {{ margin: 0; font-size: .85rem; color: var(--ink-2); padding: .65rem .8rem;
-    border-left: 3px solid var(--warn); background: var(--surface-2); }}
-  .fidelity.b-unusable {{ border-left-color: var(--critical); }}
-  .fidelity strong {{ color: var(--ink); font-weight: 600; }}
-  .fidelity.b-unusable strong {{ color: var(--critical); }}
-  .ctx-wrap {{ display: flex; flex-direction: column; gap: .45rem; }}
-  .ctx-k {{ font-size: .66rem; letter-spacing: .07em; text-transform: uppercase;
-    color: var(--muted); font-weight: 600; }}
-  .ctx {{ border-collapse: collapse; font-size: .82rem; width: 100%; max-width: 34rem; }}
-  .ctx th {{ text-align: left; font-size: .64rem; letter-spacing: .06em; text-transform: uppercase;
-    color: var(--muted); font-weight: 600; padding: .25rem .7rem .25rem 0;
-    border-bottom: 1px solid var(--line); }}
-  .ctx td {{ padding: .3rem .7rem .3rem 0; border-bottom: 1px solid var(--line-soft);
-    font-variant-numeric: tabular-nums; color: var(--ink-2); }}
-  .ctx th:last-child, .ctx td:last-child {{ text-align: right; padding-right: 0; }}
-  .ctx-n {{ font-family: "IBM Plex Mono", ui-monospace, monospace; color: var(--ink); font-weight: 600; }}
-  .ctx-n.none {{ color: var(--critical); font-weight: 400; }}
-  .ctx-cap td {{ border-top: 1px solid var(--line); font-weight: 500; color: var(--ink); }}
-  .ctx-cap .ctx-n {{ color: var(--ok); }}
-  .ctx-why {{ margin: 0; font-size: .76rem; color: var(--muted); max-width: 46rem; }}
-
-  .api {{ margin: 0; display: flex; flex-direction: column; gap: 1px;
-    background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }}
-  .api-row {{ background: var(--surface-2); padding: .7rem .85rem; display: grid;
-    grid-template-columns: 9.5rem 1fr; gap: .2rem 1rem; align-items: baseline; }}
-  .api-row dt {{ font-size: .68rem; letter-spacing: .07em; text-transform: uppercase;
-    color: var(--muted); font-weight: 600; }}
-  .api-row dd {{ margin: 0; font-size: .85rem; color: var(--ink-2); }}
-  .api-row:last-child dd {{ color: var(--ink-2); }}
-  .api-row:last-child dt {{ color: var(--warn); }}
-  .api-row code {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .8em;
-    background: var(--surface); border: 1px solid var(--line-soft); border-radius: 4px;
-    padding: .05em .3em; }}
-  .api-row strong {{ color: var(--ink); font-weight: 600; }}
-  @media (max-width: 640px) {{
-    .api-row {{ grid-template-columns: 1fr; }}
-  }}
-
-  .eng-note code, .row p code, .model-note code {{ font-family: "IBM Plex Mono", ui-monospace, monospace;
-    font-size: .82em; background: var(--surface-2); border: 1px solid var(--line-soft);
-    border-radius: 4px; padding: .05em .3em; }}
-  .eng-meta {{ margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-    gap: .55rem 1.2rem; }}
-  .eng-meta div {{ display: flex; flex-direction: column; gap: .1rem; }}
-  .eng-meta dt {{ font-size: .66rem; letter-spacing: .07em; text-transform: uppercase;
-    color: var(--muted); font-weight: 500; }}
-  .eng-meta dd {{ margin: 0; font-size: .82rem; color: var(--ink-2); }}
-  .eng-fit {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .8rem;
-    color: var(--ink-2); background: var(--surface-2); border-left: 3px solid var(--line);
-    padding: .6rem .8rem; }}
-  .eng-fit.s-ready {{ border-left-color: var(--ok); }}
-  .eng-fit.s-degraded {{ border-left-color: var(--warn); }}
-  .eng-fit.s-blocked {{ border-left-color: var(--critical); }}
-  .eng-fit.toolarge {{ border-left-color: var(--critical); color: var(--critical); }}
-  .eng-build {{ font-size: .8rem; display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline; }}
-  .eng-build-k {{ font-size: .66rem; letter-spacing: .07em; text-transform: uppercase;
-    color: var(--muted); font-weight: 500; }}
-  .eng-build a, .eng-build span:not(.eng-build-k) {{
-    font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .78rem; }}
-  .eng-build.none span:not(.eng-build-k) {{ color: var(--muted); }}
-  .eng-note {{ margin: 0; font-size: .89rem; color: var(--ink-2); max-width: 54rem; }}
-  .eng-clear {{ margin: 0; font-size: .85rem; color: var(--muted); }}
-  .eng-pane .rows, .eng-pane .cross-list {{ margin-top: .15rem; }}
-  @media (max-width: 640px) {{
-    .eng-tab {{ flex: 1 1 100%; }}
-  }}
-  .panel {{ background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
-    padding: 1.4rem 1.5rem; margin-bottom: 1rem;
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    box-shadow: var(--shadow-1); }}
-  .panel h2 {{ font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent);
-    margin: 0 0 1rem; font-weight: 600; font-family: "IBM Plex Mono", ui-monospace, monospace; }}
-  .panel > ul {{ margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: .55rem; }}
-  .panel > ul > li {{ font-size: .89rem; color: var(--ink-2); }}
-  .panel strong {{ color: var(--ink); font-weight: 600; }}
-
-  /* News - the daily community rollup under the model list. Plain text with a
-     link per story; the h2 carries the rollup date, not a control. */
-  #news {{ margin-top: 1rem; }}
-  #news h2 {{ display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }}
-  .news-date {{ font-size: .72rem; letter-spacing: 0; text-transform: none; font-weight: 400;
-    color: var(--muted); font-family: "IBM Plex Mono", ui-monospace, monospace; }}
-  .news-h {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .72rem;
-    letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2);
-    font-weight: 600; margin: 1.2rem 0 .6rem; }}
-  .news-list {{ list-style: none; margin: 0; padding: 0; display: flex;
-    flex-direction: column; gap: .85rem; }}
-  .news-item {{ border-left: 2px solid var(--line); padding-left: .85rem;
-    transition: border-color .15s ease, transform .15s ease; }}
-  .news-item:hover {{ border-left-color: var(--accent); transform: translateX(2px); }}
-  .news-item h4 {{ margin: 0 0 .18rem; font-size: .95rem; font-weight: 600; line-height: 1.3; }}
-  .news-item h4 a {{ color: var(--ink); text-decoration: none; }}
-  .news-item h4 a:hover {{ color: var(--accent); text-decoration: underline; }}
-  .news-item p {{ margin: 0; font-size: .87rem; color: var(--ink-2); line-height: 1.45; }}
-  .news-empty {{ font-size: .87rem; color: var(--muted); margin: 0; }}
-  .nofit {{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: .9rem; }}
-  .nofit-row {{ border-left: 2px solid var(--line); padding-left: .9rem; }}
-  .nofit-head {{ display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; }}
-  .nofit-head h4 {{ font-size: .95rem; font-weight: 600; margin: 0; }}
-  .nofit-mem {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .8rem;
-    color: var(--muted); font-variant-numeric: tabular-nums; }}
-  .nofit-arch {{ margin: .12rem 0 .3rem; font-size: .78rem; color: var(--muted);
-    font-family: "IBM Plex Mono", ui-monospace, monospace; }}
-  .nofit-row > p:last-child {{ margin: 0; font-size: .86rem; color: var(--ink-2); }}
-  .cross-list {{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1px;
-    background: var(--line); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }}
-  .rel {{ display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
-    padding: .5rem 0; border-bottom: 1px solid var(--line-soft); }}
-  .rel:last-child {{ border-bottom: none; }}
-  .rel-repo {{ font-size: .87rem; color: var(--ink-2); display: flex; flex-direction: column; gap: .12rem; }}
-  .rel-note {{ font-size: .74rem; color: var(--muted); }}
-  .rel-tag {{ font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .87rem;
-    font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; }}
-  .disclaimer {{ margin: 2rem 0 0; padding: .95rem 1.15rem; border-radius: 8px;
-    background: var(--surface-2); border: 1px solid var(--line);
-    border-left: 3px solid var(--warn); font-size: .82rem; color: var(--ink-2); max-width: 54rem; }}
-  .disclaimer strong {{ color: var(--ink); font-weight: 600; }}
-  footer {{ margin-top: 1.25rem; padding-top: 1.2rem; border-top: 1px solid var(--line);
-    font-size: .82rem; color: var(--muted); }}
-  footer .live-dot {{ display: inline-block; width: .5rem; height: .5rem; border-radius: 50%;
-    background: var(--ok); margin-right: .4rem; vertical-align: .08em;
-    box-shadow: 0 0 8px var(--ok); animation: live-pulse 2.6s ease-in-out infinite; }}
-  @keyframes live-pulse {{
-    0%, 100% {{ opacity: 1; }}
-    50% {{ opacity: .35; }}
-  }}
-  @media (prefers-reduced-motion: reduce) {{ footer .live-dot {{ animation: none; }} }}
-  [hidden] {{ display: none !important; }}
-  a {{ color: var(--accent); }}
-  :focus-visible {{ outline: 2px solid var(--accent); outline-offset: 2px; }}
-</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>{style}</style>
 
 <div class="wrap">
   <p class="fork-note">
-    <strong>Fork notice.</strong> This page is a fork of
-    <a href="https://github.com/dreamingwell/apple-llm-performance" target="_blank" rel="noopener">
-    dreamingwell/apple-llm-performance</a>. Credit for the original project goes to its author &mdash;
-    this fork started from it and is now slowly diverging from the original as it is adapted to my own
-    personal needs. It is maintained for me: if you find it useful, great. It is a work in progress, and
-    some things here may be wrong or break.
+    <span class="fork-tag">Fork</span>
+    of <a href="https://github.com/dreamingwell/apple-llm-performance" target="_blank" rel="noopener">dreamingwell/apple-llm-performance</a>
+    &mdash; credit to its author. Maintained for my own use; a work in progress, so some things may be wrong or break.
   </p>
   <header>
-    <a class="gh" href="https://github.com/ColtonKawamura/apple-llm-performance"
-       target="_blank" rel="noopener" aria-label="Open source on GitHub">
-      <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-2.98-.88-2.98-2.9 0-.83.3-1.51.79-2.04-.08-.2-.35-1 .08-2.07 0 0 .65-.2 2.13.79a7.2 7.2 0 0 1 1.94-.26c.66 0 1.32.09 1.94.26 1.48-1 2.13-.79 2.13-.79.43 1.07.16 1.87.08 2.07.49.53.79 1.21.79 2.04 0 2.03-1.21 2.7-2.99 2.9.31.27.58.79.58 1.6 0 1.15-.01 2.09-.01 2.38 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
-      <span>Open source</span>
-    </a>
-    <span class="hero-kicker">Can your Mac run it</span>
+    <div class="hero-top">
+      <span class="hero-kicker"><span class="live-dot" aria-hidden="true"></span>Can your Mac run it</span>
+      <a class="gh" href="https://github.com/ColtonKawamura/apple-llm-performance"
+         target="_blank" rel="noopener" aria-label="Open source on GitHub">
+        <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-2.98-.88-2.98-2.9 0-.83.3-1.51.79-2.04-.08-.2-.35-1 .08-2.07 0 0 .65-.2 2.13.79a7.2 7.2 0 0 1 1.94-.26c.66 0 1.32.09 1.94.26 1.48-1 2.13-.79 2.13-.79.43 1.07.16 1.87.08 2.07.49.53.79 1.21.79 2.04 0 2.03-1.21 2.7-2.99 2.9.31.27.58.79.58 1.6 0 1.15-.01 2.09-.01 2.38 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
+        <span>GitHub</span>
+      </a>
+    </div>
     <h1>Apple LLM <span class="grad">Performance Tracker</span></h1>
-    <p class="hero-sub">Open-weight models and the Apple silicon that actually runs them -
-    every build measured, every engine tabbed, fit computed live for your cluster.</p>
+    <p class="hero-sub">Open-weight models &times; Apple silicon. Pick your Mac, pick a job, see what fits.</p>
     <div class="hero-stats" data-stats="{stats}">
       <span class="hstat"><strong>0</strong><span>models</span></span>
       <span class="hstat"><strong>0</strong><span>engines</span></span>
       <span class="hstat"><strong>0</strong><span>use cases</span></span>
       <span class="hstat"><strong>0</strong><span>tracked issues</span></span>
-      <span class="hstat"><strong>0</strong><span>open now</span></span>
+      <span class="hstat hstat-open"><strong>0</strong><span>open now</span><i class="hstat-bar"><b></b></i></span>
     </div>
   </header>
 
   <form class="rig" id="rig" aria-label="Cluster configuration">
+    <span class="sec-k">01 &middot; Your Mac</span>
     <div class="rig-controls">
       <label class="rig-f"><span>CPU Model</span>
         <select id="rig-chip"></select>
@@ -1251,21 +1171,26 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         <select id="rig-n"></select>
       </label>
     </div>
-    <p class="rig-out" id="rig-out"></p>
+    <div class="rig-out" id="rig-out"></div>
+    <div class="rig-gauge" id="rig-gauge" aria-hidden="true"></div>
     <p class="rig-warn" id="rig-warn" hidden></p>
   </form>
 
   <nav class="index" id="list" aria-label="Model index">
     <div class="ix-top">
       <div class="uc-f">
-        <span>What for?</span>
+        <span class="sec-k">02 &middot; What for?</span>
         <div class="uc-list" id="uc-sel" role="group" aria-label="Jobs to combine"></div>
       </div>
     </div>
     <div class="uc-legend" id="uc-legend" aria-hidden="true"></div>
     <p class="uc-out" id="uc-out"></p>
+    <div class="ix-head" aria-hidden="true"><span>#</span><span>Model</span><span>Engines</span><span>Verdict &middot; engine</span><span>Build &middot; memory</span></div>
     <div class="ix-rows">{index}
     </div>
+    <div class="ix-key" aria-hidden="true"><span class="sq s-ready"></span>runs <span class="sq s-degraded"></span>caveats
+      <span class="sq s-blocked"></span>blocked <span class="sq s-unknown"></span>n/a
+      <span class="ix-key-m"><i></i></span>share of usable memory</div>
   </nav>
 
   {news}
@@ -1455,10 +1380,27 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     var perNode = g * WIRED, cluster = perNode * n, M = MACHINES[chip];
 
     // The interconnect only matters once there is something to interconnect.
-    out.innerHTML = "<strong>" + n + " \u00d7 " + M.label + " " + g + " GB</strong> = " +
-      fmt(g * n) + " pooled, about " + fmt(cluster) + " usable after the wired-memory limit. " +
-      "Per-machine bandwidth " + (M.bw >= 1000 ? (M.bw / 1000).toFixed(1) + " TB/s" : M.bw + " GB/s") + "." +
-      (n > 1 ? " Uses " + M.tb + " with " + M.link + " Gb/s connection speed." : "");
+    var tile = function (k, v, sub, cls) {{
+      return '<div class="tile' + (cls ? " " + cls : "") + '"><span class="tile-k">' + k +
+        '</span><span class="tile-v">' + v + "</span>" +
+        (sub ? '<span class="tile-s">' + sub + "</span>" : "") + "</div>";
+    }};
+    out.innerHTML =
+      tile("Cluster", n + " \u00d7 " + M.label, g + " GB each") +
+      tile("Pooled", fmt(g * n), "unified memory") +
+      tile("Usable", fmt(cluster), "after the wired-memory limit", "tile-hi") +
+      tile("Bandwidth", M.bw >= 1000 ? (M.bw / 1000).toFixed(1) + " TB/s" : M.bw + " GB/s", "per machine") +
+      (n > 1 ? tile("Link", M.link + " Gb/s", M.tb) : "");
+    var gz = document.getElementById("rig-gauge");
+    if (gz) {{
+      var segs = "";
+      for (var si = 0; si < n; si++) {{
+        segs += '<span class="rg-seg"><i style="width:' + (WIRED * 100).toFixed(0) + '%"></i></span>';
+      }}
+      gz.innerHTML = '<div class="rg-bar">' + segs + "</div>" +
+        '<div class="rg-key"><span class="k-u">usable ' + fmt(cluster) + "</span>" +
+        '<span class="k-r">held back by macOS ' + fmt(g * n - cluster) + "</span></div>";
+    }}
     out.classList.add("pulse");
     setTimeout(function () {{ out.classList.remove("pulse"); }}, 450);
 
@@ -1558,6 +1500,23 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       return out;
     }}
 
+    // Paint a weights | overhead | free bar against the memory the build lives
+    // in: one machine when it fits on one (each machine runs its own copy),
+    // the whole pool when it is sharded.
+    function setMem(bar, w, over, fd) {{
+      if (!bar) return;
+      var den = fd.nodes === 1 ? perNode : cluster;
+      var seg = bar.querySelectorAll("i");
+      [w, over, Math.max(0, fd.free)].forEach(function (v, i) {{
+        if (seg[i]) seg[i].style.width = Math.max(0, Math.min(100, v / den * 100)).toFixed(1) + "%";
+      }});
+    }}
+    function esc(t) {{
+      return String(t).replace(/[&<>"]/g, function (c) {{
+        return {{ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }}[c];
+      }});
+    }}
+
     function tokFmt(t) {{
       return t >= 1000000 ? (t / 1000000).toFixed(t % 1000000 ? 2 : 0) + "M"
                           : Math.round(t / 1000) + "k";
@@ -1615,6 +1574,11 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         el.querySelector(".ix-eng").textContent = chosen.name;
         el.querySelector(".ix-size").textContent = fmt(rung.gb);
         el.querySelector(".fit").textContent = f.short;
+        var meter = el.querySelector(".ix-meter i");
+        if (meter) {{
+          var den = f.nodes === 1 ? perNode : cluster;
+          meter.style.width = (f.tooBig ? 100 : Math.min(100, f.resident / den * 100)).toFixed(1) + "%";
+        }}
         return;
       }}
 
@@ -1636,6 +1600,11 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       var vb = el.querySelector(".verdict");
       vb.className = "verdict v-" + cls;
       vb.textContent = label;
+      var mg = el.querySelector(".model-gauge");
+      if (mg) {{
+        mg.hidden = chosen.s === "blocked" || f.tooBig;
+        if (!mg.hidden) setMem(mg.querySelector(".mem-bar"), rung.gb, over, f);
+      }}
       var mf = el.querySelector(".model-fit");
       if (mf) {{
         mf.className = "model-fit" + (f.tooBig ? " toolarge" : "");
@@ -1660,6 +1629,42 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
           ? "Too large: " + fmt(pf.resident) + " resident, " + pf.text + "."
           : fmt(pf.resident) + " resident on this cluster, " + pf.text + ".";
 
+        var mb = pane.querySelector(".mem-bar");
+        if (mb) {{
+          mb.hidden = pf.tooBig;
+          if (!pf.tooBig) setMem(mb, r.gb, over, pf);
+        }}
+        var lw = pane.querySelector(".ladder-wrap");
+        if (lw && eng.ladder.length) {{
+          // The measured ladder as a bar chart: one bar per build, largest
+          // first, height to scale. Builds that fit are lit; the picked one is
+          // outlined; the dashed line is the biggest build this cluster holds.
+          var maxGb = 0, nFit = 0;
+          eng.ladder.forEach(function (x) {{ if (x.gb > maxGb) maxGb = x.gb; }});
+          var limit = cluster - over;
+          var bars = eng.ladder.map(function (x) {{
+            var ok = x.gb + over <= cluster;
+            if (ok) nFit++;
+            var h = Math.max(4, x.gb / maxGb * 100);
+            var tip = x.label + " \u00b7 " + fmt(x.gb) +
+              (x.kind === "quant" && x.bpw ? " \u00b7 " + x.bpw.toFixed(2) + " bits/weight" : "");
+            return '<span class="lb b-' + band(x).k + (ok ? " fits" : "") + (x === r ? " pick" : "") +
+              '" style="height:' + h.toFixed(1) + '%" title="' + esc(tip) + '"></span>';
+          }}).join("");
+          var line = limit > 0 && limit < maxGb
+            ? '<span class="lb-line" style="bottom:' + (limit / maxGb * 100).toFixed(1) + '%"><em>' +
+              fmt(limit) + "</em></span>" : "";
+          lw.hidden = false;
+          lw.querySelector(".ladder").innerHTML = line + bars;
+          var cap = lw.querySelector(".ladder-cap");
+          if (!cap) {{
+            cap = document.createElement("p");
+            cap.className = "ladder-cap";
+            lw.appendChild(cap);
+          }}
+          cap.innerHTML = "<b>" + nFit + "</b> of " + eng.ladder.length + " builds fit &middot; " +
+            fmt(eng.ladder[eng.ladder.length - 1].gb) + " to " + fmt(maxGb);
+        }}
         var link = pane.querySelector(".build-link"), bpw = pane.querySelector(".build-bpw");
         if (link) {{
           // r.url is the rung's own weights - the GGUF file or, for a split
@@ -1693,13 +1698,20 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
             wrap.hidden = true;
           }} else {{
             wrap.hidden = false;
-            wrap.querySelector("tbody").innerHTML = rows.map(function (c) {{
+            var most = 1;
+            rows.forEach(function (c) {{ if (c.streams > most) most = c.streams; }});
+            wrap.querySelector(".ctx").innerHTML =
+              '<div class="cx cx-h"><span>Context each</span><span>KV / stream</span><span></span><span>Streams</span></div>' +
+              rows.map(function (c) {{
               var label = c.cap ? tokFmt(c.tok) + " &mdash; " + c.frac
-                                : tokFmt(c.tok) + " (" + c.frac + ")";
-              return "<tr" + (c.cap ? ' class="ctx-cap"' : "") + "><td>" + label + "</td><td>" +
+                                : tokFmt(c.tok) + " <em>" + c.frac + "</em>";
+              var pct = c.streams < 1 ? 0 : Math.max(2, c.streams / most * 100);
+              return '<div class="cx' + (c.cap ? " ctx-cap" : "") + '"><span class="cx-l">' + label +
+                     '</span><span class="cx-kv">' +
                      (c.perGB < 1 ? (c.perGB * 1000).toFixed(0) + " MB" : c.perGB.toFixed(1) + " GB") +
-                     '</td><td class="ctx-n' + (c.streams < 1 ? ' none' : '') + '">' +
-                     (c.streams < 1 ? "does not fit" : c.streams) + "</td></tr>";
+                     '</span><span class="cx-bar"><i style="width:' + pct.toFixed(1) + '%"></i></span>' +
+                     '<span class="ctx-n' + (c.streams < 1 ? ' none' : '') + '">' +
+                     (c.streams < 1 ? "does not fit" : c.streams) + "</span></div>";
             }}).join("");
             wrap.querySelector(".ctx-why").textContent =
               "KV at fp16: " + (pl.kv.bpt / 1024).toFixed(1) + " KiB per token. " + pl.kv.why + ". " +
@@ -1749,6 +1761,11 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     document.querySelectorAll(".ix-row").forEach(function (r) {{
       r.classList.remove("uc-best", "uc-out-of-scope", "j1", "multi");
       r.hidden = !inMod(r.getAttribute("data-mod") || "text");
+    }});
+    document.querySelectorAll(".ix-row").forEach(function (r) {{
+      r.removeAttribute("data-rank");
+      var rk = r.querySelector(".ix-rank");
+      if (rk) rk.textContent = "";
     }});
     if (!ucs.length) {{
       if (ucOut) ucOut.innerHTML = "";
@@ -1912,6 +1929,15 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
           }}
         }}
       }});
+      // Rank numbers follow the visual order, which is CSS order, not DOM order.
+      [].slice.call(document.querySelectorAll(".ix-row")).filter(function (r) {{
+        return !r.hidden && usableSet[r.getAttribute("data-model")];
+      }}).sort(function (a, b) {{ return (+a.style.order) - (+b.style.order); }})
+        .forEach(function (r, i) {{
+          r.setAttribute("data-rank", i + 1);
+          var rk = r.querySelector(".ix-rank");
+          if (rk) rk.textContent = i + 1;
+        }});
       // The figure(s) the winner quotes: one per chosen job it has a number for.
       var figs = [];
       if (winner) {{
@@ -2119,6 +2145,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     if (!el) return;
     var parts = el.getAttribute("data-stats").split("|");
     var cells = el.querySelectorAll(".hstat strong");
+    var hb = el.querySelector(".hstat-bar b");
+    if (hb && +parts[3]) hb.style.width = (parts[4] / parts[3] * 100).toFixed(1) + "%";
     var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce || cells.length !== parts.length) {{
       for (var i = 0; i < parts.length; i++) {{
