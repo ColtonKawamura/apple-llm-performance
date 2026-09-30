@@ -764,12 +764,6 @@ STYLE = r"""
     background: var(--ok); color: var(--bg); font-size: .9rem; }
   .uc-out strong { color: var(--ink); font-weight: 700; }
   .uc-out .uc-why { display: block; margin-top: .3rem; font-size: .78rem; color: var(--muted); }
-  .uc-fold { margin-top: .35rem; }
-  .uc-fold > summary { cursor: pointer; list-style: none; display: inline-flex; align-items: center; gap: .3rem;
-    font-size: .76rem; font-weight: 600; color: var(--accent-2); width: fit-content; }
-  .uc-fold > summary::-webkit-details-marker { display: none; }
-  .uc-fold > summary::after { content: "\203A"; transition: transform .15s ease; }
-  .uc-fold[open] > summary::after { transform: rotate(90deg); }
 
   /* ---------- model list ---------- */
   .ix-head, .ix-row { display: grid; align-items: center; gap: 1rem;
@@ -1807,8 +1801,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         lead.push({{ id: u.id, metric: lm, val: lv }});
       }});
       var anyLead = lead.some(function (L) {{ return L.val !== null; }});
-      var leadMetric = combined ? null : lead[0].metric;
-      var leadVal = combined ? null : lead[0].val;
       // A percentage sits on the 0-100 scale and is compared against 100. A
       // non-percentage has no published maximum, so it is compared against the
       // best figure on its own scale (the leader's). An Elo next to a
@@ -1913,45 +1905,9 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
           var rk = r.querySelector(".ix-rank");
           if (rk) rk.textContent = i + 1;
         }});
-      // The figure(s) the winner quotes: one per chosen job it has a number for.
-      var figs = [];
-      if (winner) {{
-        ucs.forEach(function (u) {{
-          var e = entries[winner.mid].filter(function (x) {{ return x[0] === u.id; }});
-          if (e.length) figs.push(u.label + " " + e[0][1] + " " + e[0][2]);
-        }});
-      }}
-      var whySingle = function () {{
-        return uc.axis +
-          (leadVal === null ? " No comparable numeric benchmark is published for these, so there are no bars."
-                            : " Rows run best to worst in this job's curated ranking; the bar is each "
-                              + "model's score as a share of a perfect score on <em>" + leadMetric
-                              + "</em> (100 for percentage suites). Rows quoting a different suite on "
-                              + "the same scale are included and are approximate; a row marked \\u2020 quotes "
-                              + "a figure that is not on that scale at all, so it gets no bar rather than a "
-                              + "fabricated one.");
-      }};
-      var whyCombined = function () {{
-        return ucs.map(function (u) {{ return u.axis; }}).join(" ") +
-          " With several jobs chosen, the list keeps only models that publish a figure for every one "
-          + "of them. Each job's bar is the model's score as a share of a perfect score on that job's own "
-          + "benchmark, and the green bar is the average of those shares; a job with no numeric benchmark "
-          + "does not enter the average, and a row marked \\u2020 quotes a figure that is off the scale in "
-          + "at least one job, so that job is skipped for it. The chosen model quotes its figure for "
-          + "each job in the line above."; 
-      }};
       if (winner) {{
         winner.row.classList.add("uc-best");
-        var pk = winner.row.__pick;
-        var jobName = combined
-          ? ucs.map(function (u) {{ return u.label.toLowerCase(); }}).join(" and ")
-          : uc.label.toLowerCase();
-        ucOut.innerHTML = "Best for <strong>" + jobName + "</strong> on this cluster: " +
-          "<strong>" + pk.model + "</strong> via " + pk.engine + ", " + fmt(pk.gb) +
-          (pk.bpw === null ? ", as published" : " at " + pk.bpw.toFixed(2) + " bits/weight") +
-          " &mdash; " + figs.join("; ") + "." +
-          "<details class='uc-fold'><summary>How are these ranked?</summary>" +
-          "<span class='uc-why'>" + (combined ? whyCombined() : whySingle()) + "</span></details>";
+        ucOut.innerHTML = "";
       }} else {{
         var jobs = combined
           ? "Every model ranked for all of " + ucs.map(function (u) {{ return u.label.toLowerCase(); }}).join(", ")
