@@ -733,8 +733,8 @@ STYLE = r"""
   .uc-chip { margin: 0; display: inline-flex; align-items: center; gap: .45rem; font: inherit; font-size: .82rem;
     font-weight: 600; color: var(--ink-2); cursor: pointer; background: var(--panel-2);
     border: 1px solid var(--line); border-radius: 10px; padding: .45rem .8rem .45rem .6rem;
-    transition: transform .12s ease, border-color .12s ease, background .12s ease, color .12s ease; }
-  .uc-chip:hover { border-color: var(--muted); color: var(--ink); transform: translateY(-1px); }
+    transition: border-color .12s ease, background .12s ease, color .12s ease; }
+  .uc-chip:hover { border-color: var(--muted); color: var(--ink); }
   .uc-chip .uc-tick { display: none; }
   .uc-chip .uc-dot { width: .8rem; height: .8rem; border-radius: 4px; flex: none; background: var(--low);
     box-shadow: inset 0 0 0 2px var(--panel-2); border: 2px solid var(--low); }
