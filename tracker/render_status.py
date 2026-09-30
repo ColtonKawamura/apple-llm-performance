@@ -556,11 +556,7 @@ def render():
                            for u in USE_CASES])
     bands = json.dumps([[b[0], b[1], b[2], b[3]] for b in BANDS])
 
-    # Vitals for the hero band: the same counts the validator prints, rendered
-    # once so the page opens with a sense of scale instead of a wall of rows.
-    n_open = sum(1 for v in rows.values() if v.lower() == "open")
-    stats = (f'{len(MODELS):d}|{len(ENGINES):d}|{len(USE_CASES):d}|{len(META):d}|{n_open:d}')
-    doc = TEMPLATE.format(style=STYLE, usecases=usecases, bands=bands, stats=stats,
+    doc = TEMPLATE.format(style=STYLE, usecases=usecases, bands=bands,
                           cards="".join(cards), index=index_rows(rows),
                           cross=cross_tabs(rows, releases), news=news_panel())
     return doc.replace("/apple-llm-performance/card.jpg",
@@ -573,14 +569,15 @@ STYLE = r"""
      Grafana stat and gauge panels, and leaderboard layouts. Plain CSS, no
      assets. Kept outside the str.format template so braces need no doubling. */
   :root {
-    --bg: #f3f3ee; --bg-grid: rgba(14, 18, 28, .055);
-    --panel: #ffffff; --panel-2: #f6f6f1; --panel-3: #ecece5;
-    --ink: #0d1017; --ink-2: #3b4250; --muted: #6b7280;
-    --line: #dedfd6; --line-soft: #ebebe4;
-    --accent: #4d7c0f; --accent-2: #0e7490; --accent-ink: #ffffff;
-    --lime: #84cc16; --cyan: #06b6d4;
-    --critical: #dc2626; --high: #d97706; --medium: #64748b; --low: #9ca3af;
-    --ok: #16a34a; --ok-tint: rgba(22, 163, 74, .09); --warn: #d97706;
+    --bg: #e1e2e7; --bg-grid: rgba(55, 96, 191, .06);
+    --panel: #ffffff; --panel-2: #eef0f6; --panel-3: #e0e3ee;
+    --ink: #1f2335; --ink-2: #3760bf; --muted: #6172b0;
+    --line: #c4c8da; --line-soft: #d8dbe8;
+    --accent: #7847bd; --accent-2: #007197; --accent-ink: #ffffff;
+    --lime: #9854f1; --cyan: #007197;
+    --critical: #f52a65; --high: #b15c00; --medium: #6172b0; --low: #a8aecb;
+    --ok: #118c74; --ok-tint: rgba(17, 140, 116, .09); --warn: #b15c00;
+    --bar-avg: #16a34a; --bar-score-a: #0e7490; --bar-score-b: #84cc16;
     --bar-agentic: #ea580c; --bar-coding: #2563eb; --bar-terminal: #7c3aed;
     --bar-computer: #0891b2; --bar-concurrency: #d97706; --bar-longctx: #ca8a04;
     --bar-image: #db2777; --bar-video: #c026d3; --bar-voice: #0d9488;
@@ -593,14 +590,15 @@ STYLE = r"""
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #08090c; --bg-grid: rgba(255, 255, 255, .045);
-      --panel: #101217; --panel-2: #161920; --panel-3: #1d2029;
-      --ink: #f1f3f7; --ink-2: #aab1bf; --muted: #6f7787;
-      --line: #242832; --line-soft: #1b1e26;
-      --accent: #c5f24a; --accent-2: #4fd8f0; --accent-ink: #0d1400;
-      --lime: #c5f24a; --cyan: #4fd8f0;
-      --critical: #ff5f5f; --high: #ffb13b; --medium: #8a97ab; --low: #5a6273;
-      --ok: #3ee07f; --ok-tint: rgba(62, 224, 127, .08); --warn: #ffb13b;
+      --bg: #1a1b26; --bg-grid: rgba(122, 162, 247, .05);
+      --panel: #1f2335; --panel-2: #24283b; --panel-3: #292e42;
+      --ink: #c0caf5; --ink-2: #a9b1d6; --muted: #565f89;
+      --line: #3b4261; --line-soft: #292e42;
+      --accent: #bb9af7; --accent-2: #7dcfff; --accent-ink: #1a1b26;
+      --lime: #bb9af7; --cyan: #2ac3de;
+      --critical: #f7768e; --high: #ff9e64; --medium: #737aa2; --low: #565f89;
+      --ok: #73daca; --ok-tint: rgba(115, 218, 202, .08); --warn: #ff9e64;
+      --bar-avg: #3ee07f; --bar-score-a: #4fd8f0; --bar-score-b: #c5f24a;
       --bar-agentic: #ffa94d; --bar-coding: #6ea8fe; --bar-terminal: #b39dfa;
       --bar-computer: #38e1f5; --bar-concurrency: #f7c948; --bar-longctx: #f5d95a;
       --bar-image: #f783bf; --bar-video: #ea86fa; --bar-voice: #3fe0c5;
@@ -609,14 +607,15 @@ STYLE = r"""
     }
   }
   :root[data-theme="dark"] {
-    --bg: #08090c; --bg-grid: rgba(255, 255, 255, .045);
-    --panel: #101217; --panel-2: #161920; --panel-3: #1d2029;
-    --ink: #f1f3f7; --ink-2: #aab1bf; --muted: #6f7787;
-    --line: #242832; --line-soft: #1b1e26;
-    --accent: #c5f24a; --accent-2: #4fd8f0; --accent-ink: #0d1400;
-    --lime: #c5f24a; --cyan: #4fd8f0;
-    --critical: #ff5f5f; --high: #ffb13b; --medium: #8a97ab; --low: #5a6273;
-    --ok: #3ee07f; --ok-tint: rgba(62, 224, 127, .08); --warn: #ffb13b;
+    --bg: #1a1b26; --bg-grid: rgba(122, 162, 247, .05);
+    --panel: #1f2335; --panel-2: #24283b; --panel-3: #292e42;
+    --ink: #c0caf5; --ink-2: #a9b1d6; --muted: #565f89;
+    --line: #3b4261; --line-soft: #292e42;
+    --accent: #bb9af7; --accent-2: #7dcfff; --accent-ink: #1a1b26;
+    --lime: #bb9af7; --cyan: #2ac3de;
+    --critical: #f7768e; --high: #ff9e64; --medium: #737aa2; --low: #565f89;
+    --ok: #73daca; --ok-tint: rgba(115, 218, 202, .08); --warn: #ff9e64;
+    --bar-avg: #3ee07f; --bar-score-a: #4fd8f0; --bar-score-b: #c5f24a;
     --shadow: 0 1px 0 rgba(255, 255, 255, .03) inset, 0 16px 40px -20px rgba(0, 0, 0, .8);
   }
   * { box-sizing: border-box; }
@@ -651,9 +650,7 @@ STYLE = r"""
     text-transform: uppercase; color: var(--accent-ink); background: var(--accent);
     border-radius: 999px; padding: .12rem .5rem; }
   header { display: flex; flex-direction: column; gap: .9rem; margin-bottom: 2rem; }
-  .hero-top { display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
-  .hero-kicker { display: inline-flex; align-items: center; gap: .55rem; font-family: var(--f-mono);
-    font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-2); font-weight: 500; }
+  .hero-top { display: flex; justify-content: flex-end; align-items: center; gap: 1rem; }
   .live-dot { width: .55rem; height: .55rem; border-radius: 50%; background: var(--ok); flex: none;
     box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 60%, transparent); animation: ping 2.4s ease-out infinite; }
   @keyframes ping { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--ok) 55%, transparent); }
@@ -667,20 +664,6 @@ STYLE = r"""
   h1 .grad { background: linear-gradient(95deg, var(--lime), var(--cyan)); -webkit-background-clip: text;
     background-clip: text; color: transparent; }
   .hero-sub { margin: 0; font-size: 1.05rem; color: var(--ink-2); max-width: 40rem; }
-  .hero-stats { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .6rem; margin-top: .6rem; }
-  .hstat { position: relative; display: flex; flex-direction: column; gap: .1rem; padding: .85rem 1rem;
-    background: var(--panel); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
-    overflow: hidden; }
-  .hstat strong { font-family: var(--f-disp); font-size: 2rem; font-weight: 700; line-height: 1;
-    letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-  .hstat span { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase;
-    color: var(--muted); }
-  .hstat-open strong { color: var(--warn); }
-  .hstat-bar { display: block; height: 4px; margin-top: .45rem; border-radius: 4px; background: var(--panel-3); overflow: hidden; }
-  .hstat-bar b { display: block; height: 100%; width: 0; background: var(--warn); border-radius: 4px;
-    transition: width 1s cubic-bezier(.2, .7, .3, 1); }
-  @media (max-width: 720px) { .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .hstat-open { grid-column: span 2; } }
 
   /* ---------- section labels ---------- */
   .sec-k, .uc-f > .sec-k { font-family: var(--f-mono); font-size: .68rem; font-weight: 700; letter-spacing: .14em;
@@ -759,7 +742,7 @@ STYLE = r"""
   .uc-legend.on { display: flex; }
   .lg-it { display: inline-flex; align-items: center; gap: .35rem; }
   .lg-swatch { width: 16px; height: 6px; border-radius: 3px; background: var(--low); flex: none; }
-  .lg-swatch-avg { width: 24px; height: 6px; border-radius: 3px; background: var(--ok); flex: none; }
+  .lg-swatch-avg { width: 24px; height: 6px; border-radius: 3px; background: var(--bar-avg); flex: none; }
   .lg-arr { font-family: var(--f-mono); color: var(--muted); }
   .lg-word { font-size: .74rem; color: var(--muted); }
   .uc-legend .uc-slot-agentic { background: var(--bar-agentic); }
@@ -826,7 +809,7 @@ STYLE = r"""
   .ix-lane.on { display: block; }
   .ix-lane > i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; border-radius: 3px;
     transition: width .45s cubic-bezier(.2, .7, .3, 1); }
-  .ix-lane-avg > i { background: var(--ok); }
+  .ix-lane-avg > i { background: var(--bar-avg); }
   .uc-slot-agentic > i { background: var(--bar-agentic); }
   .uc-slot-coding > i { background: var(--bar-coding); }
   .uc-slot-terminal > i { background: var(--bar-terminal); }
@@ -879,7 +862,7 @@ STYLE = r"""
     .ix-strip { grid-column: 3; grid-row: 2; justify-content: flex-end; max-width: 7rem; }
     .ix-fit { grid-column: 2 / -1; grid-row: 3; }
   }
-  @media (prefers-reduced-motion: reduce) { .ix-lane > i, .ix-meter i, .hstat-bar b { transition: none; } .live-dot { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .ix-lane > i, .ix-meter i { transition: none; } .live-dot { animation: none; } }
 
   /* ---------- detail card ---------- */
   .detail { margin-bottom: 2.5rem; }
@@ -937,7 +920,7 @@ STYLE = r"""
   .score { display: grid; grid-template-columns: minmax(0, 9rem) minmax(0, 1fr) 4.2rem; align-items: center; gap: .7rem; }
   .score-k { font-size: .76rem; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .score-bar { height: 8px; border-radius: 4px; background: var(--panel-3); overflow: hidden; }
-  .score-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--accent-2), var(--lime)); border-radius: 4px; }
+  .score-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--bar-score-a), var(--bar-score-b)); border-radius: 4px; }
   .score-bar.none { background: repeating-linear-gradient(90deg, var(--line) 0 3px, transparent 3px 7px); height: 2px; }
   .score-v { font-family: var(--f-mono); font-size: .78rem; font-weight: 700; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -1073,7 +1056,7 @@ STYLE = r"""
   .api-row:last-child dt { color: var(--warn); }
 
   /* ---------- news ---------- */
-  #news { margin: -1rem 0 2.5rem; }
+  #news { margin: 1.5rem 0 2.5rem; }
   #news h2 { display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
   .news-date { font-family: var(--f-mono); font-size: .7rem; font-weight: 500; letter-spacing: 0; color: var(--muted); }
   .news-h { font-family: var(--f-mono); font-size: .64rem; letter-spacing: .12em; text-transform: uppercase;
@@ -1140,7 +1123,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   </p>
   <header>
     <div class="hero-top">
-      <span class="hero-kicker"><span class="live-dot" aria-hidden="true"></span>Can your Mac run it</span>
       <a class="gh" href="https://github.com/ColtonKawamura/apple-llm-performance"
          target="_blank" rel="noopener" aria-label="Open source on GitHub">
         <svg viewBox="0 0 16 16" width="15" height="15" aria-hidden="true" focusable="false"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-2.98-.88-2.98-2.9 0-.83.3-1.51.79-2.04-.08-.2-.35-1 .08-2.07 0 0 .65-.2 2.13.79a7.2 7.2 0 0 1 1.94-.26c.66 0 1.32.09 1.94.26 1.48-1 2.13-.79 2.13-.79.43 1.07.16 1.87.08 2.07.49.53.79 1.21.79 2.04 0 2.03-1.21 2.7-2.99 2.9.31.27.58.79.58 1.6 0 1.15-.01 2.09-.01 2.38 0 .21.15.46.55.38A7.99 7.99 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
@@ -1149,13 +1131,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     </div>
     <h1>Apple LLM <span class="grad">Performance Tracker</span></h1>
     <p class="hero-sub">Open-weight models &times; Apple silicon. Pick your Mac, pick a job, see what fits.</p>
-    <div class="hero-stats" data-stats="{stats}">
-      <span class="hstat"><strong>0</strong><span>models</span></span>
-      <span class="hstat"><strong>0</strong><span>engines</span></span>
-      <span class="hstat"><strong>0</strong><span>use cases</span></span>
-      <span class="hstat"><strong>0</strong><span>tracked issues</span></span>
-      <span class="hstat hstat-open"><strong>0</strong><span>open now</span><i class="hstat-bar"><b></b></i></span>
-    </div>
   </header>
 
   <form class="rig" id="rig" aria-label="Cluster configuration">
@@ -1193,8 +1168,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       <span class="ix-key-m"><i></i></span>share of usable memory</div>
   </nav>
 
-  {news}
-
   <div class="detail" id="detail" hidden>
     <button type="button" class="back" id="back">
       <span aria-hidden="true">&larr;</span> All models
@@ -1204,6 +1177,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       <span aria-hidden="true">&larr;</span> All models
     </button>
   </div>
+
+  {news}
 
   <div class="panel wide">
     <details class="panel-fold">
@@ -2132,40 +2107,6 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         }});
       }});
     }});
-  }})();
-</script>
-
-<script data-newblock="2">
-  (function () {{
-    // Count the hero vitals up from zero once, so the opening numbers feel
-    // read, not stamped. Honours reduced motion by jumping straight to the
-    // value. The counts ride in a pipe-delimited data attribute because the
-    // page is otherwise server-rendered with no global object.
-    var el = document.querySelector(".hero-stats[data-stats]");
-    if (!el) return;
-    var parts = el.getAttribute("data-stats").split("|");
-    var cells = el.querySelectorAll(".hstat strong");
-    var hb = el.querySelector(".hstat-bar b");
-    if (hb && +parts[3]) hb.style.width = (parts[4] / parts[3] * 100).toFixed(1) + "%";
-    var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce || cells.length !== parts.length) {{
-      for (var i = 0; i < parts.length; i++) {{
-        if (cells[i]) cells[i].textContent = parts[i];
-      }}
-      return;
-    }}
-    var DUR = 900, t0 = null;
-    function tick(ts) {{
-      if (t0 === null) t0 = ts;
-      var p = Math.min(1, (ts - t0) / DUR);
-      var e = 1 - Math.pow(1 - p, 3);   // ease-out cubic
-      for (var i = 0; i < parts.length; i++) {{
-        cells[i].textContent = Math.round(parts[i] * e);
-      }}
-      if (p < 1) requestAnimationFrame(tick);
-      else for (var j = 0; j < parts.length; j++) cells[j].textContent = parts[j];
-    }}
-    requestAnimationFrame(tick);
   }})();
 </script>
 """
