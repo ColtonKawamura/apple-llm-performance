@@ -4885,6 +4885,80 @@
           "issues": []
         }
       }
+    },
+    {
+      "ID": "clef",
+      "MODALITY": "text",
+      "NAME": "Clef",
+      "ARCH": "Qwen3.8-27B backbone + joint schema head (decision model)",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "16k typical, 32k max",
+      "HF": "Cloudflare/clef",
+      "PARAMS_B": 27.8,
+      "NOTE": "Clef is not a chat model and does not write free-form text: it is a decision model that turns a state and a schema of typed questions into answers in a single forward pass. You give it a state as text, JSON, images or video, plus a list of questions each with a schema (a yes/no, a pick from named options, a rating, a probability), and it returns one calibrated logit per allowed option per question, with no generation step and no output parsing to fall back on. It is post-trained on the Qwen3.8-27B backbone (same weights as the qwen38 entry) with a small joint schema head layered on top, and it is fully Apache-2.0, which is why it is worth listing despite being far less useful as a general-purpose agent than the models beside it. Reach for it where a pipeline needs a single structured verdict - routing, moderation, intent/topic classification, an extraction check, reranking, an LLM-as-a-judge score, an agent guardrail, visual inspection - rather than a conversation. The smaller, faster `clef-flash` is the same shape on a smaller backbone; use it when a 27.8B model is heavier than the latency budget allows.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/Cloudflare/clef"
+        ],
+        [
+          "MLX-4bit quant",
+          "https://huggingface.co/mlx-community/clef-4bit"
+        ],
+        [
+          "vLLM Metal Qwen3.5 support",
+          "https://github.com/vllm-project/vllm-metal/blob/main/docs/supported_models.md"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mlxlm",
+      "QUANT_SOURCES": {
+        "mlx": [
+          "mlx-community/clef-4bit"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": null,
+        "derivation": ""
+      },
+      "ENGINES": {
+        "mlxlm": {
+          "status": "works",
+          "label": "Runs",
+          "note": "mlx-lm has a qwen3_5 model class, so this loads on a stock build. The vision encoder rides along with the weights, so expect the loaded footprint to be a little above the transformer's own size, but the rungs are honest and the quant ladder gives a choice of precision.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "oMLX ships native Metal kernels for the Qwen3.5 family, so this is the strongest MLX path and better than a stock mlx-lm load for this hybrid GDN architecture.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "works",
+          "label": "Runs",
+          "note": "vLLM Metal lists Qwen3.5 (dense) as native multimodal paged generation, so this is a first-class target here and the best path for batched or concurrent use.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "waybarrios/vllm-mlx does not register the qwen3_5 architecture, so there is nothing to wrap even though the MLX quant exists.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "clef-4bit",
+            "repo": "mlx-community/clef-4bit",
+            "gb": 16.31,
+            "kind": "quant",
+            "bpw": 4.69
+          }
+        ]
+      }
     }
   ],
   "engines": [
@@ -6459,6 +6533,48 @@
     "waybarrios/vllm-mlx#732"
   ],
   "news": [
+    {
+      "date": "2026-10-12",
+      "top": [
+        [
+          "Qwen-Image 2.1 Turbo ships from Qwen",
+          "Qwen's next image model tops the HF trending board this week. It is diffusers-only for now - no MLX or GGUF quant exists - so it is not yet loadable on Apple silicon, but it is the biggest new image model in the local-model space and worth watching for when packagers catch up.",
+          "https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo"
+        ],
+        [
+          "Underdog-Saluki-27B-1.0",
+          "Conway Research's 27B model is the most-downloaded new release this week with a quarter-million downloads. It is a full-weight dense model, so the only Apple-silicon route today is its GGUF once quantizers release it; an mlx-community port is the signal to watch for.",
+          "https://huggingface.co/ConwayResearch/Underdog-Saluki-27B-1.0"
+        ],
+        [
+          "Mellum2.1-12B-A2.5B-Thinking lands in mlx-community",
+          "A 12B/2.5B-active thinking MoE already in an Apple-silicon 6-bit MLX quant, so it loads today on mlx-lm and oMLX. A small MoE is exactly the shape this page can measure and rank, unlike the unquantized flagship releases.",
+          "https://huggingface.co/mlx-community/Mellum2.1-12B-A2.5B-Thinking-6bit"
+        ]
+      ],
+      "newModels": [
+        [
+          "Mellum2.1-12B-A2.5B-Thinking-6bit",
+          "A 12B/2.5B-active thinking MoE, already an Apple-silicon 6-bit MLX quant - loads today on mlx-lm and oMLX.",
+          "https://huggingface.co/mlx-community/Mellum2.1-12B-A2.5B-Thinking-6bit"
+        ],
+        [
+          "humanizer-12b-OptiQ-4bit",
+          "An 12B model in an OptiQ 4-bit MLX quant from mlx-community, the kind of small dense model this page can measure and rank on Apple hardware.",
+          "https://huggingface.co/mlx-community/humanizer-12b-OptiQ-4bit"
+        ],
+        [
+          "SenseNova-U1.5-8B-MoT-8step-v2-4bit",
+          "A 8B MoE image-text model in a 4-bit MLX quant; whether mlx-lm registers its architecture yet is the open question for Apple-silicon loading.",
+          "https://huggingface.co/mlx-community/SenseNova-U1.5-8B-MoT-8step-v2-4bit"
+        ],
+        [
+          "d1a-e4b-8bit",
+          "The D1A framework on Gemma 4, a 4-bit MLX decision model - not to be confused with LiquidAI's d1-3B, whose name merely collides with this one. Ships with its own decision-head loader.",
+          "https://huggingface.co/mlx-community/d1a-e4b-8bit"
+        ]
+      ]
+    },
     {
       "date": "2026-09-24",
       "top": [
