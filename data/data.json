@@ -4959,6 +4959,588 @@
           }
         ]
       }
+    },
+    {
+      "ID": "v41flash",
+      "MODALITY": "text",
+      "NAME": "DeepSeek-V4.1-Flash-1017",
+      "ARCH": "MoE 552B (16B active) · Causal Encoder-Decoder, GSQ/DSA, native image-text",
+      "LICENSE": "MIT",
+      "CONTEXT": "1M",
+      "HF": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "PARAMS_B": 552,
+      "NOTE": "DeepSeek's 2026-10-17 Flash: a 552B (16B active) sparse MoE on the Causal Encoder-Decoder stack, successor to V4-Flash. Natively image-text, 1M context. The load picture is the inverse of its predecessor - this one has a first-class mlx-lm class (deepseek_v41) as well as llama.cpp (deepseek41), so Apple-silicon paths are broader than V4-Flash's ever were. The only real problem is size: the unsloth GGUF ladder tops out above a few hundred GB and the MLX quants are likewise huge, so every path here means real hardware or pooled machines. ds4 is the most honest best-fit because it pages from disk across machines. KV is derived from the public config and is unmeasured.",
+      "SOURCES": [
+        [
+          "Model card (all facts)",
+          "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017"
+        ],
+        [
+          "552B / 16B parameters, Artificial Analysis",
+          "https://artificialanalysis.ai/models/deepseek-v4-1-flash-1017/"
+        ],
+        [
+          "deepseek41 in llama-arch.cpp",
+          "https://raw.githubusercontent.com/ggml-org/llama.cpp/main/src/llama-arch.cpp"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "ds4",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+          "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF"
+        ],
+        "mlx": [
+          "mlx-community/DeepSeek-V4.1-Flash-1017-oQ4e-mtp",
+          "mlx-community/DeepSeek-V4.1-Flash-1017-oQ2.5e-mtp"
+        ],
+        "ds4": [
+          "nazeshinjite/DeepSeek-V4.1-Flash-1017-ds4-GGUF"
+        ]
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-UD-Q8_K_XL",
+            "repo": "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+            "gb": 508.38,
+            "kind": "quant",
+            "bpw": 7.37
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-UD-Q3_K_XL",
+            "repo": "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+            "gb": 485.07,
+            "kind": "quant",
+            "bpw": 7.03
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-UD-IQ3_XXS",
+            "repo": "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+            "gb": 394.74,
+            "kind": "quant",
+            "bpw": 5.72
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-UD-Q2_K_XL",
+            "repo": "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+            "gb": 334.79,
+            "kind": "quant",
+            "bpw": 4.85
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-UD-IQ1_M",
+            "repo": "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+            "gb": 250.4,
+            "kind": "quant",
+            "bpw": 3.63
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-UD-IQ1_S",
+            "repo": "unsloth/DeepSeek-V4.1-Flash-1017-GGUF",
+            "gb": 232.98,
+            "kind": "quant",
+            "bpw": 3.38
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ2_XS",
+            "repo": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
+            "gb": 155.23,
+            "kind": "quant",
+            "bpw": 2.25
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-GSQ-RCO-IQ1_M",
+            "repo": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
+            "gb": 120.72,
+            "kind": "quant",
+            "bpw": 1.75
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-Engram-IQ4_NL",
+            "repo": "ISTA-DASLab/DeepSeek-V4.1-Flash-1017-GSQ-RCO-GGUF",
+            "gb": 110.6,
+            "kind": "quant",
+            "bpw": 1.6
+          }
+        ],
+        "mlx": [
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-oQ4e-mtp",
+            "repo": "mlx-community/DeepSeek-V4.1-Flash-1017-oQ4e-mtp",
+            "gb": 432.03,
+            "kind": "quant",
+            "bpw": 6.26
+          },
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-oQ2.5e-mtp",
+            "repo": "mlx-community/DeepSeek-V4.1-Flash-1017-oQ2.5e-mtp",
+            "gb": 342.71,
+            "kind": "quant",
+            "bpw": 4.97
+          }
+        ],
+        "ds4": [
+          {
+            "label": "DeepSeek-V4.1-Flash-1017-Q2",
+            "repo": "nazeshinjite/DeepSeek-V4.1-Flash-1017-ds4-GGUF",
+            "gb": 365.71,
+            "kind": "quant",
+            "bpw": 5.3
+          }
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 81920,
+        "max_context": 1048576,
+        "derivation": "40 layers of GQA, 1 KV head x 512 head_dim x 2 (K and V) x 2 (fp16) = 81920; from the public config (num_key_value_heads=1, head_dim=512). Unmeasured - the model also advertises a 128-token sliding window and DSA/GQS compression, so treat this as an upper bound."
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "`deepseek41` is registered in llama.cpp (LLM_ARCH_DEEPSEEK41) with its own DSA path, so a stock build loads it. Same family as V4-Flash; the 552B size is the constraint, not support.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "blocked",
+          "label": "Not in library",
+          "note": "404 on ollama.com/library/deepseek-v4.1-flash-1017. Waiting on an Ollama bump once a llama.cpp release carries deepseek41.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "GGUF engine against the unsloth / ISTA-DASLab DeepSeek-V4.1-Flash GGUF ladder.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "oMLX runs the GGUF on Metal; tracks llama.cpp's deepseek41 path.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "deepseek_v41 is not in the vLLM Metal supported-models matrix and DSA has no Metal kernel.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "vLLM-MLX wraps mlx-lm, which has a first-class deepseek_v41 class, so the MLX quants load - the inverse of V4-Flash, which had no class.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "works",
+          "label": "Runs",
+          "note": "`deepseek_v41.py` is in mlx-lm's models directory (imported as mlx_lm.models.deepseek_v41), so a stock mlx-lm runs it.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "works",
+          "label": "Best path",
+          "note": "ds4 has a published DeepSeek-V4.1-Flash build and pages from disk across machines, the honest way to run a 552B checkpoint.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "ID": "kimik31",
+      "MODALITY": "text",
+      "NAME": "Kimi-K3.1-Pro",
+      "ARCH": "MoE 2.8T (104B active) · 93 layers (69 KDA + 24 gated-DSA), 896 experts · native image/video-text",
+      "LICENSE": "Other (Moonshot)",
+      "CONTEXT": "1M",
+      "HF": "moonshotai/Kimi-K3.1-Pro",
+      "PARAMS_B": 2800,
+      "NOTE": "Moonshot's 2.8T (104B active) 3T-class flagship; weights opened 2026-11-04, a post-training of Kimi K3. 93 layers (69 Kimi Delta Attention + 24 gated-DSA), 896 experts (16 routed + 2 shared). The only mainstream runtimes that can load it are llama.cpp (kimi-k31 landed in PR #31779) and, by extension, Ollama and LM Studio, both of which already carry it. mlx-lm has no kimi_k31 class (only kimi_k3), so the MLX 'MLXse' and REAP quants on the hub are ahead of any runtime that can run them - the files-ahead-of-the-loader gap this page keeps meeting. The KV figure counts only the 24 gated-DSA layers; the 69 KDA layers hold a fixed recurrent state and are excluded.",
+      "SOURCES": [
+        [
+          "Model card (all facts)",
+          "https://huggingface.co/moonshotai/Kimi-K3.1-Pro"
+        ],
+        [
+          "kimi-k31 in llama.cpp (PR #31779)",
+          "https://github.com/ggml-org/llama.cpp/pull/31779"
+        ],
+        [
+          "2.8T / 104B parameters, NVIDIA NIM",
+          "https://build.nvidia.com/moonshotai/kimi-k3_1-pro/modelcard"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "llamacpp",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "DevQuasar/moonshotai.Kimi-K3.1-Pro-GGUF",
+          "shashanth-27xA9/Kimi-K3.1-Pro-SuperExpert-12GB"
+        ]
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "moonshotai.Kimi-K3.1-Pro-MXFP4_MOE",
+            "repo": "DevQuasar/moonshotai.Kimi-K3.1-Pro-GGUF",
+            "gb": 1508.9,
+            "kind": "quant",
+            "bpw": 4.31
+          },
+          {
+            "label": "moonshotai.Kimi-K3.1-Pro-Q2_K",
+            "repo": "DevQuasar/moonshotai.Kimi-K3.1-Pro-GGUF",
+            "gb": 1009.32,
+            "kind": "quant",
+            "bpw": 2.88
+          }
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 27648,
+        "max_context": 1048576,
+        "derivation": "24 of 93 layers are gated-DSA latent attention: 24 x (kv_lora_rank 512 + qk_rope_head_dim 64) x 2 (fp16) = 27648. The other 69 are Kimi Delta Attention, a fixed recurrent state, excluded per AGENTS.md section 4. The 69 KDA / 24 gated-DSA split is per the vendor's architecture description; the config carries no layer-type array, so treat 27648 as an estimate." 
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "`kimi-k31` landed in llama.cpp in PR #31779 (2026-11-06, src/models/kimi-k31.cpp). The only mainstream runtime that can currently load it.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "works",
+          "label": "In library",
+          "note": "In the Ollama library (ollama.com/library/kimi-k3.1-pro). Fit - 2.8T - is the constraint, not availability.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "degraded",
+          "label": "Preliminary GGUFs",
+          "note": "GGUF engine; only small community GGUFs so far (DevQuasar, shashanth), nothing curated in a shipped build.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "blocked",
+          "label": "Not vendored yet",
+          "note": "oMLX has not vendored kimi-k31; the arch only reached llama.cpp master on 2026-11-06.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "kimi_k31 is not in the vLLM Metal matrix.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "No kimi_k31 class in mlx-lm (only kimi_k3/kimi_linear). The MLX MLXse/REAP quants are ahead of any runtime that can run them.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "No mlx_lm/models/kimi_k31.py, so mlx-lm refuses the weights whatever quant you point it at.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not a DeepSeek checkpoint; out of scope.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "ID": "lfm317b",
+      "MODALITY": "text",
+      "NAME": "LFM3-1.7B",
+      "ARCH": "Tri-hybrid 1.7B · 24 layers (conv + sliding-window + full-attn GQA)",
+      "LICENSE": "Other (LiquidAI)",
+      "CONTEXT": "262k",
+      "HF": "LiquidAI/LFM3-1.7B",
+      "PARAMS_B": 1.7,
+      "NOTE": "LiquidAI's small tri-hybrid edge model: 24 layers of conv + sliding-window + full-attention, ~1.7B. It is the easy one on this page - in the Ollama library, GGUFs from LiquidAI and LM Studio, and llama.cpp (lfm3) all run it at a footprint that fits any Mac. The catch is the usual one for LiquidAI: mlx-lm still has no lfm3 class (only lfm2), so the LiquidAI LFM3-1.7B-MLX-5bit quant cannot be loaded. Best path is a stock llama.cpp or a one-command Ollama pull.",
+      "SOURCES": [
+        [
+          "Model card (all facts)",
+          "https://huggingface.co/LiquidAI/LFM3-1.7B"
+        ],
+        [
+          "lfm3 in llama-arch.cpp",
+          "https://raw.githubusercontent.com/ggml-org/llama.cpp/main/src/llama-arch.cpp"
+        ],
+        [
+          "Ollama library entry",
+          "https://ollama.com/library/lfm3"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "llamacpp",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "LiquidAI/LFM3-1.7B-GGUF",
+          "lmstudio-community/LFM3-1.7B-GGUF"
+        ]
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "LFM3-1.7B-BF16",
+            "repo": "LiquidAI/LFM3-1.7B-GGUF",
+            "gb": 3.47,
+            "kind": "quant",
+            "bpw": 16.31
+          },
+          {
+            "label": "LFM3-1.7B-Q8_0",
+            "repo": "LiquidAI/LFM3-1.7B-GGUF",
+            "gb": 1.85,
+            "kind": "quant",
+            "bpw": 8.69
+          },
+          {
+            "label": "LFM3-1.7B-Q6_K",
+            "repo": "LiquidAI/LFM3-1.7B-GGUF",
+            "gb": 1.43,
+            "kind": "quant",
+            "bpw": 6.72
+          },
+          {
+            "label": "LFM3-1.7B-NVFP4",
+            "repo": "LiquidAI/LFM3-1.7B-GGUF",
+            "gb": 1.28,
+            "kind": "quant",
+            "bpw": 6.02
+          },
+          {
+            "label": "LFM3-1.7B-Q4_K_M",
+            "repo": "LiquidAI/LFM3-1.7B-GGUF",
+            "gb": 1.1,
+            "kind": "quant",
+            "bpw": 5.17
+          },
+          {
+            "label": "LFM3-1.7B-QAD-Q4_0",
+            "repo": "LiquidAI/LFM3-1.7B-GGUF",
+            "gb": 1.05,
+            "kind": "quant",
+            "bpw": 4.94
+          }
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 12288,
+        "max_context": 262144,
+        "derivation": "6 of 24 layers are full attention (GQA): 6 x 4 KV heads x 128 head_dim x 2 x 2 (fp16) = 12288. The rest are conv (fixed state) or 128-window sliding, both bounded and excluded."
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "`lfm3` is in llama.cpp (LLM_ARCH_LFM3). A stock build runs this small 1.7B tri-hybrid at any Mac's footprint.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "works",
+          "label": "In library",
+          "note": "In the Ollama library (ollama.com/library/lfm3). One command, tiny footprint.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "GGUF engine against LiquidAI's own and lmstudio-community LFM3-1.7B GGUFs.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "oMLX runs the GGUF on Metal.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Not in the vLLM Metal matrix.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Wraps mlx-lm, which has no lfm3 class (only lfm2). Nothing to wrap.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "No mlx_lm/models/lfm3.py. The LiquidAI LFM3-1.7B-MLX-5bit quant is ahead of the loader.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not a DeepSeek checkpoint.",
+          "issues": []
+        }
+      }
+    },
+    {
+      "ID": "mistral4",
+      "MODALITY": "text",
+      "NAME": "Mistral-Large-4-1T-A52B",
+      "ARCH": "MoE ~1T (52B active) · 72 layers (128 routed experts, top-4) + shared, sparse indexed (DSA) MLA · native image-text",
+      "LICENSE": "Other (Mistral)",
+      "CONTEXT": "1M",
+      "HF": "mistralai/Mistral-Large-4-1T-A52B",
+      "PARAMS_B": 1000,
+      "NOTE": "Mistral's 1T (52B active) flagship, a 72-layer granular MoE (128 routed experts, top-4) with sparse indexed (DSA) MLA and native image input. llama.cpp gained the architecture in PR #31376 ('mistral le chonk'), so a stock build runs it alongside Ollama and LM Studio, which both carry the GGUF ladder (unsloth, ggml-org). mlx-lm cannot load it: the loader imports mlx_lm.models.mistral_large4, which does not exist and is not remapped to mistral4.py, so the mlx-community MLX quants are ahead of the loader. At 1T the ladder is the story, not the support.",
+      "SOURCES": [
+        [
+          "Model card (all facts)",
+          "https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B"
+        ],
+        [
+          "mistral-large4 in llama.cpp (PR #31376)",
+          "https://github.com/ggml-org/llama.cpp/pull/31376"
+        ],
+        [
+          "~1T / 52B parameters, NVIDIA build",
+          "https://build.nvidia.com/mistralai/mistral-large-4-1t-a52b.md"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "llamacpp",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "unsloth/Mistral-Large-4-1T-A52B-GGUF",
+          "ggml-org/Mistral-Large-4-1T-A52B-GGUF"
+        ]
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "Mistral-Large-4-1T-A52B-BF16",
+            "repo": "unsloth/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 2098.86,
+            "kind": "quant",
+            "bpw": 16.79
+          },
+          {
+            "label": "Mistral-Large-4-1T-A52B-Q8_0",
+            "repo": "unsloth/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 1115.15,
+            "kind": "quant",
+            "bpw": 8.92
+          },
+          {
+            "label": "Mistral-Large-4-1T-A52B-UD-Q5_K_XL",
+            "repo": "unsloth/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 783.75,
+            "kind": "quant",
+            "bpw": 6.27
+          },
+          {
+            "label": "Mistral-Large-4-1T-A52B-Q4_K_M",
+            "repo": "ggml-org/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 634.8,
+            "kind": "quant",
+            "bpw": 5.08
+          },
+          {
+            "label": "Mistral-Large-4-1T-A52B-UD-Q3_K_XL",
+            "repo": "unsloth/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 492.75,
+            "kind": "quant",
+            "bpw": 3.94
+          },
+          {
+            "label": "Mistral-Large-4-1T-A52B-UD-IQ3_XXS",
+            "repo": "unsloth/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 423.52,
+            "kind": "quant",
+            "bpw": 3.39
+          },
+          {
+            "label": "Mistral-Large-4-1T-A52B-Q2_K",
+            "repo": "ggml-org/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 380.71,
+            "kind": "quant",
+            "bpw": 3.05
+          },
+          {
+            "label": "Mistral-Large-4-1T-A52B-UD-IQ1_M",
+            "repo": "unsloth/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 259.58,
+            "kind": "quant",
+            "bpw": 2.08
+          },
+          {
+            "label": "Mistral-Large-4-1T-A52B-UD-IQ1_S",
+            "repo": "unsloth/Mistral-Large-4-1T-A52B-GGUF",
+            "gb": 233.01,
+            "kind": "quant",
+            "bpw": 1.86
+          }
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 82944,
+        "max_context": 1048576,
+        "derivation": "72 layers of sparse indexed (DSA) latent attention: 72 x (kv_lora_rank 512 + qk_rope_head_dim 64) x 2 (fp16) = 82944. Cross-layer KV sharing may reduce the effective footprint."
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "`mistral-large4` was added to llama.cpp in PR #31376 ('mistral le chonk', src/models/mistral-large4.cpp) with a DSA path. A stock build runs it; the 1T ladder is the wall.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "works",
+          "label": "In library",
+          "note": "In the Ollama library (ollama.com/library/mistral-large-4). In library only - a 1T checkpoint is not locally runnable.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "GGUF engine against the unsloth / ggml-org Mistral-Large-4 GGUF ladder.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "oMLX runs the GGUF on Metal.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Not in the vLLM Metal matrix; untested at this size.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Wraps mlx-lm, whose loader imports mlx_lm.models.mistral_large4, which does not exist and is not remapped to mistral4.py.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "No mistral_large4.py and mistral_large4 is not in MODEL_REMAPPING, so mlx-lm refuses the weights. The mlx-community quants are ahead of the loader.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not a DeepSeek checkpoint.",
+          "issues": []
+        }
+      }
     }
   ],
   "engines": [
@@ -6533,6 +7115,43 @@
     "waybarrios/vllm-mlx#732"
   ],
   "news": [
+    {
+      "date": "2026-11-07",
+      "top": [
+        [
+          "First community GGUFs for DeepSeek V4.1-Flash ship the same day weights open",
+          "The day DeepSeek opened V4.1-Flash (552B, 16B active), the community shipped its first community GGUFs - AtomicChat's uncensored GSQ-RCO (the model's own grouped-sparse/DSA format) at 117,016 downloads and OBLITERATUS's obliterated variant, showing the 3T-class flagship already being quantized for GGUF and Apple-silicon consumers.",
+          "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF"
+        ],
+        [
+          "OBLITERATUS obliterates V4.1-Flash into safety-tuned and untuned GGUFs",
+          "A second V4.1-Flash GGUF, the obliterated (red-team / safety filters removed) build, confirming the community is splitting the new flagship into safety-tuned and untuned tracks for GGUF consumers.",
+          "https://huggingface.co/OBLITERATUS/DeepSeek-V4.1-Flash-1017-obliterated"
+        ],
+        [
+          "Community forks of Moonshot's 2.8T Kimi K3.1 Pro appear within days",
+          "Within days of Moonshot's 2.8T Kimi K3.1 Pro opening, community builds already exist - including an Eagle3.1 MLA-stack fork - as the newest 3T-class model starts getting quantized and variant-ed for GGUF and MLX consumers.",
+          "https://huggingface.co/lightseekorg/kimi-k3.1-pro-eagle3.1-mla"
+        ]
+      ],
+      "newModels": [
+        [
+          "roman220220/Dory1.0-4B-gptq-mlx-jang",
+          "A new 4B Dory text model shipped as a GPTQ build gated for mlx (mlx-jang), an Apple-silicon-adjacent quantization.",
+          "https://huggingface.co/roman220220/Dory1.0-4B-gptq-mlx-jang"
+        ],
+        [
+          "jsantillana/gemma-4-26B-A4B-it-abliterated",
+          "An abliterated, instruction-tuned 26B MoE (4B active) variant of Gemma 4.",
+          "https://huggingface.co/jsantillana/gemma-4-26B-A4B-it-abliterated"
+        ],
+        [
+          "42ailab/Nanbeige4.2-3B-GGUF",
+          "A new 3B text model shipped as a GGUF.",
+          "https://huggingface.co/42ailab/Nanbeige4.2-3B-GGUF"
+        ]
+      ]
+    },
     {
       "date": "2026-10-12",
       "top": [
