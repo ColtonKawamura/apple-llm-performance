@@ -58,6 +58,8 @@ tracker/
   measure.py            re-measures one model's quant ladder from Hugging Face
   probe.py              re-polls tracked issue states from GitHub
   collect_news.py       gathers the daily community rollup into the `news` section
+  fetch_aa.py           fetches Artificial Analysis' benchmarks and is the source
+                        of truth for the nine AA-sourced use-case categories
   watch-state.txt       last polled state of every tracked issue
   watch.sh              local twice-daily watch loop
 
