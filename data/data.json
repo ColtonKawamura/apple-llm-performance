@@ -5200,7 +5200,7 @@
       "KV": {
         "bytes_per_token": 27648,
         "max_context": 1048576,
-        "derivation": "24 of 93 layers are gated-DSA latent attention: 24 x (kv_lora_rank 512 + qk_rope_head_dim 64) x 2 (fp16) = 27648. The other 69 are Kimi Delta Attention, a fixed recurrent state, excluded per AGENTS.md section 4. The 69 KDA / 24 gated-DSA split is per the vendor's architecture description; the config carries no layer-type array, so treat 27648 as an estimate." 
+        "derivation": "24 of 93 layers are gated-DSA latent attention: 24 x (kv_lora_rank 512 + qk_rope_head_dim 64) x 2 (fp16) = 27648. The other 69 are Kimi Delta Attention, a fixed recurrent state, excluded per AGENTS.md section 4. The 69 KDA / 24 gated-DSA split is per the vendor's architecture description; the config carries no layer-type array, so treat 27648 as an estimate."
       },
       "ENGINES": {
         "llamacpp": {
@@ -6449,6 +6449,61 @@
           "7 precisions"
         ]
       ]
+    },
+    {
+      "ID": "aaindex",
+      "LABEL": "Overall (AA Index)",
+      "MODALITY": "text",
+      "FIDELITY_GATE": "mild",
+      "AXIS": "Artificial Analysis' Intelligence Index: one composite score per model on a single scale, so every bar here is directly comparable - the task categories' suites do not mix. Values are fetched nightly from artificialanalysis.ai/models; a model AA has not yet evaluated is left out. It says overall quality, not fitness for one job.",
+      "RANK": [
+        [
+          "kimik31",
+          "AA Index",
+          "46.5"
+        ],
+        [
+          "v41flash",
+          "AA Index",
+          "32.6"
+        ],
+        [
+          "glm53",
+          "AA Index",
+          "31.7"
+        ],
+        [
+          "glm53f",
+          "AA Index",
+          "27.8"
+        ],
+        [
+          "mistral4",
+          "AA Index",
+          "26.1"
+        ],
+        [
+          "v4pro",
+          "AA Index",
+          "23.1"
+        ],
+        [
+          "qwen38",
+          "AA Index",
+          "20.1"
+        ],
+        [
+          "m3",
+          "AA Index",
+          "18.9"
+        ],
+        [
+          "gemma4",
+          "AA Index",
+          "4.4"
+        ]
+      ],
+      "DISPLAY_ORDER": 5
     }
   ],
   "issues": [
