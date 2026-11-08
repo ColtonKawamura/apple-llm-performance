@@ -15,9 +15,10 @@ are never touched.
 
 Only models that run on a single Mac Studio appear in its tables: a tracked
 text model must have a ladder rung that fits the 512 GB cluster under the
-page's 90% fit rule plus framework overhead. A model that needs a multi-unit
-rig stays on the page, just out of the AA tables. Models AA has not listed,
-or listed with a null figure, are left out of the table rather than guessed.
+page's 15 GB macOS + Window Server hold plus framework overhead. A model
+that needs a multi-unit rig stays on the page, just out of the AA tables.
+Models AA has not listed, or listed with a null figure, are left out of the
+table rather than guessed.
 
 Fetching is two-stage, because the /models page only embeds its ~12 frontier
 open-weights records:
@@ -63,9 +64,9 @@ PROBE_PAUSE = 0.4  # between per-model page fetches
 RECORD_WINDOW = 8000  # every field we read sits within this of the URL field
 
 # The page's own fit rule, mirrored so a model only enters the AA tables when
-# a single Studio can actually load it (render_status.py: WIRED * g + overhead).
+# a single Studio can actually load it (render_status.py: g - OS_HOLD + overhead).
 STUDIO_GB = 512
-WIRED = 0.90
+OS_HOLD = 15  # macOS + Window Server per machine
 OVERHEAD = 10
 
 MIN_MATCHES = 3      # below this the harvest is dead; refuse to write
@@ -246,7 +247,7 @@ def probe_own(blob, repo):
 def fits_studio(model):
     """True when some ladder rung loads on one 512 GB Studio under the
     page's own fit rule."""
-    usable = STUDIO_GB * WIRED
+    usable = STUDIO_GB - OS_HOLD
     for fam in (model.get("LADDER") or {}).values():
         if isinstance(fam, list):
             for r in fam:

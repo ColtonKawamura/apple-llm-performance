@@ -1198,7 +1198,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       <li>Weights are the summed file sizes of the linked repository &mdash; safetensors for MLX builds, GGUF for the rest &mdash; measured, not estimated. A <strong>*</strong> marks the exception: a figure derived from parameter count because no build has been published anywhere.</li>
       <li><strong>The same model weighs different amounts on different engines.</strong> GGUF has quant tiers MLX does not, so llama.cpp can often fit a model MLX cannot &mdash; Qwen3-Coder-Next's GGUF ladder reaches down to 18.9 GB while its MLX ladder stops at 42.4 GB. Each engine tab states its own build and its own fit.</li>
       <li>Issue lists are scoped to the engine tab you are on, and are filtered for what actually applies on a Mac. A CUDA-only or ROCm-only report is not listed here even when it dominates the upstream thread.</li>
-      <li>Fit assumes a 90% wired-memory limit plus framework overhead &mdash; ~10 GB for an LLM server, which has a paged KV pool and Metal buffers to hold, and ~1.5 GB for an image or audio runtime, which does not &mdash; and that pooling shards weights evenly. It answers "does this load", not "does this run well" &mdash; a model spread across machines still pays the Thunderbolt hop on every token.</li>
+      <li>Fit assumes 15 GB per machine for macOS + Window Server plus framework overhead &mdash; ~10 GB for an LLM server, which has a paged KV pool and Metal buffers to hold, and ~1.5 GB for an image or audio runtime, which does not &mdash; and that pooling shards weights evenly. It answers "does this load", not "does this run well" &mdash; a model spread across machines still pays the Thunderbolt hop on every token.</li>
     </ul>
     </details>
   </div>
@@ -1253,7 +1253,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   var USE_CASES = {usecases};
   var BAND_RANK = {{ full: 0, mild: 1, low: 2, pruned: 2, unusable: 3 }};
   var ORDER = Object.keys(MACHINES);
-  var MAX_UNITS = 6, PRACTICAL_UNITS = 4, WIRED = 0.90;
+  var MAX_UNITS = 6, PRACTICAL_UNITS = 4, OS_HOLD = 15;
   // Framework overhead. The larger figure covers an LLM server's KV pool and
   // Metal buffers; a diffusion or TTS runtime carries far less, and charging it
   // 10 GB made a 310 MB model report "10 GB resident".
@@ -1346,7 +1346,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     chip = chipSel.value;
     var g = parseInt(memSel.value, 10);
     n = parseInt(nSel.value, 10);
-    var perNode = g * WIRED, cluster = perNode * n, M = MACHINES[chip];
+    var perNode = Math.max(g - OS_HOLD, 0), cluster = perNode * n, M = MACHINES[chip];
 
     // The interconnect only matters once there is something to interconnect.
     var tile = function (k, v, sub, cls) {{
@@ -1357,18 +1357,18 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     out.innerHTML =
       tile("Cluster", n + " \u00d7 " + M.label, g + " GB each") +
       tile("Pooled", fmt(g * n), "unified memory") +
-      tile("Usable", fmt(cluster), "after the wired-memory limit", "tile-hi") +
+      tile("Usable", fmt(cluster), "after macOS + Window Server", "tile-hi") +
       tile("Bandwidth", M.bw >= 1000 ? (M.bw / 1000).toFixed(1) + " TB/s" : M.bw + " GB/s", "per machine") +
       (n > 1 ? tile("Link", M.link + " Gb/s", M.tb) : "");
     var gz = document.getElementById("rig-gauge");
     if (gz) {{
       var segs = "";
       for (var si = 0; si < n; si++) {{
-        segs += '<span class="rg-seg"><i style="width:' + (WIRED * 100).toFixed(0) + '%"></i></span>';
+        segs += '<span class="rg-seg"><i style="width:' + (perNode / g * 100).toFixed(1) + '%"></i></span>';
       }}
       gz.innerHTML = '<div class="rg-bar">' + segs + "</div>" +
         '<div class="rg-key"><span class="k-u">usable ' + fmt(cluster) + "</span>" +
-        '<span class="k-r">kept as headroom (90% fit rule) ' + fmt(g * n - cluster) + "</span></div>";
+        '<span class="k-r">macOS + Window Server ' + fmt(g * n - cluster) + "</span></div>";
     }}
     out.classList.add("pulse");
     setTimeout(function () {{ out.classList.remove("pulse"); }}, 450);
