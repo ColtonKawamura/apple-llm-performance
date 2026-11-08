@@ -5541,6 +5541,260 @@
           "issues": []
         }
       }
+    },
+    {
+      "ID": "ripple",
+      "MODALITY": "text",
+      "NAME": "Ripple-65B-Preview",
+      "ARCH": "Dense hybrid 65B · 80 layers (16 full-attn GQA + 64 1024-window sliding), 2M context",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "2M",
+      "HF": "ricursiveAI/Ripple-65B-Preview",
+      "PARAMS_B": 65.0,
+      "NOTE": "Ricursive dense preview: 80 GQA layers in which 16 full-attention layers are threaded through 64 1024-window sliding-attention layers, 2M context, Apache-2.0, weights opened 2026-11-04. The architecture reached llama.cpp in PR #31692 (LLM_ARCH_RICURSIVE, verified in the current src/llama-arch.cpp), so a stock build loads it and, by extension, Ollama and LM Studio - both GGUF engines against DevQuasar's Ripple GGUF. mlx-lm has no ricursive or ripple class, so its only published quant (a GGUF) runs nowhere on native MLX: vLLM-MLX and mlx-lm both refuse it, and it is not in the vLLM Metal matrix. At 65B the ladder is the constraint, not availability. The KV figure counts only the 16 full-attn layers. PARAMS_B is the resident count from the shipped fp8 checkpoint (64.8 GB), matching the model's own 65B label.",
+      "SOURCES": [
+        [
+          "Model card (all facts)",
+          "https://huggingface.co/ricursiveAI/Ripple-65B-Preview"
+        ],
+        [
+          "ricursive in llama-arch.cpp (PR #31692)",
+          "https://github.com/ggml-org/llama.cpp/pull/31692"
+        ],
+        [
+          "DevQuasar Ripple GGUF",
+          "https://huggingface.co/DevQuasar/ricursiveAI.Ripple-65B-Preview-GGUF"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "llamacpp",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "DevQuasar/ricursiveAI.Ripple-65B-Preview-GGUF"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 65536,
+        "max_context": 2097152,
+        "derivation": "16 of 80 layers are full attention (GQA, 8 KV heads, 128 head_dim): 16 x 8 x 128 x 2 (K and V) x 2 (fp16) = 65536 bytes/token. The other 64 are 1024-window sliding attention, bounded and excluded per AGENTS.md section 4. From ricursiveAI config.json."
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "LLM_ARCH_RICURSIVE is in the current llama-arch.cpp (PR #31692); a stock build loads the 65B preview and the DevQuasar GGUF runs.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "blocked",
+          "label": "Not in library",
+          "note": "404 on ollama.com/library/ripple; waiting on an Ollama bump that carries the ricursive arch.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "GGUF engine against DevQuasar's Ripple GGUF.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "oMLX runs the GGUF on Metal.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "ricursive is not in the vLLM Metal supported-models matrix.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Wraps mlx-lm, which has no ricursive or ripple class; its only published quant is a GGUF, so there is nothing to wrap.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "No mlx_lm/models/ricursive*; no mlx-lm class for the architecture.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not a DeepSeek checkpoint.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "ricursiveAI.Ripple-65B-Preview.f16.gguf.Q8_0.gguf",
+            "repo": "DevQuasar/ricursiveAI.Ripple-65B-Preview-GGUF",
+            "gb": 68.84,
+            "kind": "quant",
+            "bpw": 8.47
+          },
+          {
+            "label": "ricursiveAI.Ripple-65B-Preview.f16.gguf.Q6_K.gguf",
+            "repo": "DevQuasar/ricursiveAI.Ripple-65B-Preview-GGUF",
+            "gb": 53.15,
+            "kind": "quant",
+            "bpw": 6.54
+          },
+          {
+            "label": "ricursiveAI.Ripple-65B-Preview.f16.gguf.Q5_K_M",
+            "repo": "DevQuasar/ricursiveAI.Ripple-65B-Preview-GGUF",
+            "gb": 45.76,
+            "kind": "quant",
+            "bpw": 5.63
+          },
+          {
+            "label": "ricursiveAI.Ripple-65B-Preview.f16.gguf.Q4_K_M",
+            "repo": "DevQuasar/ricursiveAI.Ripple-65B-Preview-GGUF",
+            "gb": 38.8,
+            "kind": "quant",
+            "bpw": 4.78
+          },
+          {
+            "label": "ricursiveAI.Ripple-65B-Preview.f16.gguf.Q3_K_M",
+            "repo": "DevQuasar/ricursiveAI.Ripple-65B-Preview-GGUF",
+            "gb": 31.02,
+            "kind": "quant",
+            "bpw": 3.82
+          },
+          {
+            "label": "ricursiveAI.Ripple-65B-Preview.f16.gguf.Q2_K",
+            "repo": "DevQuasar/ricursiveAI.Ripple-65B-Preview-GGUF",
+            "gb": 23.75,
+            "kind": "quant",
+            "bpw": 2.92
+          }
+        ]
+      }
+    },
+    {
+      "ID": "laguna",
+      "MODALITY": "text",
+      "NAME": "Laguna-XS-2.1",
+      "ARCH": "MoE 33.5B · 40 layers (10 full-attn GQA + 30 512-window sliding), 256 experts",
+      "LICENSE": "Open Model License 1.1",
+      "CONTEXT": "256k",
+      "HF": "poolside/Laguna-XS-2.1",
+      "PARAMS_B": 33.5,
+      "NOTE": "Poolside small edge MoE: 40 layers of 10 full-attention GQA and 30 512-window sliding-attention layers, 256 routed experts (top-8) with a shared expert, 256k context. It is the one on this page that runs natively on MLX - mlx-lm has a laguna class (mlx_lm.models.laguna) and poolside ships both a GGUF and an NVFP4 MLX quant, so stock mlx-lm, oMLX, LM Studio and vLLM-MLX all run it; llama.cpp also carries the laguna arch (LLM_ARCH_LAGUNA) via its GGUF. It is not in the Ollama library or the vLLM Metal matrix. The license is Open Model License 1.1 (permissive, not an OSI open-source licence). The KV figure counts only the 10 full-attn layers. PARAMS_B is the resident count from the fp8 base checkpoint (33.4 GB), corroborated by the bf16 GGUF (66.9 GB).",
+      "SOURCES": [
+        [
+          "Model card (all facts)",
+          "https://huggingface.co/poolside/Laguna-XS-2.1"
+        ],
+        [
+          "laguna in llama-arch.cpp",
+          "https://raw.githubusercontent.com/ggml-org/llama.cpp/main/src/llama-arch.cpp"
+        ],
+        [
+          "poolside Luna GGUF",
+          "https://huggingface.co/poolside/Laguna-XS-2.1-GGUF"
+        ],
+        [
+          "poolside Luna NVFP4 MLX quant",
+          "https://huggingface.co/poolside/Laguna-XS-2.1-NVFP4-mlx"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mlxlm",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "poolside/Laguna-XS-2.1-GGUF"
+        ],
+        "mlx": [
+          "poolside/Laguna-XS-2.1-NVFP4-mlx"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 51200,
+        "max_context": 262144,
+        "derivation": "10 of 40 layers are full attention (GQA, 8 KV heads, 128 head_dim): 10 x 8 x 128 x 2 (K and V) x 2 (fp16) = 51200 bytes/token. The other 30 are 512-window sliding attention, bounded and excluded per AGENTS.md section 4. From poolside config.json."
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "LLM_ARCH_LAGUNA is in llama-arch.cpp; the poolside GGUF (130K+ downloads) is the reference build for a stock run.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "blocked",
+          "label": "Not in library",
+          "note": "404 on ollama.com/library/laguna.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "GGUF and MLX engine against poolside Luna GGUF and NVFP4-MLX.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "oMLX runs the GGUF and MLX on Metal.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "laguna is not in the vLLM Metal supported-models matrix.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "vLLM-MLX wraps mlx-lm, which has a first-class laguna class, so the poolside NVFP4 MLX quant loads.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "works",
+          "label": "Runs",
+          "note": "mlx_lm.models.laguna exists; the poolside NVFP4 quant runs in stock mlx-lm.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not a DeepSeek checkpoint.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "Laguna-XS-2.1-BF16",
+            "repo": "poolside/Laguna-XS-2.1-GGUF",
+            "gb": 66.93,
+            "kind": "quant",
+            "bpw": 15.98
+          },
+          {
+            "label": "Laguna-XS-2.1-Q4_K_M",
+            "repo": "poolside/Laguna-XS-2.1-GGUF",
+            "gb": 20.27,
+            "kind": "quant",
+            "bpw": 4.84
+          }
+        ],
+        "mlx": [
+          {
+            "label": "Laguna-XS-2.1-NVFP4-mlx",
+            "repo": "poolside/Laguna-XS-2.1-NVFP4-mlx",
+            "gb": 21.56,
+            "kind": "quant",
+            "bpw": 5.15
+          }
+        ]
+      }
     }
   ],
   "engines": [
@@ -6663,7 +6917,7 @@
       "AXIS": "Omniscience accuracy: the share of factual questions a model answers correctly without hallucinating, per Artificial Analysis. Higher is better - it is the complement of their hallucination rate, and one metric, so directly comparable.",
       "RANK": [
         [
-          "glm47f",
+          "gptoss",
           "Omniscience accuracy",
           "58.3"
         ],
@@ -6686,11 +6940,6 @@
           "v41flash",
           "Omniscience accuracy",
           "39.6"
-        ],
-        [
-          "gptoss",
-          "Omniscience accuracy",
-          "34.8"
         ],
         [
           "glm53",
@@ -7545,6 +7794,43 @@
     "waybarrios/vllm-mlx#732"
   ],
   "news": [
+    {
+      "date": "2026-11-08",
+      "top": [
+        [
+          "DeepSeek V4 Pro distilled into an uncensored 9B Qwen3.5",
+          "An Apache-2.0 reasoning and tool-use model that distills DeepSeek V4 Pro down into the ~9B Qwen3.5 family and runs the result through uncensored 'heretic' RL; it is the largest-talking-point release trending on today's polled Hugging Face sources.",
+          "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic"
+        ],
+        [
+          "A Qwen3.5-4B that writes GLB 3D assets for three.js and Godot",
+          "ccore's coding finetune learns to emit GLB 3D models from its ThreeJS-3D dataset and ships in both safetensors and GGUF, aimed at in-browser and game-engine asset pipelines rather than chat.",
+          "https://huggingface.co/ccore/Qwen3.5-4B-GLB-3D-Coder"
+        ],
+        [
+          "DeepSeek V4.1-Flash-1017 quant uncensored via AtomicChat's GSQ-RCO",
+          "A MIT-licensed GGUF of DeepSeek V4.1-Flash-1017 run through AtomicChat's GSQ/RCO/strata 'refusal direction' processing; at 117K+ pulls it is today's most-downloaded trending item.",
+          "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF"
+        ]
+      ],
+      "newModels": [
+        [
+          "Kataguru Sceptic-35B-A3B v3.2 in ten language variants",
+          "Kataguru released Apache-2.0 multilingual variants of its 35B-A3B Qwen3.5-MoE (Welsh, Georgian, Turkish, Basque, Icelandic, Latvian, Lithuanian, Hungarian, Estonian and Finnish), each a vision-and-reasoning instruction model.",
+          "https://huggingface.co/kataguru/Kataguru-Sceptic-35B-A3B-Welsh-v3.2"
+        ],
+        [
+          "slm4blender-0.5B GGUF",
+          "A 500M offline coding model built on Qwen2.5-Coder-0.5B-Instruct for calling Blender's tool API, shipped as a llama.cpp GGUF for on-device use.",
+          "https://huggingface.co/slm4apps/slm4blender-0.5b-GGUF"
+        ],
+        [
+          "Qwen3.8-Flash-Next DGX-Spark GGUF",
+          "A Japanese-targeted low-bit (LDLQ) GGUF of the Qwen3.8-Flash-Next MoE - a third-party quant rather than a new checkpoint.",
+          "https://huggingface.co/zephel01/Qwen3.8-Flash-Next-DGX-Spark-GGUF"
+        ]
+      ]
+    },
     {
       "date": "2026-11-07",
       "top": [
