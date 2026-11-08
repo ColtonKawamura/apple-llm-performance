@@ -1295,7 +1295,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       warn    = document.getElementById("rig-warn");
   if (!chipSel) return;
 
-  var DEF_CHIP = "m5ultra", DEF_MEM = 256, DEF_N = 1;
+  var DEF_CHIP = "m5ultra", DEF_MEM = 512, DEF_N = 1;
 
   var q = new URLSearchParams(location.search);
   var chip = MACHINES[q.get("chip")] ? q.get("chip") : DEF_CHIP;
