@@ -1368,7 +1368,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       }}
       gz.innerHTML = '<div class="rg-bar">' + segs + "</div>" +
         '<div class="rg-key"><span class="k-u">usable ' + fmt(cluster) + "</span>" +
-        '<span class="k-r">held back by macOS ' + fmt(g * n - cluster) + "</span></div>";
+        '<span class="k-r">kept as headroom (90% fit rule) ' + fmt(g * n - cluster) + "</span></div>";
     }}
     out.classList.add("pulse");
     setTimeout(function () {{ out.classList.remove("pulse"); }}, 450);
