@@ -5947,218 +5947,213 @@
   "useCases": [
     {
       "ID": "agentic",
-      "DISPLAY_ORDER": 10,
       "LABEL": "Agentic & tool use",
       "MODALITY": "text",
       "FIDELITY_GATE": "mild",
-      "AXIS": "Tool-use and agent benchmarks. Scores are from different suites - they justify each placement rather than being directly comparable.",
+      "AXIS": "Artificial Analysis' agentic suites - tau2, IT-Bench SRE and CRITPT-hard, which are different tests, so the row's label says which one it is. Pass rates on a common 0-100 scale; they justify each placement rather than being directly comparable.",
       "RANK": [
         [
-          "kimik3",
-          "MCPMark-Verified",
-          "94.5"
-        ],
-        [
-          "glm53",
-          "Terminal-Bench 2.1",
-          "88.2"
-        ],
-        [
-          "qwenmax",
-          "Terminal-Bench 2.1",
-          "86.6"
-        ],
-        [
           "glm52",
-          "Terminal-Bench 2.1",
-          "81.0"
-        ],
-        [
-          "q38fnext",
-          "CoWorkBench",
-          "73.9"
-        ],
-        [
-          "ornith15",
-          "Terminal-Bench 2.1",
-          "67.8"
-        ],
-        [
-          "gemma4",
-          "τ²-Bench",
-          "86.4"
-        ],
-        [
-          "qwen38",
-          "Terminal-Bench 2.1",
-          "73.0"
-        ],
-        [
-          "glimmer",
-          "MCP Atlas",
-          "75.5"
-        ],
-        [
-          "m3",
-          "MCP Atlas",
-          "74.2"
-        ],
-        [
-          "qcnext",
-          "Terminal-Bench 2.0",
-          "36.2"
+          "tau2",
+          "99.1"
         ],
         [
           "glm47f",
-          "τ²-Bench",
+          "tau2",
+          "98.8"
+        ],
+        [
+          "m3",
+          "tau2",
+          "88.9"
+        ],
+        [
+          "qcnext",
+          "tau2",
           "79.5"
         ],
         [
           "gptoss",
-          "τ-Bench Retail",
-          "67.8"
-        ],
-        [
-          "v4pro",
-          "GDPval-AA",
-          "1554"
-        ],
-        [
-          "v4flash",
-          "GDPval-AA max effort",
-          "1388"
-        ]
-      ]
-    },
-    {
-      "ID": "coding",
-      "DISPLAY_ORDER": 20,
-      "LABEL": "Coding",
-      "MODALITY": "text",
-      "FIDELITY_GATE": "mild",
-      "AXIS": "Ordered on SWE-bench Verified where published, since it is the one coding benchmark most of these models report.",
-      "RANK": [
-        [
-          "v4pro",
-          "SWE-bench Verified",
-          "80.6%"
-        ],
-        [
-          "m3",
-          "SWE-bench Verified",
-          "80.5%"
-        ],
-        [
-          "qwenmax",
-          "SWE-bench Pro",
-          "67.7"
-        ],
-        [
-          "ornith15",
-          "SWE-bench Verified",
-          "79.0"
-        ],
-        [
-          "glimmer",
-          "SWE-bench Verified",
-          "76.0"
-        ],
-        [
-          "qcnext",
-          "SWE-bench Verified",
-          "74.2%"
-        ],
-        [
-          "gptoss",
-          "SWE-bench Verified",
-          "62.4%"
-        ],
-        [
-          "q38fnext",
-          "SWE-bench Pro",
-          "62.5"
-        ],
-        [
-          "glm52",
-          "SWE-bench Pro",
-          "62.1%"
-        ],
-        [
-          "qwen38",
-          "SWE-bench Pro",
-          "61.7"
-        ],
-        [
-          "glm47f",
-          "SWE-bench Verified",
-          "59.2%"
+          "tau2",
+          "65.8"
         ],
         [
           "gemma4",
-          "SWE-bench Verified",
-          "52.0%"
+          "tau2",
+          "59.9"
         ],
         [
-          "nemolight",
-          "SWE-bench Verified",
-          "51.56"
+          "glm53f",
+          "IT-Bench SRE",
+          "51.2"
         ],
         [
           "kimik3",
-          "LiveBench Coding",
-          "81.45"
-        ]
-      ]
-    },
-    {
-      "ID": "terminal",
-      "DISPLAY_ORDER": 30,
-      "LABEL": "Terminal & CLI work",
-      "MODALITY": "text",
-      "FIDELITY_GATE": "mild",
-      "AXIS": "Terminal-Bench 2.1 only, so these are directly comparable. Models whose only published figure is on v2.0 are left out rather than mixed in - it is a different benchmark.",
-      "RANK": [
-        [
-          "kimik3",
-          "Terminal-Bench 2.1",
-          "88.3"
+          "IT-Bench SRE",
+          "47.7"
         ],
         [
           "glm53",
-          "Terminal-Bench 2.1",
-          "88.2"
+          "IT-Bench SRE",
+          "46.1"
         ],
         [
-          "qwenmax",
-          "Terminal-Bench 2.1",
-          "86.6"
+          "mistral4",
+          "CRITPT-hard",
+          "27.0"
         ],
         [
-          "glm52",
-          "Terminal-Bench 2.1",
-          "81.0"
+          "v41flash",
+          "CRITPT-hard",
+          "25.0"
+        ],
+        [
+          "v4pro",
+          "CRITPT-hard",
+          "23.5"
         ],
         [
           "qwen38",
-          "Terminal-Bench 2.1",
-          "73.0"
+          "CRITPT-hard",
+          "4.0"
+        ]
+      ],
+      "DISPLAY_ORDER": 10
+    },
+    {
+      "ID": "coding",
+      "LABEL": "Coding",
+      "MODALITY": "text",
+      "FIDELITY_GATE": "mild",
+      "AXIS": "Artificial Analysis' Frontier Code: their own coding benchmark, one test for every model, so the bars are directly comparable. Fetched nightly from artificialanalysis.ai/models.",
+      "RANK": [
+        [
+          "v41flash",
+          "Frontier Code",
+          "43.7"
         ],
         [
-          "ornith15",
-          "Terminal-Bench 2.1",
-          "67.8"
+          "kimik3",
+          "Frontier Code",
+          "43.6"
+        ],
+        [
+          "glm53f",
+          "Frontier Code",
+          "41.0"
+        ],
+        [
+          "glm53",
+          "Frontier Code",
+          "40.1"
+        ],
+        [
+          "v4pro",
+          "Frontier Code",
+          "38.8"
+        ],
+        [
+          "qwen38",
+          "Frontier Code",
+          "34.2"
         ],
         [
           "m3",
-          "Terminal-Bench 2.1",
-          "66.0"
+          "Frontier Code",
+          "23.0"
         ],
         [
-          "glimmer",
-          "Terminal-Bench 2.1",
-          "51.7"
+          "gptoss",
+          "Frontier Code",
+          "1.2"
         ]
-      ]
+      ],
+      "DISPLAY_ORDER": 20
+    },
+    {
+      "ID": "terminal",
+      "LABEL": "Terminal & CLI work",
+      "MODALITY": "text",
+      "FIDELITY_GATE": "mild",
+      "AXIS": "Terminal-Bench 4.0 as run by Artificial Analysis: one version for every model, so the bars are directly comparable. A model AA has not run through TB 4.0 is left out rather than mixed with other versions - it is a different test.",
+      "RANK": [
+        [
+          "glm53",
+          "Terminal-Bench 4.0",
+          "41.9"
+        ],
+        [
+          "v41flash",
+          "Terminal-Bench 4.0",
+          "33.8"
+        ],
+        [
+          "glm53f",
+          "Terminal-Bench 4.0",
+          "32.8"
+        ],
+        [
+          "q38fnext",
+          "Terminal-Bench 4.0",
+          "25.3"
+        ],
+        [
+          "mistral4",
+          "Terminal-Bench 4.0",
+          "24.7"
+        ],
+        [
+          "v4pro",
+          "Terminal-Bench 4.0",
+          "14.1"
+        ],
+        [
+          "kimik3",
+          "Terminal-Bench 4.0",
+          "12.6"
+        ],
+        [
+          "v4flash",
+          "Terminal-Bench 4.0",
+          "12.1"
+        ],
+        [
+          "qwenmax",
+          "Terminal-Bench 4.0",
+          "11.1"
+        ],
+        [
+          "qwen38",
+          "Terminal-Bench 4.0",
+          "5.6"
+        ],
+        [
+          "m3",
+          "Terminal-Bench 4.0",
+          "2.0"
+        ],
+        [
+          "glm52",
+          "Terminal-Bench 4.0",
+          "1.0"
+        ],
+        [
+          "gemma4",
+          "Terminal-Bench 4.0",
+          "0.0"
+        ],
+        [
+          "gptoss",
+          "Terminal-Bench 4.0",
+          "0.0"
+        ],
+        [
+          "qcnext",
+          "Terminal-Bench 4.0",
+          "0.0"
+        ]
+      ],
+      "DISPLAY_ORDER": 30
     },
     {
       "ID": "computer",
@@ -6458,11 +6453,6 @@
       "AXIS": "Artificial Analysis' Intelligence Index: one composite score per model on a single scale, so every bar here is directly comparable - the task categories' suites do not mix. Values are fetched nightly from artificialanalysis.ai/models; a model AA has not yet evaluated is left out. It says overall quality, not fitness for one job.",
       "RANK": [
         [
-          "kimik31",
-          "AA Index",
-          "46.5"
-        ],
-        [
           "v41flash",
           "AA Index",
           "32.6"
@@ -6504,6 +6494,391 @@
         ]
       ],
       "DISPLAY_ORDER": 5
+    },
+    {
+      "ID": "science",
+      "LABEL": "Science",
+      "MODALITY": "text",
+      "FIDELITY_GATE": "mild",
+      "AXIS": "Artificial Analysis' SciCode: scientific reasoning with code, one test for every model, so the bars are directly comparable.",
+      "RANK": [
+        [
+          "kimik3",
+          "SciCode",
+          "59.5"
+        ],
+        [
+          "glm53",
+          "SciCode",
+          "59.0"
+        ],
+        [
+          "v41flash",
+          "SciCode",
+          "55.9"
+        ],
+        [
+          "qwenmax",
+          "SciCode",
+          "54.1"
+        ],
+        [
+          "glm53f",
+          "SciCode",
+          "51.6"
+        ],
+        [
+          "glm52",
+          "SciCode",
+          "51.2"
+        ],
+        [
+          "v4pro",
+          "SciCode",
+          "51.0"
+        ],
+        [
+          "q38fnext",
+          "SciCode",
+          "50.6"
+        ],
+        [
+          "v4flash",
+          "SciCode",
+          "50.3"
+        ],
+        [
+          "m3",
+          "SciCode",
+          "47.1"
+        ],
+        [
+          "qwen38",
+          "SciCode",
+          "46.6"
+        ],
+        [
+          "gemma4",
+          "SciCode",
+          "45.5"
+        ],
+        [
+          "qcnext",
+          "SciCode",
+          "36.2"
+        ],
+        [
+          "gptoss",
+          "SciCode",
+          "34.0"
+        ]
+      ],
+      "DISPLAY_ORDER": 32
+    },
+    {
+      "ID": "knowledge",
+      "LABEL": "Knowledge",
+      "MODALITY": "text",
+      "FIDELITY_GATE": "mild",
+      "AXIS": "Humanity's Last Exam, diamond set, as run by Artificial Analysis: one test for every model, so the bars are directly comparable.",
+      "RANK": [
+        [
+          "kimik3",
+          "HLE Diamond",
+          "26.9"
+        ],
+        [
+          "v41flash",
+          "HLE Diamond",
+          "25.3"
+        ],
+        [
+          "qwenmax",
+          "HLE Diamond",
+          "20.1"
+        ],
+        [
+          "v4pro",
+          "HLE Diamond",
+          "19.5"
+        ],
+        [
+          "glm53f",
+          "HLE Diamond",
+          "18.2"
+        ],
+        [
+          "glm53",
+          "HLE Diamond",
+          "17.9"
+        ],
+        [
+          "glm52",
+          "HLE Diamond",
+          "17.7"
+        ],
+        [
+          "mistral4",
+          "HLE Diamond",
+          "17.3"
+        ],
+        [
+          "q38fnext",
+          "HLE Diamond",
+          "16.3"
+        ],
+        [
+          "m3",
+          "HLE Diamond",
+          "16.0"
+        ],
+        [
+          "qwen38",
+          "HLE Diamond",
+          "15.3"
+        ],
+        [
+          "gemma4",
+          "HLE Diamond",
+          "7.2"
+        ],
+        [
+          "qcnext",
+          "HLE Diamond",
+          "4.3"
+        ],
+        [
+          "gptoss",
+          "HLE Diamond",
+          "3.8"
+        ]
+      ],
+      "DISPLAY_ORDER": 33
+    },
+    {
+      "ID": "hallucination",
+      "LABEL": "Hallucination",
+      "MODALITY": "text",
+      "FIDELITY_GATE": "mild",
+      "AXIS": "Omniscience accuracy: the share of factual questions a model answers correctly without hallucinating, per Artificial Analysis. Higher is better - it is the complement of their hallucination rate, and one metric, so directly comparable.",
+      "RANK": [
+        [
+          "glm47f",
+          "Omniscience accuracy",
+          "58.3"
+        ],
+        [
+          "kimik3",
+          "Omniscience accuracy",
+          "58.3"
+        ],
+        [
+          "v4pro",
+          "Omniscience accuracy",
+          "45.2"
+        ],
+        [
+          "m3",
+          "Omniscience accuracy",
+          "44.9"
+        ],
+        [
+          "v41flash",
+          "Omniscience accuracy",
+          "39.6"
+        ],
+        [
+          "gptoss",
+          "Omniscience accuracy",
+          "34.8"
+        ],
+        [
+          "glm53",
+          "Omniscience accuracy",
+          "32.3"
+        ],
+        [
+          "qwenmax",
+          "Omniscience accuracy",
+          "31.4"
+        ],
+        [
+          "glm53f",
+          "Omniscience accuracy",
+          "28.2"
+        ],
+        [
+          "mistral4",
+          "Omniscience accuracy",
+          "26.0"
+        ],
+        [
+          "q38fnext",
+          "Omniscience accuracy",
+          "23.5"
+        ],
+        [
+          "glm52",
+          "Omniscience accuracy",
+          "21.1"
+        ],
+        [
+          "gemma4",
+          "Omniscience accuracy",
+          "19.9"
+        ],
+        [
+          "qwen38",
+          "Omniscience accuracy",
+          "17.3"
+        ]
+      ],
+      "DISPLAY_ORDER": 34
+    },
+    {
+      "ID": "gdpval",
+      "LABEL": "Economic work (GDPval)",
+      "MODALITY": "text",
+      "FIDELITY_GATE": "mild",
+      "AXIS": "GDPval, Artificial Analysis' benchmark of real economic work, scored Elo-style: one scale for every model, directly comparable.",
+      "RANK": [
+        [
+          "v41flash",
+          "GDPval",
+          "1745.8"
+        ],
+        [
+          "glm53",
+          "GDPval",
+          "1656.9"
+        ],
+        [
+          "glm53f",
+          "GDPval",
+          "1649.4"
+        ],
+        [
+          "q38fnext",
+          "GDPval",
+          "1635.8"
+        ],
+        [
+          "qwenmax",
+          "GDPval",
+          "1615.7"
+        ],
+        [
+          "kimik3",
+          "GDPval",
+          "1542.8"
+        ],
+        [
+          "v4pro",
+          "GDPval",
+          "1457.4"
+        ],
+        [
+          "v4flash",
+          "GDPval",
+          "1440.6"
+        ],
+        [
+          "qwen38",
+          "GDPval",
+          "1426.7"
+        ],
+        [
+          "glm52",
+          "GDPval",
+          "1381.5"
+        ],
+        [
+          "m3",
+          "GDPval",
+          "1250.0"
+        ],
+        [
+          "gemma4",
+          "GDPval",
+          "626.8"
+        ],
+        [
+          "gptoss",
+          "GDPval",
+          "615.6"
+        ],
+        [
+          "qcnext",
+          "GDPval",
+          "521.4"
+        ]
+      ],
+      "DISPLAY_ORDER": 35
+    },
+    {
+      "ID": "industry",
+      "LABEL": "Industry capability",
+      "MODALITY": "text",
+      "FIDELITY_GATE": "mild",
+      "AXIS": "Artificial Analysis' industry capability scores: six fields on one 0-100 scale, and each row shows the model's strongest field. Fields are comparable across models; the row's label says which field it is.",
+      "RANK": [
+        [
+          "v41flash",
+          "strategy & ops",
+          "49.2"
+        ],
+        [
+          "glm53",
+          "strategy & ops",
+          "47.4"
+        ],
+        [
+          "glm53f",
+          "strategy & ops",
+          "44.5"
+        ],
+        [
+          "q38fnext",
+          "strategy & ops",
+          "44.5"
+        ],
+        [
+          "qwenmax",
+          "strategy & ops",
+          "44.4"
+        ],
+        [
+          "mistral4",
+          "strategy & ops",
+          "43.3"
+        ],
+        [
+          "v4pro",
+          "strategy & ops",
+          "41.1"
+        ],
+        [
+          "qwen38",
+          "strategy & ops",
+          "39.0"
+        ],
+        [
+          "glm52",
+          "finance & accounting",
+          "32.1"
+        ],
+        [
+          "m3",
+          "strategy & ops",
+          "27.9"
+        ],
+        [
+          "gemma4",
+          "engineering",
+          "11.9"
+        ]
+      ],
+      "DISPLAY_ORDER": 36
     }
   ],
   "issues": [
