@@ -5795,6 +5795,176 @@
           }
         ]
       }
+    },
+    {
+      "ID": "flint",
+      "MODALITY": "text",
+      "NAME": "Flint",
+      "ARCH": "MoE ~40B (2.5B active) · 49 layers · 2048 hidden · 256 experts",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "256k",
+      "HF": "RecursiveSI/flint",
+      "PARAMS_B": 40,
+      "NOTE": "New Apache-2.0 open weights (Oct 2026) from RecursiveSI - a ~40B / 2.5B-active MoE with 256 experts and a 256k context window (79.6 GB bf16 on disk confirms ~40B parameters). The only engine on this page that can load it today is mlx-lm, which ships an mlx_lm/models/flint.py class and registers model_type 'flint'. llama.cpp's mainline src/llama-arch.cpp has no flint arch (verified 2026-11-09), so the GGUF quants have no confirmed loader here and LM Studio's GGUF path is equally blocked. It is in the ollama library, so ollama is a working route. No published benchmarks could be confirmed from the card, so flint is left unranked pending numbers.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/RecursiveSI/flint"
+        ],
+        [
+          "Ollama library",
+          "https://ollama.com/library/flint"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mlxlm",
+      "QUANT_SOURCES": {
+        "mlx": [
+          "mlx-community/flint-oQ4e",
+          "mlx-community/flint-mixed-3-4bit"
+        ],
+        "gguf": [
+          "unsloth/flint-GGUF"
+        ]
+      },
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "flint-oQ4e",
+            "repo": "mlx-community/flint-oQ4e",
+            "gb": 23.36,
+            "kind": "quant",
+            "bpw": 4.67
+          },
+          {
+            "label": "flint-mixed-3-4bit",
+            "repo": "mlx-community/flint-mixed-3-4bit",
+            "gb": 17.84,
+            "kind": "quant",
+            "bpw": 3.57
+          }
+        ],
+        "gguf": [
+          {
+            "label": "flint-BF16",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 79.58,
+            "kind": "quant",
+            "bpw": 15.92
+          },
+          {
+            "label": "flint-Q8_0",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 42.3,
+            "kind": "quant",
+            "bpw": 8.46
+          },
+          {
+            "label": "flint-UD-Q6_K_XL",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 36.32,
+            "kind": "quant",
+            "bpw": 7.26
+          },
+          {
+            "label": "flint-UD-Q5_K_XL",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 29.92,
+            "kind": "quant",
+            "bpw": 5.98
+          },
+          {
+            "label": "flint-UD-Q4_K_XL",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 25.05,
+            "kind": "quant",
+            "bpw": 5.01
+          },
+          {
+            "label": "flint-UD-IQ3_XXS",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 14.54,
+            "kind": "quant",
+            "bpw": 2.91
+          },
+          {
+            "label": "flint-UD-Q2_K_XL",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 13.56,
+            "kind": "quant",
+            "bpw": 2.71
+          },
+          {
+            "label": "flint-UD-IQ2_XXS",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 11.86,
+            "kind": "quant",
+            "bpw": 2.37
+          },
+          {
+            "label": "flint-UD-IQ1_M",
+            "repo": "unsloth/flint-GGUF",
+            "gb": 11.35,
+            "kind": "quant",
+            "bpw": 2.27
+          }
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 50176,
+        "max_context": 262144,
+        "derivation": "49 full-attn layers x 4 KV heads x 64 head_dim x 2 (K and V) x 2 (fp16 bytes) = 50,176 B = 49 KiB/token"
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "arch 'flint' is absent from mainline src/llama-arch.cpp (verified 2026-11-09); the GGUF quants on Hugging Face therefore have no confirmed llama.cpp loader here.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "works",
+          "label": "Runs",
+          "note": "Present in the ollama library (ollama.com/library/flint), verified 2026-11-09. Pull from the library so the tag resolves to a real quant rather than a raw GGUF.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "LM Studio loads GGUF via llama.cpp, so it inherits the same missing flint arch as llamacpp.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "degraded",
+          "label": "Runs, via mlx-lm",
+          "note": "oMLX runs mlx-lm models and mlx-lm ships flint.py, so this should work, but it has not been independently verified in the oMLX UI and no oMLX issue is filed.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "No vllm-mlx support for flint; it would need an mlx-lm backbone wrapper and none is tracked.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "works",
+          "label": "Runs",
+          "note": "mlx-lm ships mlx_lm/models/flint.py and registers model_type 'flint'; this is the only engine on this page that can load the checkpoint. The mlx-community oQ4e and mixed-3_4bit quants are the route.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Not in vLLM Metal's supported_models matrix; flint's MoE would need its own kernel work.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not one of the checkpoints ds4 loads.",
+          "issues": []
+        }
+      }
     }
   ],
   "engines": [
@@ -6917,16 +7087,6 @@
       "AXIS": "Omniscience accuracy: the share of factual questions a model answers correctly without hallucinating, per Artificial Analysis. Higher is better - it is the complement of their hallucination rate, and one metric, so directly comparable.",
       "RANK": [
         [
-          "gptoss",
-          "Omniscience accuracy",
-          "58.3"
-        ],
-        [
-          "kimik3",
-          "Omniscience accuracy",
-          "58.3"
-        ],
-        [
           "v4pro",
           "Omniscience accuracy",
           "45.2"
@@ -6940,6 +7100,11 @@
           "v41flash",
           "Omniscience accuracy",
           "39.6"
+        ],
+        [
+          "gptoss",
+          "Omniscience accuracy",
+          "34.8"
         ],
         [
           "glm53",
@@ -7794,6 +7959,58 @@
     "waybarrios/vllm-mlx#732"
   ],
   "news": [
+    {
+      "date": "2026-11-09",
+      "top": [
+        [
+          "webAI-Official/TwIL-8B",
+          "A Granite 4.2-8B-based model that has pulled over 22,000 downloads and leads today's trending signal across the polled sources.",
+          "https://huggingface.co/webAI-Official/TwIL-8B"
+        ],
+        [
+          "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
+          "An uncensored 'heretic' variant of DeepSeek-V4-Pro-Qwen3.5-9B trending on Hugging Face with roughly 7,000 downloads.",
+          "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic"
+        ],
+        [
+          "NousResearch/Arete-27B",
+          "An Apache-2.0 value-alignment SFT of Qwen3.8-27B from NousResearch, trending with about 1,700 downloads.",
+          "https://huggingface.co/NousResearch/Arete-27B"
+        ]
+      ],
+      "newModels": [
+        [
+          "inferencerlabs/GLM-5.3-Flash-MTP-MLX",
+          "An MLX quant of GLM-5.3-Flash built with multi-task prediction, published in the last day; see the link for weights, licence and what it can do.",
+          "https://huggingface.co/inferencerlabs/GLM-5.3-Flash-MTP-MLX"
+        ],
+        [
+          "cultureyes-stack/Operator-4B",
+          "A new 4B text model published inside the collection window; see the link for weights, licence and what it can do.",
+          "https://huggingface.co/cultureyes-stack/Operator-4B"
+        ],
+        [
+          "shibatch/tinyqwen35dense2m",
+          "A small dense Qwen3.5-arch prototype from shibatch with an unusually long context window; see the link for weights and what it can do.",
+          "https://huggingface.co/shibatch/tinyqwen35dense2m"
+        ],
+        [
+          "axom-ai/axomai-brain-progya-8b",
+          "An 8B model published in the last day; see the link for weights, licence and what it can do.",
+          "https://huggingface.co/axom-ai/axomai-brain-progya-8b"
+        ],
+        [
+          "Karasumikura/Ying-K1.6-Lite-200M-base",
+          "A 200M param base model published inside the window; see the link for weights and licence.",
+          "https://huggingface.co/Karasumikura/Ying-K1.6-Lite-200M-base"
+        ],
+        [
+          "Sam-2610/Llama-3.2-3B-Text2SQL-QLoRA",
+          "A QLoRA Text2SQL finetune of Llama-3.2-3B published in the last day; see the link for weights and licence.",
+          "https://huggingface.co/Sam-2610/Llama-3.2-3B-Text2SQL-QLoRA"
+        ]
+      ]
+    },
     {
       "date": "2026-11-08",
       "top": [
