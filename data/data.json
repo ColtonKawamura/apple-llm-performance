@@ -8486,6 +8486,43 @@
   ],
   "news": [
     {
+      "date": "2026-11-10",
+      "top": [
+        [
+          "webAI's TwIL-8B tops Hugging Face trending",
+          "webAI's TwIL-8B is an 8B reasoning model built on IBM Granite 4.2 and trained end-to-end with GRPO for math, code and instruction-following. It is the most-downloaded new model of the day, ahead of the heretic DeepSeek variants.",
+          "https://huggingface.co/webAI-Official/TwIL-8B"
+        ],
+        [
+          "A new uncensored heretic of DeepSeek V4 Pro surfaces",
+          "An uncensored 'heretic' conversion of DeepSeek V4 Pro (9B, in the qwen3.5 family) is trending on Hugging Face, part of the steady stream of abliterated DeepSeek checkpoints that keeps reappearing in the top ranks.",
+          "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic"
+        ],
+        [
+          "NousResearch releases Aréte-27B",
+          "NousResearch's Aréte-27B is a value-aligned supervised fine-tune of Qwen3.8-27B (the qwen3.5 family), aimed at safety and instruction-following rather than raw capability. It is the most-downloaded new model from a recognised lab today.",
+          "https://huggingface.co/NousResearch/Arete-27B"
+        ]
+      ],
+      "newModels": [
+        [
+          "Ricky-Coder-Qwen3-Coder-30B-A3B-Instruct",
+          "A 30B-A3B Qwen3-Coder MoE instruct checkpoint for coding on modest hardware, one of several new Qwen3-coder finetunes in the window.",
+          "https://huggingface.co/MCES10-Software/Ricky-Coder-Qwen3-Coder-30B-A3B-Instruct"
+        ],
+        [
+          "bharat-sahayak-gemma4-e2b",
+          "A bharat-sahayak fine-tune of Google's Gemma 4 in a 2-bit E2B GGUF, aimed at low-end devices and Indian-language work.",
+          "https://huggingface.co/joshiyash666/bharat-sahayak-gemma4-e2b-GGUF"
+        ],
+        [
+          "DeepSeek-V3 (community checkpoint)",
+          "A community DeepSeek-V3 checkpoint surfaced on Hugging Face in the collection window, keeping an older flagship available alongside the newer V4 releases.",
+          "https://huggingface.co/Alexs28/DeepSeek-V3"
+        ]
+      ]
+    },
+    {
       "date": "2026-11-09",
       "top": [
         [
