@@ -125,76 +125,76 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": null,
-            "gb": 7.8,
-            "kind": "native",
             "label": "flux-2-klein-4b-BF16",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
+            "gb": 7.75,
+            "kind": "native",
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "flux-2-klein-4b-Q8_0",
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
             "gb": 4.3,
             "kind": "native",
-            "label": "flux-2-klein-4b-Q8_0",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "bpw": null
           },
           {
-            "bpw": null,
-            "gb": 3.4,
-            "kind": "native",
             "label": "flux-2-klein-4b-Q6_K",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
+            "gb": 3.41,
+            "kind": "native",
+            "bpw": null
           },
           {
-            "bpw": null,
-            "gb": 3.1,
+            "label": "flux-2-klein-4b-Q5_K_S",
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
+            "gb": 3.05,
             "kind": "native",
-            "label": "flux-2-klein-4b-Q5_K_M",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "bpw": null
           },
           {
-            "bpw": null,
-            "gb": 2.9,
-            "kind": "native",
             "label": "flux-2-klein-4b-Q5_0",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
+            "gb": 2.92,
+            "kind": "native",
+            "bpw": null
           },
           {
-            "bpw": null,
-            "gb": 2.7,
-            "kind": "native",
             "label": "flux-2-klein-4b-Q4_1",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
+            "gb": 2.69,
+            "kind": "native",
+            "bpw": null
           },
           {
-            "bpw": null,
-            "gb": 2.5,
-            "kind": "native",
             "label": "flux-2-klein-4b-Q4_0",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
+            "gb": 2.46,
+            "kind": "native",
+            "bpw": null
           },
           {
-            "bpw": null,
-            "gb": 2.1,
-            "kind": "native",
             "label": "flux-2-klein-4b-Q3_K_M",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
+            "gb": 2.12,
+            "kind": "native",
+            "bpw": null
           },
           {
-            "bpw": null,
-            "gb": 1.8,
-            "kind": "native",
             "label": "flux-2-klein-4b-Q2_K",
-            "repo": "unsloth/FLUX.2-klein-4B-GGUF"
+            "repo": "unsloth/FLUX.2-klein-4B-GGUF",
+            "gb": 1.83,
+            "kind": "native",
+            "bpw": null
           }
         ],
         "mlx": [
           {
-            "bpw": null,
+            "label": "FLUX.2-klein-4B",
+            "repo": "black-forest-labs/FLUX.2-klein-4B",
             "gb": 23.72,
             "kind": "native",
-            "label": "FLUX.2-klein-4B",
-            "repo": "black-forest-labs/FLUX.2-klein-4B"
+            "bpw": null
           }
         ]
       },
@@ -252,14 +252,13 @@
         ]
       },
       "LADDER": {
-        "gguf": [],
         "mlx": [
           {
-            "bpw": null,
+            "label": "FLUX.2-klein-9B",
+            "repo": "black-forest-labs/FLUX.2-klein-9B",
             "gb": 52.86,
             "kind": "native",
-            "label": "FLUX.2-klein-9B",
-            "repo": "black-forest-labs/FLUX.2-klein-9B"
+            "bpw": null
           }
         ]
       },
@@ -345,90 +344,90 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 16.0,
-            "gb": 61.4,
-            "kind": "quant",
             "label": "gemma-4-31B-it-BF16",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
-          },
-          {
-            "bpw": 8.5,
-            "gb": 32.6,
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
+            "gb": 61.41,
             "kind": "quant",
-            "label": "gemma-4-31B-it-Q8_0",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
+            "bpw": 16.0
           },
           {
-            "bpw": 6.57,
+            "label": "gemma-4-31B-it-Q8_0",
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
+            "gb": 32.64,
+            "kind": "quant",
+            "bpw": 8.5
+          },
+          {
+            "label": "gemma-4-31B-it-Q6_K",
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
             "gb": 25.2,
             "kind": "quant",
-            "label": "gemma-4-31B-it-Q6_K",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
+            "bpw": 6.57
           },
           {
-            "bpw": 5.5,
-            "gb": 21.1,
-            "kind": "quant",
             "label": "gemma-4-31B-it-Q5_K_S",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
+            "gb": 21.12,
+            "kind": "quant",
+            "bpw": 5.5
           },
           {
-            "bpw": 4.77,
-            "gb": 18.3,
-            "kind": "quant",
             "label": "gemma-4-31B-it-Q4_K_M",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
+            "gb": 18.32,
+            "kind": "quant",
+            "bpw": 4.77
           },
           {
-            "bpw": 4.27,
-            "gb": 16.4,
-            "kind": "quant",
             "label": "gemma-4-31B-it-IQ4_XS",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
+            "gb": 16.37,
+            "kind": "quant",
+            "bpw": 4.27
           },
           {
-            "bpw": 3.84,
-            "gb": 14.7,
-            "kind": "quant",
             "label": "gemma-4-31B-it-Q3_K_M",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
+            "gb": 14.74,
+            "kind": "quant",
+            "bpw": 3.84
           },
           {
-            "bpw": 3.08,
-            "gb": 11.8,
-            "kind": "quant",
             "label": "gemma-4-31B-it-UD-IQ3_XXS",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
+            "gb": 11.84,
+            "kind": "quant",
+            "bpw": 3.08
           },
           {
-            "bpw": 2.22,
-            "gb": 8.5,
-            "kind": "quant",
             "label": "gemma-4-31B-it-UD-IQ2_XXS",
-            "repo": "unsloth/gemma-4-31B-it-GGUF"
+            "repo": "unsloth/gemma-4-31B-it-GGUF",
+            "gb": 8.53,
+            "kind": "quant",
+            "bpw": 2.22
           }
         ],
         "mlx": [
           {
-            "bpw": 8.8,
+            "label": "gemma-4-31b-it-8bit",
+            "repo": "mlx-community/gemma-4-31b-it-8bit",
             "gb": 33.76,
             "kind": "quant",
-            "label": "gemma-4-31b-it-8bit",
-            "repo": "mlx-community/gemma-4-31b-it-8bit"
+            "bpw": 8.8
           },
           {
-            "bpw": 7.51,
+            "label": "gemma-4-31B-it-qat-4bit",
+            "repo": "mlx-community/gemma-4-31B-it-qat-4bit",
             "gb": 28.82,
             "kind": "quant",
-            "label": "gemma-4-31B-it-qat-4bit",
-            "repo": "mlx-community/gemma-4-31B-it-qat-4bit"
+            "bpw": 7.51
           },
           {
-            "bpw": 4.8,
+            "label": "gemma-4-31b-it-4bit",
+            "repo": "mlx-community/gemma-4-31b-it-4bit",
             "gb": 18.41,
             "kind": "quant",
-            "label": "gemma-4-31b-it-4bit",
-            "repo": "mlx-community/gemma-4-31b-it-4bit"
+            "bpw": 4.8
           }
         ]
       },
@@ -584,97 +583,97 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 14.86,
-            "gb": 55.7,
-            "kind": "quant",
             "label": "Muse-Glimmer-30B-BF16",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 55.73,
+            "kind": "quant",
+            "bpw": 14.86
           },
           {
-            "bpw": 7.9,
-            "gb": 29.6,
+            "label": "Muse-Glimmer-30B-UD-Q8_K_XL",
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 32.3,
             "kind": "quant",
-            "label": "Muse-Glimmer-30B-Q8_0",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "bpw": 8.61
           },
           {
-            "bpw": 7.0,
-            "gb": 26.3,
-            "kind": "quant",
             "label": "Muse-Glimmer-30B-UD-Q6_K_XL",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 26.27,
+            "kind": "quant",
+            "bpw": 7.0
           },
           {
-            "bpw": 5.81,
-            "gb": 21.8,
-            "kind": "quant",
             "label": "Muse-Glimmer-30B-UD-Q5_K_XL",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 21.79,
+            "kind": "quant",
+            "bpw": 5.81
           },
           {
-            "bpw": 5.12,
-            "gb": 19.2,
+            "label": "Muse-Glimmer-30B-UD-Q4_K_XL",
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 15.88,
             "kind": "quant",
-            "label": "Muse-Glimmer-30B-UD-Q5_K_M",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "bpw": 4.23
           },
           {
-            "bpw": 3.77,
-            "gb": 14.1,
-            "kind": "quant",
             "label": "Muse-Glimmer-30B-UD-IQ3_M",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 14.12,
+            "kind": "quant",
+            "bpw": 3.77
           },
           {
-            "bpw": 3.56,
-            "gb": 13.4,
-            "kind": "quant",
             "label": "Muse-Glimmer-30B-UD-Q3_K_XL",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 13.36,
+            "kind": "quant",
+            "bpw": 3.56
           },
           {
-            "bpw": 3.32,
-            "gb": 12.4,
+            "label": "Muse-Glimmer-30B-UD-IQ2_XS",
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 11.51,
             "kind": "quant",
-            "label": "Muse-Glimmer-30B-UD-Q2_K_XL",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "bpw": 3.07
           },
           {
-            "bpw": 2.87,
-            "gb": 10.7,
-            "kind": "quant",
             "label": "Muse-Glimmer-30B-UD-IQ2_XXS",
-            "repo": "unsloth/Muse-Glimmer-30B-GGUF"
+            "repo": "unsloth/Muse-Glimmer-30B-GGUF",
+            "gb": 10.75,
+            "kind": "quant",
+            "bpw": 2.87
           }
         ],
         "mlx": [
           {
-            "bpw": 8.9,
+            "label": "Muse-Glimmer-30B-8bit",
+            "repo": "mlx-community/Muse-Glimmer-30B-8bit",
             "gb": 33.38,
             "kind": "quant",
-            "label": "Muse-Glimmer-30B-8bit",
-            "repo": "mlx-community/Muse-Glimmer-30B-8bit"
+            "bpw": 8.9
           },
           {
-            "bpw": 7.04,
+            "label": "Muse-Glimmer-30B-6bit",
+            "repo": "mlx-community/Muse-Glimmer-30B-6bit",
             "gb": 26.4,
             "kind": "quant",
-            "label": "Muse-Glimmer-30B-6bit",
-            "repo": "mlx-community/Muse-Glimmer-30B-6bit"
+            "bpw": 7.04
           },
           {
-            "bpw": 5.18,
+            "label": "Muse-Glimmer-30B-4bit",
+            "repo": "mlx-community/Muse-Glimmer-30B-4bit",
             "gb": 19.41,
             "kind": "quant",
-            "label": "Muse-Glimmer-30B-4bit",
-            "repo": "mlx-community/Muse-Glimmer-30B-4bit"
+            "bpw": 5.18
           },
           {
-            "bpw": 4.94,
+            "label": "Muse-Glimmer-30B-mxfp4",
+            "repo": "mlx-community/Muse-Glimmer-30B-mxfp4",
             "gb": 18.54,
             "kind": "quant",
-            "label": "Muse-Glimmer-30B-mxfp4",
-            "repo": "mlx-community/Muse-Glimmer-30B-mxfp4"
+            "bpw": 4.94
           }
         ]
       },
@@ -798,97 +797,97 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 15.46,
-            "gb": 59.9,
-            "kind": "quant",
             "label": "GLM-4.7-Flash-BF16",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 59.91,
+            "kind": "quant",
+            "bpw": 15.46
           },
           {
-            "bpw": 6.75,
-            "gb": 26.2,
-            "kind": "quant",
             "label": "GLM-4.7-Flash-UD-Q6_K_XL",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 26.18,
+            "kind": "quant",
+            "bpw": 6.75
           },
           {
-            "bpw": 5.6,
-            "gb": 21.7,
-            "kind": "quant",
             "label": "GLM-4.7-Flash-UD-Q5_K_XL",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 21.69,
+            "kind": "quant",
+            "bpw": 5.6
           },
           {
-            "bpw": 4.73,
-            "gb": 18.3,
-            "kind": "quant",
             "label": "GLM-4.7-Flash-Q4_K_M",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 18.31,
+            "kind": "quant",
+            "bpw": 4.73
           },
           {
-            "bpw": 4.2,
-            "gb": 16.3,
+            "label": "GLM-4.7-Flash-MXFP4_MOE",
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 16.97,
             "kind": "quant",
-            "label": "GLM-4.7-Flash-IQ4_XS",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "bpw": 4.38
           },
           {
-            "bpw": 3.43,
-            "gb": 13.3,
+            "label": "GLM-4.7-Flash-UD-Q3_K_XL",
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 13.78,
             "kind": "quant",
-            "label": "GLM-4.7-Flash-Q3_K_S",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "bpw": 3.56
           },
           {
-            "bpw": 2.95,
-            "gb": 11.4,
-            "kind": "quant",
             "label": "GLM-4.7-Flash-Q2_K_L",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 11.42,
+            "kind": "quant",
+            "bpw": 2.95
           },
           {
-            "bpw": 2.71,
-            "gb": 10.5,
-            "kind": "quant",
             "label": "GLM-4.7-Flash-UD-IQ2_XXS",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 10.51,
+            "kind": "quant",
+            "bpw": 2.71
           },
           {
-            "bpw": 2.15,
-            "gb": 8.3,
-            "kind": "quant",
             "label": "GLM-4.7-Flash-UD-TQ1_0",
-            "repo": "unsloth/GLM-4.7-Flash-GGUF"
+            "repo": "unsloth/GLM-4.7-Flash-GGUF",
+            "gb": 8.33,
+            "kind": "quant",
+            "bpw": 2.15
           }
         ],
         "mlx": [
           {
-            "bpw": 8.21,
+            "label": "GLM-4.7-Flash-8bit",
+            "repo": "mlx-community/GLM-4.7-Flash-8bit",
             "gb": 31.82,
             "kind": "quant",
-            "label": "GLM-4.7-Flash-8bit",
-            "repo": "mlx-community/GLM-4.7-Flash-8bit"
+            "bpw": 8.21
           },
           {
-            "bpw": 6.28,
+            "label": "GLM-4.7-Flash-6bit",
+            "repo": "mlx-community/GLM-4.7-Flash-6bit",
             "gb": 24.34,
             "kind": "quant",
-            "label": "GLM-4.7-Flash-6bit",
-            "repo": "mlx-community/GLM-4.7-Flash-6bit"
+            "bpw": 6.28
           },
           {
-            "bpw": 5.31,
+            "label": "GLM-4.7-Flash-5bit",
+            "repo": "mlx-community/GLM-4.7-Flash-5bit",
             "gb": 20.59,
             "kind": "quant",
-            "label": "GLM-4.7-Flash-5bit",
-            "repo": "mlx-community/GLM-4.7-Flash-5bit"
+            "bpw": 5.31
           },
           {
-            "bpw": 4.35,
+            "label": "GLM-4.7-Flash-4bit",
+            "repo": "mlx-community/GLM-4.7-Flash-4bit",
             "gb": 16.85,
             "kind": "quant",
-            "label": "GLM-4.7-Flash-4bit",
-            "repo": "mlx-community/GLM-4.7-Flash-4bit"
+            "bpw": 4.35
           }
         ]
       },
@@ -1016,120 +1015,120 @@
       "LADDER": {
         "ds4": [
           {
-            "bpw": 4.67,
-            "gb": 434.2,
-            "kind": "quant",
             "label": "GLM-5.2-UD-Q4_K_RoutedQ4K",
-            "repo": "antirez/glm-5.2-gguf"
+            "repo": "antirez/glm-5.2-gguf",
+            "gb": 434.17,
+            "kind": "quant",
+            "bpw": 4.67
           },
           {
-            "bpw": 2.82,
-            "gb": 262.0,
-            "kind": "quant",
             "label": "GLM-5.2-UD-Q2_K_RoutedQ2K",
-            "repo": "antirez/glm-5.2-gguf"
+            "repo": "antirez/glm-5.2-gguf",
+            "gb": 262.04,
+            "kind": "quant",
+            "bpw": 2.82
           },
           {
-            "bpw": 2.27,
-            "gb": 211.1,
-            "kind": "quant",
             "label": "GLM-5.2-UD-IQ2_XXS_RoutedIQ2XXS_blk78Q2K",
-            "repo": "antirez/glm-5.2-gguf"
+            "repo": "antirez/glm-5.2-gguf",
+            "gb": 211.08,
+            "kind": "quant",
+            "bpw": 2.27
           }
         ],
         "gguf": [
           {
-            "bpw": 16.21,
-            "gb": 1508.0,
-            "kind": "quant",
             "label": "GLM-5.2-BF16",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 1507.99,
+            "kind": "quant",
+            "bpw": 16.21
           },
           {
-            "bpw": 7.36,
-            "gb": 684.4,
-            "kind": "quant",
             "label": "GLM-5.2-UD-Q6_K_XL",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 684.37,
+            "kind": "quant",
+            "bpw": 7.36
           },
           {
-            "bpw": 6.05,
-            "gb": 562.5,
-            "kind": "quant",
             "label": "GLM-5.2-UD-Q5_K_XL",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 562.47,
+            "kind": "quant",
+            "bpw": 6.05
           },
           {
-            "bpw": 5.02,
-            "gb": 467.3,
-            "kind": "quant",
             "label": "GLM-5.2-UD-Q4_K_XL",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 467.29,
+            "kind": "quant",
+            "bpw": 5.02
           },
           {
-            "bpw": 4.01,
-            "gb": 372.7,
-            "kind": "quant",
             "label": "GLM-5.2-UD-IQ4_NL",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 372.66,
+            "kind": "quant",
+            "bpw": 4.01
           },
           {
-            "bpw": 3.69,
-            "gb": 343.0,
-            "kind": "quant",
             "label": "GLM-5.2-UD-Q3_K_XL",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 342.97,
+            "kind": "quant",
+            "bpw": 3.69
           },
           {
-            "bpw": 3.03,
-            "gb": 281.7,
-            "kind": "quant",
             "label": "GLM-5.2-UD-IQ3_XXS",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 281.69,
+            "kind": "quant",
+            "bpw": 3.03
           },
           {
-            "bpw": 2.57,
-            "gb": 238.6,
-            "kind": "quant",
             "label": "GLM-5.2-UD-IQ2_M",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 238.58,
+            "kind": "quant",
+            "bpw": 2.57
           },
           {
-            "bpw": 2.33,
-            "gb": 216.7,
-            "kind": "quant",
             "label": "GLM-5.2-UD-IQ1_S",
-            "repo": "unsloth/GLM-5.2-GGUF"
+            "repo": "unsloth/GLM-5.2-GGUF",
+            "gb": 216.72,
+            "kind": "quant",
+            "bpw": 2.33
           }
         ],
         "mlx": [
           {
-            "bpw": 5.0,
+            "label": "GLM-5.2-DQ4plus-q8",
+            "repo": "mlx-community/GLM-5.2-DQ4plus-q8",
             "gb": 464.61,
             "kind": "quant",
-            "label": "GLM-5.2-DQ4plus-q8",
-            "repo": "mlx-community/GLM-5.2-DQ4plus-q8"
+            "bpw": 5.0
           },
           {
-            "bpw": 4.5,
+            "label": "GLM-5.2-4bit",
+            "repo": "mlx-community/GLM-5.2-4bit",
             "gb": 418.32,
             "kind": "quant",
-            "label": "GLM-5.2-4bit",
-            "repo": "mlx-community/GLM-5.2-4bit"
+            "bpw": 4.5
           },
           {
-            "bpw": 4.25,
+            "label": "GLM-5.2-mxfp4",
+            "repo": "mlx-community/GLM-5.2-mxfp4",
             "gb": 395.09,
             "kind": "quant",
-            "label": "GLM-5.2-mxfp4",
-            "repo": "mlx-community/GLM-5.2-mxfp4"
+            "bpw": 4.25
           },
           {
-            "bpw": 3.57,
+            "label": "GLM-5.2-MLX-mixed-3_6bit",
+            "repo": "pipenetwork/GLM-5.2-MLX-mixed-3_6bit",
             "gb": 332.34,
             "kind": "quant",
-            "label": "GLM-5.2-MLX-mixed-3_6bit",
-            "repo": "pipenetwork/GLM-5.2-MLX-mixed-3_6bit"
+            "bpw": 3.57
           }
         ]
       },
@@ -1696,34 +1695,27 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 4.23,
-            "gb": 63.4,
-            "kind": "quant",
             "label": "gpt-oss-120b-MXFP4",
-            "repo": "ggml-org/gpt-oss-120b-GGUF"
+            "repo": "ggml-org/gpt-oss-120b-GGUF",
+            "gb": 63.39,
+            "kind": "quant",
+            "bpw": 4.23
           }
         ],
         "mlx": [
           {
-            "bpw": 8.28,
+            "label": "gpt-oss-120b-MLX-8bit",
+            "repo": "lmstudio-community/gpt-oss-120b-MLX-8bit",
             "gb": 124.17,
             "kind": "quant",
-            "label": "gpt-oss-120b-MLX-8bit",
-            "repo": "lmstudio-community/gpt-oss-120b-MLX-8bit"
+            "bpw": 8.28
           },
           {
-            "bpw": 6.33,
-            "gb": 94.97,
-            "kind": "quant",
-            "label": "openai-gpt-oss-120b-MLX-Q6",
-            "repo": "inferencerlabs/openai-gpt-oss-120b-MLX-Q6"
-          },
-          {
-            "bpw": 4.23,
+            "label": "gpt-oss-120b-MXFP4-Q8",
+            "repo": "mlx-community/gpt-oss-120b-MXFP4-Q8",
             "gb": 63.39,
             "kind": "quant",
-            "label": "gpt-oss-120b-MXFP4-Q8",
-            "repo": "mlx-community/gpt-oss-120b-MXFP4-Q8"
+            "bpw": 4.23
           }
         ]
       },
@@ -1847,13 +1839,6 @@
           }
         ],
         "mlx": [
-          {
-            "label": "Hy4-preview-MLX-Q4i",
-            "repo": "inferencerlabs/Hy4-preview-MLX-Q4i",
-            "gb": 456.03,
-            "kind": "quant",
-            "bpw": 4.68
-          },
           {
             "label": "Hy4-preview-4bit",
             "repo": "mlx-community/Hy4-preview-4bit",
@@ -2042,83 +2027,83 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 4.49,
-            "gb": 1561.2,
-            "kind": "quant",
             "label": "Kimi-K3-UD-Q8_K_XL",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 1561.16,
+            "kind": "quant",
+            "bpw": 4.49
           },
           {
-            "bpw": 4.34,
-            "gb": 1508.7,
-            "kind": "quant",
             "label": "Kimi-K3-UD-Q4_K_XL",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 1508.67,
+            "kind": "quant",
+            "bpw": 4.34
           },
           {
-            "bpw": 2.48,
-            "gb": 861.3,
-            "kind": "quant",
             "label": "Kimi-K3-UD-Q2_K_XL",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 861.28,
+            "kind": "quant",
+            "bpw": 2.48
           },
           {
-            "bpw": 2.05,
-            "gb": 711.1,
-            "kind": "quant",
             "label": "Kimi-K3-UD-IQ2_XXS",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 711.07,
+            "kind": "quant",
+            "bpw": 2.05
           },
           {
-            "bpw": 1.87,
-            "gb": 648.9,
-            "kind": "quant",
             "label": "Kimi-K3-UD-IQ1_M",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 648.87,
+            "kind": "quant",
+            "bpw": 1.87
           },
           {
-            "bpw": 1.71,
-            "gb": 594.0,
-            "kind": "quant",
             "label": "Kimi-K3-UD-IQ1_S",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 594.04,
+            "kind": "quant",
+            "bpw": 1.71
           },
           {
-            "bpw": 1.59,
-            "gb": 551.5,
-            "kind": "quant",
             "label": "Kimi-K3-UD-TQ2_0",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 551.46,
+            "kind": "quant",
+            "bpw": 1.59
           },
           {
-            "bpw": 1.46,
-            "gb": 508.9,
-            "kind": "quant",
             "label": "Kimi-K3-UD-TQ1_0",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 508.91,
+            "kind": "quant",
+            "bpw": 1.46
           },
           {
-            "bpw": 1.34,
-            "gb": 466.4,
-            "kind": "quant",
             "label": "Kimi-K3-UD-Q1_0",
-            "repo": "unsloth/Kimi-K3-GGUF"
+            "repo": "unsloth/Kimi-K3-GGUF",
+            "gb": 466.37,
+            "kind": "quant",
+            "bpw": 1.34
           }
         ],
         "mlx": [
           {
-            "bpw": null,
+            "label": "Kimi-K3-REAP73-MLX-mxfp4-q8",
+            "repo": "pipenetwork/Kimi-K3-REAP73-MLX-mxfp4-q8",
             "gb": 451.42,
             "kind": "pruned",
-            "label": "Kimi-K3-REAP73-MLX-mxfp4-q8",
-            "repo": "pipenetwork/Kimi-K3-REAP73-MLX-mxfp4-q8"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "Kimi-K3-REAP80-MLX-mxfp4-q8",
+            "repo": "pipenetwork/Kimi-K3-REAP80-MLX-mxfp4-q8",
             "gb": 349.67,
             "kind": "pruned",
-            "label": "Kimi-K3-REAP80-MLX-mxfp4-q8",
-            "repo": "pipenetwork/Kimi-K3-REAP80-MLX-mxfp4-q8"
+            "bpw": null
           }
         ]
       },
@@ -2216,28 +2201,27 @@
         ]
       },
       "LADDER": {
-        "gguf": [],
         "mlx": [
           {
-            "bpw": null,
+            "label": "Kokoro-82M-bf16",
+            "repo": "mlx-community/Kokoro-82M-bf16",
             "gb": 0.36,
             "kind": "native",
-            "label": "Kokoro-82M-bf16",
-            "repo": "mlx-community/Kokoro-82M-bf16"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "Kokoro-82M-8bit",
+            "repo": "mlx-community/Kokoro-82M-8bit",
             "gb": 0.32,
             "kind": "native",
-            "label": "Kokoro-82M-8bit",
-            "repo": "mlx-community/Kokoro-82M-8bit"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "Kokoro-82M-4bit",
+            "repo": "mlx-community/Kokoro-82M-4bit",
             "gb": 0.31,
             "kind": "native",
-            "label": "Kokoro-82M-4bit",
-            "repo": "mlx-community/Kokoro-82M-4bit"
+            "bpw": null
           }
         ]
       },
@@ -2356,21 +2340,20 @@
         ]
       },
       "LADDER": {
-        "gguf": [],
         "mlx": [
           {
-            "bpw": null,
+            "label": "LTX-2.3",
+            "repo": "Lightricks/LTX-2.3",
             "gb": 156.01,
             "kind": "native",
-            "label": "LTX-2.3",
-            "repo": "Lightricks/LTX-2.3"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "LTX-2.3-fp8",
+            "repo": "Lightricks/LTX-2.3-fp8",
             "gb": 58.68,
             "kind": "native",
-            "label": "LTX-2.3-fp8",
-            "repo": "Lightricks/LTX-2.3-fp8"
+            "bpw": null
           }
         ]
       },
@@ -2434,14 +2417,14 @@
           {
             "label": "ltx-2.5-mlx",
             "repo": "mlx-community/ltx-2.5-mlx",
-            "gb": 110.04,
+            "gb": 110.73,
             "kind": "native",
             "bpw": null
           },
           {
             "label": "ltx-2.5-mlx-q8",
             "repo": "mlx-community/ltx-2.5-mlx-q8",
-            "gb": 23.85,
+            "gb": 24.54,
             "kind": "native",
             "bpw": null
           },
@@ -2531,97 +2514,97 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 15.93,
-            "gb": 852.0,
-            "kind": "quant",
             "label": "MiniMax-M3-BF16",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 852.9,
+            "kind": "quant",
+            "bpw": 15.94
           },
           {
-            "bpw": 7.24,
-            "gb": 387.2,
-            "kind": "quant",
             "label": "MiniMax-M3-UD-Q6_K_XL",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 388.08,
+            "kind": "quant",
+            "bpw": 7.25
           },
           {
-            "bpw": 5.95,
-            "gb": 318.5,
-            "kind": "quant",
             "label": "MiniMax-M3-UD-Q5_K_XL",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 319.38,
+            "kind": "quant",
+            "bpw": 5.97
           },
           {
-            "bpw": 4.95,
-            "gb": 264.9,
-            "kind": "quant",
             "label": "MiniMax-M3-UD-Q4_K_XL",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 265.83,
+            "kind": "quant",
+            "bpw": 4.97
           },
           {
-            "bpw": 4.63,
-            "gb": 247.7,
-            "kind": "quant",
             "label": "MiniMax-M3-UD-Q4_K_S",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 248.62,
+            "kind": "quant",
+            "bpw": 4.65
           },
           {
-            "bpw": 3.96,
-            "gb": 211.8,
-            "kind": "quant",
             "label": "MiniMax-M3-UD-IQ4_NL",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 212.68,
+            "kind": "quant",
+            "bpw": 3.98
           },
           {
-            "bpw": 3.27,
-            "gb": 174.8,
-            "kind": "quant",
             "label": "MiniMax-M3-UD-IQ3_S",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 175.65,
+            "kind": "quant",
+            "bpw": 3.28
           },
           {
-            "bpw": 2.67,
-            "gb": 143.0,
-            "kind": "quant",
             "label": "MiniMax-M3-UD-Q2_K_XL",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 143.86,
+            "kind": "quant",
+            "bpw": 2.69
           },
           {
-            "bpw": 2.4,
-            "gb": 128.4,
-            "kind": "quant",
             "label": "MiniMax-M3-UD-IQ1_M",
-            "repo": "unsloth/MiniMax-M3-GGUF"
+            "repo": "unsloth/MiniMax-M3-GGUF",
+            "gb": 129.31,
+            "kind": "quant",
+            "bpw": 2.42
           }
         ],
         "mlx": [
           {
-            "bpw": 8.46,
+            "label": "MiniMax-M3-MLX-8bit",
+            "repo": "pipenetwork/MiniMax-M3-MLX-8bit",
             "gb": 452.58,
             "kind": "quant",
-            "label": "MiniMax-M3-MLX-8bit",
-            "repo": "pipenetwork/MiniMax-M3-MLX-8bit"
+            "bpw": 8.46
           },
           {
-            "bpw": 6.47,
+            "label": "MiniMax-M3-MLX-6bit",
+            "repo": "pipenetwork/MiniMax-M3-MLX-6bit",
             "gb": 346.1,
             "kind": "quant",
-            "label": "MiniMax-M3-MLX-6bit",
-            "repo": "pipenetwork/MiniMax-M3-MLX-6bit"
+            "bpw": 6.47
           },
           {
-            "bpw": 4.51,
+            "label": "MiniMax-M3-4bit",
+            "repo": "mlx-community/MiniMax-M3-4bit",
             "gb": 241.48,
             "kind": "quant",
-            "label": "MiniMax-M3-4bit",
-            "repo": "mlx-community/MiniMax-M3-4bit"
+            "bpw": 4.51
           },
           {
-            "bpw": 3.57,
+            "label": "MiniMax-M3-MLX-mixed-3_6bit",
+            "repo": "pipenetwork/MiniMax-M3-MLX-mixed-3_6bit",
             "gb": 191.18,
             "kind": "quant",
-            "label": "MiniMax-M3-MLX-mixed-3_6bit",
-            "repo": "pipenetwork/MiniMax-M3-MLX-mixed-3_6bit"
+            "bpw": 3.57
           }
         ]
       },
@@ -2718,21 +2701,20 @@
         ]
       },
       "LADDER": {
-        "gguf": [],
         "mlx": [
           {
-            "bpw": null,
+            "label": "Magpie-TTS-Multilingual-357M-MLX-8bit",
+            "repo": "aufklarer/Magpie-TTS-Multilingual-357M-MLX-8bit",
             "gb": 0.43,
             "kind": "native",
-            "label": "Magpie-TTS-Multilingual-357M-MLX-8bit",
-            "repo": "aufklarer/Magpie-TTS-Multilingual-357M-MLX-8bit"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "Magpie-TTS-Multilingual-357M-MLX-4bit",
+            "repo": "aufklarer/Magpie-TTS-Multilingual-357M-MLX-4bit",
             "gb": 0.26,
             "kind": "native",
-            "label": "Magpie-TTS-Multilingual-357M-MLX-4bit",
-            "repo": "aufklarer/Magpie-TTS-Multilingual-357M-MLX-4bit"
+            "bpw": null
           }
         ]
       },
@@ -2860,28 +2842,27 @@
         ]
       },
       "LADDER": {
-        "gguf": [],
         "mlx": [
           {
-            "bpw": null,
+            "label": "MiniMax-Music3-bf16",
+            "repo": "mlx-community/MiniMax-Music3-bf16",
             "gb": 28.51,
             "kind": "native",
-            "label": "MiniMax-Music3-bf16",
-            "repo": "mlx-community/MiniMax-Music3-bf16"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "MiniMax-Music3-8bit",
+            "repo": "mlx-community/MiniMax-Music3-8bit",
             "gb": 14.17,
             "kind": "native",
-            "label": "MiniMax-Music3-8bit",
-            "repo": "mlx-community/MiniMax-Music3-8bit"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "MiniMax-Music3-4bit",
+            "repo": "mlx-community/MiniMax-Music3-4bit",
             "gb": 9.2,
             "kind": "native",
-            "label": "MiniMax-Music3-4bit",
-            "repo": "mlx-community/MiniMax-Music3-4bit"
+            "bpw": null
           }
         ]
       },
@@ -2956,90 +2937,90 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 17.56,
-            "gb": 65.9,
-            "kind": "quant",
             "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-BF16",
-            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
-          },
-          {
-            "bpw": 10.3,
-            "gb": 38.6,
+            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+            "gb": 65.85,
             "kind": "quant",
-            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-UD-Q8_K_XL",
-            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
+            "bpw": 17.56
           },
           {
-            "bpw": 9.33,
+            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-UD-Q8_K_XL",
+            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+            "gb": 38.62,
+            "kind": "quant",
+            "bpw": 10.3
+          },
+          {
+            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q8_0",
+            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
             "gb": 35.0,
             "kind": "quant",
-            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q8_0",
-            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
+            "bpw": 9.33
           },
           {
-            "bpw": 8.96,
-            "gb": 33.6,
-            "kind": "quant",
             "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q8_0",
-            "repo": "ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
+            "repo": "ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+            "gb": 33.59,
+            "kind": "quant",
+            "bpw": 8.96
           },
           {
-            "bpw": 6.99,
-            "gb": 26.2,
-            "kind": "quant",
             "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-UD-Q5_K_S",
-            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
+            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+            "gb": 26.22,
+            "kind": "quant",
+            "bpw": 6.99
           },
           {
-            "bpw": 6.52,
-            "gb": 24.5,
-            "kind": "quant",
             "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-UD-Q4_K_S",
-            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
+            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+            "gb": 24.47,
+            "kind": "quant",
+            "bpw": 6.52
           },
           {
-            "bpw": 6.19,
-            "gb": 23.2,
-            "kind": "quant",
             "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-MXFP4_MOE",
-            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
-          },
-          {
-            "bpw": 5.64,
-            "gb": 21.2,
+            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+            "gb": 23.21,
             "kind": "quant",
-            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-UD-IQ3_S",
-            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
+            "bpw": 6.19
           },
           {
-            "bpw": 5.04,
+            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-UD-IQ4_NL",
+            "repo": "unsloth/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
+            "gb": 21.24,
+            "kind": "quant",
+            "bpw": 5.66
+          },
+          {
+            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_0",
+            "repo": "ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF",
             "gb": 18.9,
             "kind": "quant",
-            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-Q4_0",
-            "repo": "ggml-org/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-GGUF"
+            "bpw": 5.04
           }
         ],
         "mlx": [
           {
-            "bpw": 8.95,
+            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-8bit",
+            "repo": "mlx-community/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-8bit",
             "gb": 33.56,
             "kind": "quant",
-            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-8bit",
-            "repo": "mlx-community/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-8bit"
+            "bpw": 8.95
           },
           {
-            "bpw": 4.74,
+            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-4bit",
+            "repo": "mlx-community/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-4bit",
             "gb": 17.78,
             "kind": "quant",
-            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-4bit",
-            "repo": "mlx-community/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-4bit"
+            "bpw": 4.74
           },
           {
-            "bpw": 4.48,
+            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-mxfp4",
+            "repo": "mlx-community/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-mxfp4",
             "gb": 16.79,
             "kind": "quant",
-            "label": "NVIDIA-Nemotron-3.5-Lightning-30B-A3B-mxfp4",
-            "repo": "mlx-community/NVIDIA-Nemotron-3.5-Lightning-30B-A3B-mxfp4"
+            "bpw": 4.48
           }
         ]
       },
@@ -3412,13 +3393,6 @@
             "bpw": 8.37
           },
           {
-            "label": "Qwen3.8-Flash-Next-UD-Q6_K_XL",
-            "repo": "unsloth/Qwen3.8-Flash-Next-GGUF",
-            "gb": 169.17,
-            "kind": "quant",
-            "bpw": 7.52
-          },
-          {
             "label": "Qwen3.8-Flash-Next-UD-Q5_K_XL",
             "repo": "unsloth/Qwen3.8-Flash-Next-GGUF",
             "gb": 158.29,
@@ -3435,30 +3409,37 @@
           {
             "label": "Qwen3.8-Flash-Next-UD-Q3_K_XL",
             "repo": "unsloth/Qwen3.8-Flash-Next-GGUF",
-            "gb": 89.99,
+            "gb": 89.46,
             "kind": "quant",
-            "bpw": 4.0
+            "bpw": 3.98
           },
           {
             "label": "Qwen3.8-Flash-Next-UD-IQ3_XXS",
             "repo": "unsloth/Qwen3.8-Flash-Next-GGUF",
-            "gb": 81.96,
+            "gb": 83.63,
             "kind": "quant",
-            "bpw": 3.64
+            "bpw": 3.72
           },
           {
             "label": "Qwen3.8-Flash-Next-UD-Q2_K_XL",
             "repo": "unsloth/Qwen3.8-Flash-Next-GGUF",
-            "gb": 78.87,
+            "gb": 79.58,
             "kind": "quant",
-            "bpw": 3.51
+            "bpw": 3.54
+          },
+          {
+            "label": "Qwen3.8-Flash-Next-UD-Q2_0",
+            "repo": "unsloth/Qwen3.8-Flash-Next-GGUF",
+            "gb": 70.55,
+            "kind": "quant",
+            "bpw": 3.14
           },
           {
             "label": "Qwen3.8-Flash-Next-UD-IQ1_M",
             "repo": "unsloth/Qwen3.8-Flash-Next-GGUF",
-            "gb": 74.54,
+            "gb": 68.01,
             "kind": "quant",
-            "bpw": 3.31
+            "bpw": 3.02
           }
         ],
         "mlx": [
@@ -3472,9 +3453,9 @@
           {
             "label": "Qwen3.8-Flash-Next-oQ4e-mtp",
             "repo": "Jundot/Qwen3.8-Flash-Next-oQ4e-mtp",
-            "gb": 106.29,
+            "gb": 107.67,
             "kind": "quant",
-            "bpw": 4.72
+            "bpw": 4.79
           },
           {
             "label": "Qwen3.8-Flash-Next-MLX-Mixed-2bit",
@@ -3613,104 +3594,104 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 15.95,
-            "gb": 159.5,
-            "kind": "quant",
             "label": "Qwen3-Coder-Next-BF16",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+            "gb": 159.46,
+            "kind": "quant",
+            "bpw": 15.95
           },
           {
-            "bpw": 7.31,
-            "gb": 73.1,
+            "label": "Qwen3-Coder-Next-UD-Q6_K",
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+            "gb": 65.79,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-UD-Q6_K_XL",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
+            "bpw": 6.58
           },
           {
-            "bpw": 5.68,
-            "gb": 56.8,
-            "kind": "quant",
             "label": "Qwen3-Coder-Next-Q5_K_M",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
-          },
-          {
-            "bpw": 4.61,
-            "gb": 46.1,
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+            "gb": 56.85,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-UD-Q4_K_S",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
+            "bpw": 5.68
           },
           {
-            "bpw": 3.92,
-            "gb": 39.2,
+            "label": "Qwen3-Coder-Next-Q4_K_M",
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+            "gb": 48.53,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-UD-IQ4_NL",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
+            "bpw": 4.85
           },
           {
-            "bpw": 3.46,
+            "label": "Qwen3-Coder-Next-IQ4_XS",
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+            "gb": 42.68,
+            "kind": "quant",
+            "bpw": 4.27
+          },
+          {
+            "label": "Qwen3-Coder-Next-Q3_K_S",
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
             "gb": 34.6,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-Q3_K_S",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
+            "bpw": 3.46
           },
           {
-            "bpw": 2.85,
-            "gb": 28.5,
-            "kind": "quant",
             "label": "Qwen3-Coder-Next-UD-IQ3_XXS",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+            "gb": 28.48,
+            "kind": "quant",
+            "bpw": 2.85
           },
           {
-            "bpw": 2.33,
-            "gb": 23.3,
+            "label": "Qwen3-Coder-Next-UD-IQ2_M",
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+            "gb": 24.96,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-UD-IQ2_XXS",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
+            "bpw": 2.5
           },
           {
-            "bpw": 1.89,
-            "gb": 18.9,
-            "kind": "quant",
             "label": "Qwen3-Coder-Next-UD-TQ1_0",
-            "repo": "unsloth/Qwen3-Coder-Next-GGUF"
+            "repo": "unsloth/Qwen3-Coder-Next-GGUF",
+            "gb": 18.94,
+            "kind": "quant",
+            "bpw": 1.89
           }
         ],
         "mlx": [
           {
-            "bpw": 8.47,
+            "label": "Qwen3-Coder-Next-8bit",
+            "repo": "mlx-community/Qwen3-Coder-Next-8bit",
             "gb": 84.66,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-8bit",
-            "repo": "mlx-community/Qwen3-Coder-Next-8bit"
+            "bpw": 8.47
           },
           {
-            "bpw": 6.47,
+            "label": "Qwen3-Coder-Next-6bit",
+            "repo": "mlx-community/Qwen3-Coder-Next-6bit",
             "gb": 64.75,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-6bit",
-            "repo": "mlx-community/Qwen3-Coder-Next-6bit"
+            "bpw": 6.47
           },
           {
-            "bpw": 5.48,
+            "label": "Qwen3-Coder-Next-5bit",
+            "repo": "mlx-community/Qwen3-Coder-Next-5bit",
             "gb": 54.8,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-5bit",
-            "repo": "mlx-community/Qwen3-Coder-Next-5bit"
+            "bpw": 5.48
           },
           {
-            "bpw": 4.48,
+            "label": "Qwen3-Coder-Next-4bit",
+            "repo": "mlx-community/Qwen3-Coder-Next-4bit",
             "gb": 44.84,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-4bit",
-            "repo": "mlx-community/Qwen3-Coder-Next-4bit"
+            "bpw": 4.48
           },
           {
-            "bpw": 4.24,
+            "label": "Qwen3-Coder-Next-mxfp4-mlx",
+            "repo": "nightmedia/Qwen3-Coder-Next-mxfp4-mlx",
             "gb": 42.36,
             "kind": "quant",
-            "label": "Qwen3-Coder-Next-mxfp4-mlx",
-            "repo": "nightmedia/Qwen3-Coder-Next-mxfp4-mlx"
+            "bpw": 4.24
           }
         ]
       },
@@ -4181,97 +4162,97 @@
       "LADDER": {
         "gguf": [
           {
-            "bpw": 16.0,
-            "gb": 4893.2,
-            "kind": "quant",
             "label": "Qwen3.8-2.4T-A95B-BF16",
-            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF"
+            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF",
+            "gb": 4893.17,
+            "kind": "quant",
+            "bpw": 16.0
           },
           {
-            "bpw": 8.5,
-            "gb": 2600.2,
-            "kind": "quant",
             "label": "Qwen3.8-2.4T-A95B-Q8_0",
-            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF"
+            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF",
+            "gb": 2600.25,
+            "kind": "quant",
+            "bpw": 8.5
           },
           {
-            "bpw": 4.29,
-            "gb": 1310.9,
-            "kind": "quant",
             "label": "Qwen3.8-2.4T-A95B-UD-IQ4_XS",
-            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF"
+            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF",
+            "gb": 1310.88,
+            "kind": "quant",
+            "bpw": 4.29
           },
           {
-            "bpw": 2.39,
-            "gb": 730.7,
-            "kind": "quant",
             "label": "Qwen3.8-2.4T-A95B-UD-IQ2_XS",
-            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF"
+            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF",
+            "gb": 730.65,
+            "kind": "quant",
+            "bpw": 2.39
           },
           {
-            "bpw": 2.15,
-            "gb": 656.6,
-            "kind": "quant",
             "label": "Qwen3.8-2.4T-A95B-UD-IQ2_XXS",
-            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF"
+            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF",
+            "gb": 656.57,
+            "kind": "quant",
+            "bpw": 2.15
           },
           {
-            "bpw": 1.84,
-            "gb": 564.0,
-            "kind": "quant",
             "label": "Qwen3.8-2.4T-A95B-UD-IQ1_M",
-            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF"
-          },
-          {
-            "bpw": null,
-            "gb": 404.2,
-            "kind": "pruned",
-            "label": "Qwen3.8-2.4T-A95B-REAP-512GB-IQ2_XXS",
-            "repo": "hellohazime/Qwen3.8-2.4T-A95B-REAP-512GB-GGUF"
-          },
-          {
-            "bpw": 1.3,
-            "gb": 397.3,
+            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF",
+            "gb": 563.95,
             "kind": "quant",
-            "label": "Qwen3.8-2.4T-A95B-UD-Q1_0",
-            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF"
+            "bpw": 1.84
           },
           {
-            "bpw": null,
-            "gb": 246.2,
+            "label": "Qwen3.8-2.4T-A95B-REAP-512GB-IQ2_XXS",
+            "repo": "hellohazime/Qwen3.8-2.4T-A95B-REAP-512GB-GGUF",
+            "gb": 404.18,
             "kind": "pruned",
+            "bpw": null
+          },
+          {
+            "label": "Qwen3.8-2.4T-A95B-UD-Q1_0",
+            "repo": "unsloth/Qwen3.8-2.4T-A95B-GGUF",
+            "gb": 397.26,
+            "kind": "quant",
+            "bpw": 1.3
+          },
+          {
             "label": "Qwen3.8-2.4T-A95B-REAP-256GB-IQ1_S",
-            "repo": "hellohazime/Qwen3.8-2.4T-A95B-REAP-256GB-GGUF"
+            "repo": "hellohazime/Qwen3.8-2.4T-A95B-REAP-256GB-GGUF",
+            "gb": 246.22,
+            "kind": "pruned",
+            "bpw": null
           }
         ],
         "mlx": [
           {
-            "bpw": 2.63,
+            "label": "Qwen3.8-2.4T-A95B-3bit-UVMAX",
+            "repo": "kernelpool/Qwen3.8-2.4T-A95B-3bit-UVMAX",
             "gb": 805.62,
             "kind": "quant",
-            "label": "Qwen3.8-2.4T-A95B-3bit-UVMAX",
-            "repo": "kernelpool/Qwen3.8-2.4T-A95B-3bit-UVMAX"
+            "bpw": 2.63
           },
           {
-            "bpw": null,
+            "label": "Qwen3.8-2.4T-A95B-MLX-reap50-3bit",
+            "repo": "pipenetwork/Qwen3.8-2.4T-A95B-MLX-reap50-3bit",
             "gb": 540.28,
             "kind": "pruned",
-            "label": "Qwen3.8-2.4T-A95B-MLX-reap50-3bit",
-            "repo": "pipenetwork/Qwen3.8-2.4T-A95B-MLX-reap50-3bit"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "Qwen3.8-2.4T-A95B-MLX-reap60-3bit",
+            "repo": "pipenetwork/Qwen3.8-2.4T-A95B-MLX-reap60-3bit",
             "gb": 436.88,
             "kind": "pruned",
-            "label": "Qwen3.8-2.4T-A95B-MLX-reap60-3bit",
-            "repo": "pipenetwork/Qwen3.8-2.4T-A95B-MLX-reap60-3bit"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "Qwen3.8-2.4T-A95B-MLX-reap75-4bit",
+            "repo": "pipenetwork/Qwen3.8-2.4T-A95B-MLX-reap75-4bit",
             "gb": 360.94,
             "kind": "pruned",
-            "label": "Qwen3.8-2.4T-A95B-MLX-reap75-4bit",
-            "repo": "pipenetwork/Qwen3.8-2.4T-A95B-MLX-reap75-4bit"
+            "bpw": null
           }
         ]
       },
@@ -4396,120 +4377,127 @@
       "LADDER": {
         "ds4": [
           {
-            "bpw": 4.64,
-            "gb": 164.6,
-            "kind": "quant",
             "label": "DeepSeek-V4-Flash-Q4KExperts-F16HC-F16Compressor-F16Indexer-Q8Attn-Q8Shared-Q8Out-chat-v2",
-            "repo": "antirez/deepseek-v4-gguf"
+            "repo": "antirez/deepseek-v4-gguf",
+            "gb": 164.63,
+            "kind": "quant",
+            "bpw": 4.64
           },
           {
-            "bpw": 4.39,
-            "gb": 156.0,
-            "kind": "quant",
             "label": "DeepSeek-V4-Flash-MXFP4Experts-F16HC-F16Compressor-F16Indexer-Q8Attn-Q8Shared-Q8Out-chat-v2-mxfp4-0731",
-            "repo": "antirez/deepseek-v4-gguf"
+            "repo": "antirez/deepseek-v4-gguf",
+            "gb": 155.98,
+            "kind": "quant",
+            "bpw": 4.39
           },
           {
-            "bpw": 2.44,
-            "gb": 86.7,
+            "label": "DeepSeek-V4-Flash-Vision-Exp-Layers37-42Q4KExperts-OtherExpertLayersIQ2XXSGateUp-Q2KDown-AProjQ8-SExpQ8-OutQ8",
+            "repo": "antirez/deepseek-v4-gguf",
+            "gb": 97.59,
             "kind": "quant",
+            "bpw": 2.75
+          },
+          {
             "label": "DeepSeek-V4-Flash-IQ2XXS-w2Q2K-AProjQ8-SExpQ8-OutQ8-chat-v2",
-            "repo": "antirez/deepseek-v4-gguf"
+            "repo": "antirez/deepseek-v4-gguf",
+            "gb": 86.72,
+            "kind": "quant",
+            "bpw": 2.44
           }
         ],
         "gguf": [
           {
-            "bpw": 4.56,
-            "gb": 161.9,
-            "kind": "quant",
             "label": "DeepSeek-V4-Flash-0731-UD-Q8_K_XL",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+            "gb": 161.87,
+            "kind": "quant",
+            "bpw": 4.56
           },
           {
-            "bpw": 4.37,
+            "label": "DeepSeek-V4-Flash-0731-UD-Q4_K_XL",
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
             "gb": 155.1,
             "kind": "quant",
-            "label": "DeepSeek-V4-Flash-0731-UD-Q4_K_XL",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
+            "bpw": 4.37
           },
           {
-            "bpw": 3.85,
-            "gb": 136.7,
-            "kind": "quant",
             "label": "DeepSeek-V4-Flash-0731-UD-IQ4_NL",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+            "gb": 136.66,
+            "kind": "quant",
+            "bpw": 3.85
           },
           {
-            "bpw": 3.61,
-            "gb": 128.2,
-            "kind": "quant",
             "label": "DeepSeek-V4-Flash-0731-UD-Q3_K_XL",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+            "gb": 128.21,
+            "kind": "quant",
+            "bpw": 3.61
           },
           {
-            "bpw": 3.27,
-            "gb": 116.1,
-            "kind": "quant",
             "label": "DeepSeek-V4-Flash-0731-UD-IQ3_S",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+            "gb": 116.07,
+            "kind": "quant",
+            "bpw": 3.27
           },
           {
-            "bpw": 2.73,
-            "gb": 96.8,
-            "kind": "quant",
             "label": "DeepSeek-V4-Flash-0731-UD-Q2_K_XL",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
-          },
-          {
-            "bpw": 2.56,
-            "gb": 90.9,
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+            "gb": 96.83,
             "kind": "quant",
-            "label": "DeepSeek-V4-Flash-0731-UD-IQ2_M",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
+            "bpw": 2.73
           },
           {
-            "bpw": 2.45,
+            "label": "DeepSeek-V4-Flash-0731-UD-IQ2_M",
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+            "gb": 90.93,
+            "kind": "quant",
+            "bpw": 2.56
+          },
+          {
+            "label": "DeepSeek-V4-Flash-0731-UD-IQ1_M",
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
             "gb": 86.9,
             "kind": "quant",
-            "label": "DeepSeek-V4-Flash-0731-UD-IQ1_M",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
+            "bpw": 2.45
           },
           {
-            "bpw": 2.33,
-            "gb": 82.5,
-            "kind": "quant",
             "label": "DeepSeek-V4-Flash-0731-UD-IQ1_S",
-            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF"
+            "repo": "unsloth/DeepSeek-V4-Flash-0731-GGUF",
+            "gb": 82.54,
+            "kind": "quant",
+            "bpw": 2.33
           }
         ],
         "mlx": [
           {
-            "bpw": 8.51,
+            "label": "deepseek-ai-DeepSeek-V4-Flash-8bit",
+            "repo": "mlx-community/deepseek-ai-DeepSeek-V4-Flash-8bit",
             "gb": 302.27,
             "kind": "quant",
-            "label": "deepseek-ai-DeepSeek-V4-Flash-8bit",
-            "repo": "mlx-community/deepseek-ai-DeepSeek-V4-Flash-8bit"
+            "bpw": 8.51
           },
           {
-            "bpw": 4.27,
+            "label": "DeepSeek-V4-Flash-4bit",
+            "repo": "mlx-community/DeepSeek-V4-Flash-4bit",
             "gb": 151.48,
             "kind": "quant",
-            "label": "DeepSeek-V4-Flash-4bit",
-            "repo": "mlx-community/DeepSeek-V4-Flash-4bit"
+            "bpw": 4.27
           },
           {
-            "bpw": 2.88,
+            "label": "DeepSeek-V4-Flash-MLX-Q2.8-INF",
+            "repo": "inferencerlabs/DeepSeek-V4-Flash-MLX-Q2.8-INF",
             "gb": 102.2,
             "kind": "quant",
-            "label": "DeepSeek-V4-Flash-MLX-Q2.8-INF",
-            "repo": "inferencerlabs/DeepSeek-V4-Flash-MLX-Q2.8-INF"
+            "bpw": 2.88
           },
           {
-            "bpw": 2.72,
+            "label": "DeepSeek-V4-Flash-2bit-DQ",
+            "repo": "mlx-community/DeepSeek-V4-Flash-2bit-DQ",
             "gb": 96.52,
             "kind": "quant",
-            "label": "DeepSeek-V4-Flash-2bit-DQ",
-            "repo": "mlx-community/DeepSeek-V4-Flash-2bit-DQ"
+            "bpw": 2.72
           }
         ]
       },
@@ -4644,43 +4632,36 @@
       "LADDER": {
         "ds4": [
           {
-            "bpw": 2.32,
-            "gb": 464.6,
-            "kind": "quant",
             "label": "DeepSeek-V4-Pro-IQ2XXS-w2Q2K-AProjQ8-SExpQ8-OutQ8-Instruct",
-            "repo": "antirez/deepseek-v4-gguf"
+            "repo": "antirez/deepseek-v4-gguf",
+            "gb": 464.63,
+            "kind": "quant",
+            "bpw": 2.32
           },
           {
-            "bpw": 2.21,
-            "gb": 442.0,
-            "kind": "quant",
             "label": "DeepSeek-V4-Pro-Q4K-Layers-31-output",
-            "repo": "antirez/deepseek-v4-gguf"
+            "repo": "antirez/deepseek-v4-gguf",
+            "gb": 441.96,
+            "kind": "quant",
+            "bpw": 2.21
           }
         ],
         "gguf": [
           {
-            "bpw": 4.37,
-            "gb": 873.4,
-            "kind": "quant",
             "label": "DeepSeek-V4-Pro-0813-UD-Q8_K_XL",
-            "repo": "unsloth/DeepSeek-V4-Pro-0813-GGUF"
+            "repo": "unsloth/DeepSeek-V4-Pro-0813-GGUF",
+            "gb": 873.45,
+            "kind": "quant",
+            "bpw": 4.37
           }
         ],
         "mlx": [
           {
-            "bpw": 4.19,
+            "label": "DeepSeek-V4-Pro-4bit",
+            "repo": "mlx-community/DeepSeek-V4-Pro-4bit",
             "gb": 837.01,
             "kind": "quant",
-            "label": "DeepSeek-V4-Pro-4bit",
-            "repo": "mlx-community/DeepSeek-V4-Pro-4bit"
-          },
-          {
-            "bpw": 2.81,
-            "gb": 562.2,
-            "kind": "quant",
-            "label": "DeepSeek-V4-Pro-Preview-MLX-Q2.8-INF",
-            "repo": "inferencerlabs/DeepSeek-V4-Pro-Preview-MLX-Q2.8-INF"
+            "bpw": 4.19
           }
         ]
       },
@@ -4789,21 +4770,20 @@
         ]
       },
       "LADDER": {
-        "gguf": [],
         "mlx": [
           {
-            "bpw": null,
+            "label": "NemotronLabs-VoiceChat-11B-8bit",
+            "repo": "mlx-community/NemotronLabs-VoiceChat-11B-8bit",
             "gb": 13.9,
             "kind": "native",
-            "label": "NemotronLabs-VoiceChat-11B-8bit",
-            "repo": "mlx-community/NemotronLabs-VoiceChat-11B-8bit"
+            "bpw": null
           },
           {
-            "bpw": null,
+            "label": "NemotronLabs-VoiceChat-11B-4bit",
+            "repo": "mlx-community/NemotronLabs-VoiceChat-11B-4bit",
             "gb": 9.17,
             "kind": "native",
-            "label": "NemotronLabs-VoiceChat-11B-4bit",
-            "repo": "mlx-community/NemotronLabs-VoiceChat-11B-4bit"
+            "bpw": null
           }
         ]
       },
@@ -4849,14 +4829,13 @@
         ]
       },
       "LADDER": {
-        "gguf": [],
         "mlx": [
           {
-            "bpw": null,
+            "label": "Z-Image-Turbo",
+            "repo": "Tongyi-MAI/Z-Image-Turbo",
             "gb": 32.83,
             "kind": "native",
-            "label": "Z-Image-Turbo",
-            "repo": "Tongyi-MAI/Z-Image-Turbo"
+            "bpw": null
           }
         ]
       },
@@ -5965,6 +5944,458 @@
           "issues": []
         }
       }
+    },
+    {
+      "ID": "maxm31flash",
+      "MODALITY": "text",
+      "NAME": "MiniMax-M3.1-Flash",
+      "ARCH": "MoE ~428B (23B active) · 60 layers · dense GQA 64 query/4 KV heads, head_dim 128 · first 3 layers use MiniMax Sparse Attention · MoE MLP (128 experts, 4/tok + shared)",
+      "LICENSE": "Other",
+      "CONTEXT": "1M (1,000,000)",
+      "HF": "MiniMaxAI/MiniMax-M3.1-Flash",
+      "PARAMS_B": 428,
+      "NOTE": "MiniMax's third-generation Flash is a native multimodal MoE (about 428B total, 23B active per token) for coding, agentic work, computer use and cybersecurity; it takes text, image and video and runs to a 1M window. It is by far the heaviest model on the page: the 8-bit build is ~430 GB so it only fits the 512 GB cluster, and at 1178 KiB/token a full 1M context would need ~1.2 TB of KV, so long context is never affordable on a single Mac. llama.cpp's mainline src/llama-arch.cpp carries the minimax-m3 arch (verified 2026-11-10) so the GGUF quants load, and it is in the ollama library as minimax-m3.1-flash. mlx-lm only added the minimax_m3_vl class on 2026-10-23, after the latest release (v0.32.2), so the MLX paths are master-only. The KV figure is an upper bound: the first three layers use MiniMax Sparse Attention, whose KV behaviour is unverified.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/MiniMaxAI/MiniMax-M3.1-Flash"
+        ],
+        [
+          "arXiv paper",
+          "https://arxiv.org/abs/2606.13392"
+        ]
+      ],
+      "SCORES": {
+        "agentic": [
+          [
+            "BankerToolBench",
+            "76.2"
+          ],
+          [
+            "DeepSWE v1.1",
+            "73.7"
+          ],
+          [
+            "OSWorld V2",
+            "61.7"
+          ],
+          [
+            "Agents' Last Exam",
+            "29.6"
+          ],
+          [
+            "CyberGym",
+            "82.2"
+          ]
+        ]
+      },
+      "BEST_ENGINE": "llamacpp",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "unsloth/MiniMax-M3.1-Flash-GGUF"
+        ],
+        "mlx": [
+          "mlx-community/MiniMax-M3.1-Flash-Text-4bit"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 1228800,
+        "max_context": 1048576,
+        "derivation": "60 layers, GQA 4 KV heads x 128 head_dim x 2 (K and V) x 2 (fp16) = 1,228,800 B; an upper bound, because the first 3 layers use MiniMax Sparse Attention which may cache less per token"
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "minimax-m3 is in mainline src/llama-arch.cpp (verified 2026-11-10); the unsloth GGUF quants load on a stock build. It is a 428B MoE, so the 8-bit build sits near the 512 GB ceiling and shorter contexts only.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "works",
+          "label": "Runs",
+          "note": "In the library as minimax-m3.1-flash; pull the tag so it resolves to a real quant rather than a raw GGUF.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "LM Studio loads GGUF via llama.cpp, which carries the minimax-m3 arch, so GGUF builds run here.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "degraded",
+          "label": "Runs, master-only",
+          "note": "oMLX runs mlx-lm; the minimax_m3_vl class landed on 2026-10-23, after the latest release (v0.32.2, 2026-10-16). Master-only until oMLX bumps; it is the only route to MLX for this model until then.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "degraded",
+          "label": "Runs, master-only",
+          "note": "Same master-only reason as oMLX - relies on mlx-lm mainline, which has the class but has not shipped it.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "degraded",
+          "label": "Runs, master-only",
+          "note": "mlx-lm's minimax_m3_vl.py was added 2026-10-23 and has not appeared in a release (v0.32.2 is current). Building mlx-lm from mainline loads it.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Only MiniMax M2, not M3, appears in vllm-metal's supported_models.md, so this is not yet supported on Apple Silicon there.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not one of the DeepSeek V4 checkpoints ds4 loads.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "MiniMax-M3.1-Flash-UD-Q8_K_XL",
+            "repo": "unsloth/MiniMax-M3.1-Flash-GGUF",
+            "gb": 259.08,
+            "kind": "quant",
+            "bpw": 4.84
+          },
+          {
+            "label": "MiniMax-M3.1-Flash-UD-Q4_K_XL",
+            "repo": "unsloth/MiniMax-M3.1-Flash-GGUF",
+            "gb": 249.4,
+            "kind": "quant",
+            "bpw": 4.66
+          },
+          {
+            "label": "MiniMax-M3.1-Flash-UD-Q3_K_XL",
+            "repo": "unsloth/MiniMax-M3.1-Flash-GGUF",
+            "gb": 193.95,
+            "kind": "quant",
+            "bpw": 3.63
+          },
+          {
+            "label": "MiniMax-M3.1-Flash-UD-IQ3_S",
+            "repo": "unsloth/MiniMax-M3.1-Flash-GGUF",
+            "gb": 175.45,
+            "kind": "quant",
+            "bpw": 3.28
+          },
+          {
+            "label": "MiniMax-M3.1-Flash-UD-IQ3_XXS",
+            "repo": "unsloth/MiniMax-M3.1-Flash-GGUF",
+            "gb": 160.05,
+            "kind": "quant",
+            "bpw": 2.99
+          },
+          {
+            "label": "MiniMax-M3.1-Flash-UD-Q2_K_XL",
+            "repo": "unsloth/MiniMax-M3.1-Flash-GGUF",
+            "gb": 143.91,
+            "kind": "quant",
+            "bpw": 2.69
+          },
+          {
+            "label": "MiniMax-M3.1-Flash-UD-IQ2_XXS",
+            "repo": "unsloth/MiniMax-M3.1-Flash-GGUF",
+            "gb": 134.95,
+            "kind": "quant",
+            "bpw": 2.52
+          },
+          {
+            "label": "MiniMax-M3.1-Flash-UD-IQ1_M",
+            "repo": "unsloth/MiniMax-M3.1-Flash-GGUF",
+            "gb": 129.36,
+            "kind": "quant",
+            "bpw": 2.42
+          }
+        ],
+        "mlx": [
+          {
+            "label": "MiniMax-M3.1-Flash-Text-4bit",
+            "repo": "mlx-community/MiniMax-M3.1-Flash-Text-4bit",
+            "gb": 248.37,
+            "kind": "quant",
+            "bpw": 4.64
+          }
+        ]
+      }
+    },
+    {
+      "ID": "mimov26",
+      "MODALITY": "text",
+      "NAME": "MiMo-V2.6-Distill-Qwen-9B",
+      "ARCH": "Hybrid GDN ~9B · 32 layers (8 full-attn + 24 linear-attention) · GQA 16 query/4 KV heads, head_dim 256",
+      "LICENSE": "MIT",
+      "CONTEXT": "262k",
+      "HF": "XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B",
+      "PARAMS_B": 9,
+      "NOTE": "Xiaomi MiMo's 9B agentic model, a supervised fine-tune of Qwen3.5-9B on Xiaomi's own data for coding, general agent tasks, visual coding and cybersecurity, released as a research starting point for open RL. It is a hybrid GDN - 8 of its 32 layers are full attention and the other 24 are linear-attention - which is why the KV cost is only 32 KiB/token. The qwen3_5 class is released in both llama.cpp and mlx-lm, so the MLX and GGUF paths work, and it is in the ollama library as mimo-v2.6. No benchmark table was on the card, so it is left unranked pending numbers; the 9B size plus 32 KiB/token put it high in the concurrency table.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/XiaomiMiMo/MiMo-V2.6-Distill-Qwen-9B"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "llamacpp",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF"
+        ],
+        "mlx": [
+          "mlx-community/MiMo-V2.6-Distill-Qwen-9B-OptiQ-4bit"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 32768,
+        "max_context": 262144,
+        "derivation": "8 of 32 layers are full attention (one in every 4; the other 24 are linear-attention and hold a fixed recurrent state): 8 x 4 KV heads x 256 head_dim x 2 (K and V) x 2 (fp16) = 32,768 B = 32 KiB/token"
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "qwen35 is in mainline src/llama-arch.cpp (verified 2026-11-10); the bartowski GGUF quants load on a stock build. At 9B and 32 KiB/token it is cheap to run.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "works",
+          "label": "Runs",
+          "note": "In the library as mimo-v2.6; pull the tag so it resolves to a real quant rather than a raw GGUF.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "LM Studio loads GGUF via llama.cpp, which carries the qwen35 arch.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "degraded",
+          "label": "Runs, unverified",
+          "note": "mlx-lm ships the released qwen3_5 class and oMLX has native Metal kernels for the family, but this checkpoint has not been verified in the oMLX UI.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "degraded",
+          "label": "Runs, degraded",
+          "note": "qwen3.5 is a hybrid linear-attention architecture, so prefix caching is off and speculative decoding is capped here - the runtime, not the model, limits it.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "works",
+          "label": "Runs",
+          "note": "The qwen3_5 class works for single-stream generation in released mlx-lm; the linear-attention cache limits that bother the servers above do not apply to local mlx-lm.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "degraded",
+          "label": "Runs, degraded",
+          "note": "qwen35 is supported in vllm-metal but for text-only checkpoints only; MiMo is a vision-language model, so image input is unverified there.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not one of the DeepSeek V4 checkpoints ds4 loads.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-bf16",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 17.92,
+            "kind": "quant",
+            "bpw": 15.93
+          },
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-Q6_K_L",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 8.11,
+            "kind": "quant",
+            "bpw": 7.21
+          },
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-Q6_K_S",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 7.51,
+            "kind": "quant",
+            "bpw": 6.67
+          },
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-Q5_K_S",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 6.5,
+            "kind": "quant",
+            "bpw": 5.77
+          },
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-Q4_1",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 5.94,
+            "kind": "quant",
+            "bpw": 5.28
+          },
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-IQ4_XS",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 5.23,
+            "kind": "quant",
+            "bpw": 4.65
+          },
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-Q3_K_L",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 4.66,
+            "kind": "quant",
+            "bpw": 4.14
+          },
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-IQ3_XS",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 4.27,
+            "kind": "quant",
+            "bpw": 3.79
+          },
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-Q2_K",
+            "repo": "bartowski/MiMo-V2.6-Distill-Qwen-9B-GGUF",
+            "gb": 3.64,
+            "kind": "quant",
+            "bpw": 3.24
+          }
+        ],
+        "mlx": [
+          {
+            "label": "MiMo-V2.6-Distill-Qwen-9B-OptiQ-4bit",
+            "repo": "mlx-community/MiMo-V2.6-Distill-Qwen-9B-OptiQ-4bit",
+            "gb": 7.1,
+            "kind": "quant",
+            "bpw": 6.31
+          }
+        ]
+      }
+    },
+    {
+      "ID": "d13b",
+      "MODALITY": "text",
+      "NAME": "d1-3B",
+      "ARCH": "Hybrid conv/SSM ~3.1B · 30 layers (8 full-attn + conv/SSM) · GQA 32 query/8 KV heads, head_dim 64 · 400M SigLIP2 vision encoder",
+      "LICENSE": "Other",
+      "CONTEXT": "32k (32,768)",
+      "HF": "LiquidAI/d1-3B",
+      "PARAMS_B": 3.12,
+      "NOTE": "d1-3B is LiquidAI's decision model - it routes, triages, classifies and rates rather than writing prose (the card says it does not write text). It is a hybrid conv/SSM vision-language model: 8 of 30 layers are full attention, giving 16 KiB/token, with a 400M SigLIP2 vision encoder and a 32k window. The lfm2 arch is in llama.cpp and the lfm2-vl class is in released mlx-lm, vLLM Metal runs LFM2-VL as native multimodal generation, and it is in the ollama library, so it is the most broadly runnable of the new models. It has no chat/completion benchmarks; its numbers are decision-suite scores (Decision Index, DecisionBench) that do not map onto the page's coding or terminal axes, so it is left unranked there.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/LiquidAI/d1-3B"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "llamacpp",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "LiquidAI/d1-3B-GGUF"
+        ],
+        "mlx": [
+          "LiquidAI/d1-3B-MLX-4bit"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 16384,
+        "max_context": 32768,
+        "derivation": "8 of 30 layers are full attention (the rest are conv/SSM and hold a fixed state); head_dim = 2048/32 = 64; 8 x 8 KV heads x 64 x 2 (K and V) x 2 (fp16) = 16,384 B = 16 KiB/token"
+      },
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "lfm2 is in mainline src/llama-arch.cpp (verified 2026-11-10), and LiquidAI ships an official d1-3B-GGUF, so it loads on a stock build. It is a decision model, not a chat model.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "works",
+          "label": "Runs",
+          "note": "In the library as d1; pull the tag so it resolves to a real quant.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "LM Studio loads GGUF via llama.cpp (official LiquidAI d1-3B-GGUF).",
+          "issues": []
+        },
+        "omlx": {
+          "status": "works",
+          "label": "Runs",
+          "note": "The lfm2-vl class is in released mlx-lm and LiquidAI ships MLX-ready checkpoints; the fastest route for a 3B decision model.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "degraded",
+          "label": "Runs, degraded",
+          "note": "Relies on the mlx-lm lfm2-vl class; prefix caching is off on the linear-attention tower.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "works",
+          "label": "Runs",
+          "note": "lfm2-vl is in released mlx-lm; single-stream generation works.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "works",
+          "label": "Runs",
+          "note": "LFM2-VL / LFM2.5-VL is native multimodal paged generation in vllm-metal (confirmed in supported_models.md), and d1-3B is a standard Transformers checkpoint.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not one of the DeepSeek V4 checkpoints ds4 loads.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "d1-3B-BF16",
+            "repo": "LiquidAI/d1-3B-GGUF",
+            "gb": 5.4,
+            "kind": "quant",
+            "bpw": 13.85
+          },
+          {
+            "label": "d1-3B-Q8_0",
+            "repo": "LiquidAI/d1-3B-GGUF",
+            "gb": 2.87,
+            "kind": "quant",
+            "bpw": 7.37
+          },
+          {
+            "label": "d1-3B-Q4_K_M",
+            "repo": "LiquidAI/d1-3B-GGUF",
+            "gb": 1.67,
+            "kind": "quant",
+            "bpw": 4.29
+          }
+        ],
+        "mlx": [
+          {
+            "label": "d1-3B-MLX-4bit",
+            "repo": "LiquidAI/d1-3B-MLX-4bit",
+            "gb": 2.37,
+            "kind": "quant",
+            "bpw": 6.08
+          }
+        ]
+      }
     }
   ],
   "engines": [
@@ -6422,6 +6853,11 @@
           "46.1"
         ],
         [
+          "maxm31flash",
+          "CRITPT-hard",
+          "32.5"
+        ],
+        [
           "mistral4",
           "CRITPT-hard",
           "27.0"
@@ -6477,6 +6913,11 @@
           "38.8"
         ],
         [
+          "maxm31flash",
+          "Frontier Code",
+          "38.6"
+        ],
+        [
           "qwen38",
           "Frontier Code",
           "34.2"
@@ -6515,6 +6956,11 @@
           "glm53f",
           "Terminal-Bench 4.0",
           "32.8"
+        ],
+        [
+          "maxm31flash",
+          "Terminal-Bench 4.0",
+          "25.8"
         ],
         [
           "q38fnext",
@@ -6606,6 +7052,11 @@
           "glimmer",
           "OSWorld-Verified",
           "65.9"
+        ],
+        [
+          "maxm31flash",
+          "OSWorld V2",
+          "61.7"
         ]
       ]
     },
@@ -6666,6 +7117,21 @@
           "m3",
           "23B active, 120 KiB/token",
           "expensive KV"
+        ],
+        [
+          "maxm31flash",
+          "428B MoE (23B active), 1178 KiB/token",
+          "needs the 512 GB cluster"
+        ],
+        [
+          "mimov26",
+          "9B, 32 KiB/token",
+          "good"
+        ],
+        [
+          "d13b",
+          "3.1B, 16 KiB/token",
+          "cheap"
         ]
       ]
     },
@@ -6741,6 +7207,21 @@
           "gemma4",
           "262k ctx at 160 KiB/token",
           "43 GB full"
+        ],
+        [
+          "maxm31flash",
+          "1M ctx at 1178 KiB/token",
+          "~1.2 TB KV - never fits a single cluster"
+        ],
+        [
+          "mimov26",
+          "262k ctx at 32 KiB/token",
+          "8.6 GB full"
+        ],
+        [
+          "d13b",
+          "32k ctx at 16 KiB/token",
+          "0.5 GB full"
         ]
       ]
     },
@@ -6887,6 +7368,11 @@
           "31.7"
         ],
         [
+          "maxm31flash",
+          "AA Index",
+          "29.1"
+        ],
+        [
           "glm53f",
           "AA Index",
           "27.8"
@@ -6915,6 +7401,11 @@
           "gemma4",
           "AA Index",
           "4.4"
+        ],
+        [
+          "gptoss",
+          "AA Index",
+          "3.8"
         ]
       ],
       "DISPLAY_ORDER": 5
@@ -6945,6 +7436,11 @@
           "qwenmax",
           "SciCode",
           "54.1"
+        ],
+        [
+          "maxm31flash",
+          "SciCode",
+          "53.4"
         ],
         [
           "glm53f",
@@ -7006,6 +7502,11 @@
       "FIDELITY_GATE": "mild",
       "AXIS": "Humanity's Last Exam, diamond set, as run by Artificial Analysis: one test for every model, so the bars are directly comparable.",
       "RANK": [
+        [
+          "maxm31flash",
+          "HLE Diamond",
+          "28.1"
+        ],
         [
           "kimik3",
           "HLE Diamond",
@@ -7087,9 +7588,19 @@
       "AXIS": "Omniscience accuracy: the share of factual questions a model answers correctly without hallucinating, per Artificial Analysis. Higher is better - it is the complement of their hallucination rate, and one metric, so directly comparable.",
       "RANK": [
         [
+          "glm47f",
+          "Omniscience accuracy",
+          "79.1"
+        ],
+        [
           "v4pro",
           "Omniscience accuracy",
           "45.2"
+        ],
+        [
+          "maxm31flash",
+          "Omniscience accuracy",
+          "45.1"
         ],
         [
           "m3",
@@ -7100,11 +7611,6 @@
           "v41flash",
           "Omniscience accuracy",
           "39.6"
-        ],
-        [
-          "gptoss",
-          "Omniscience accuracy",
-          "34.8"
         ],
         [
           "glm53",
@@ -7130,6 +7636,11 @@
           "q38fnext",
           "Omniscience accuracy",
           "23.5"
+        ],
+        [
+          "gptoss",
+          "Omniscience accuracy",
+          "21.7"
         ],
         [
           "glm52",
@@ -7169,7 +7680,7 @@
         [
           "glm53f",
           "GDPval",
-          "1649.4"
+          "1649.0"
         ],
         [
           "q38fnext",
@@ -7185,6 +7696,11 @@
           "kimik3",
           "GDPval",
           "1542.8"
+        ],
+        [
+          "maxm31flash",
+          "GDPval",
+          "1464.9"
         ],
         [
           "v4pro",
@@ -7219,7 +7735,7 @@
         [
           "gptoss",
           "GDPval",
-          "615.6"
+          "616.0"
         ],
         [
           "qcnext",
@@ -7236,6 +7752,11 @@
       "FIDELITY_GATE": "mild",
       "AXIS": "Artificial Analysis' industry capability scores: six fields on one 0-100 scale, and each row shows the model's strongest field. Fields are comparable across models; the row's label says which field it is.",
       "RANK": [
+        [
+          "maxm31flash",
+          "strategy & ops",
+          "50.8"
+        ],
         [
           "v41flash",
           "strategy & ops",
@@ -7290,6 +7811,11 @@
           "gemma4",
           "engineering",
           "11.9"
+        ],
+        [
+          "gptoss",
+          "engineering",
+          "11.2"
         ]
       ],
       "DISPLAY_ORDER": 36
