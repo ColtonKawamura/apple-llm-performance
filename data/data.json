@@ -3856,39 +3856,39 @@
             "bpw": 6.64
           },
           {
-            "label": "Qwen3.8-27B-UD-Q5_K_XL",
+            "label": "Qwen3.8-27B-UD-Q5_K_M",
             "repo": "unsloth/Qwen3.8-27B-GGUF",
-            "gb": 20.88,
+            "gb": 19.87,
             "kind": "quant",
-            "bpw": 6.01
+            "bpw": 5.72
           },
           {
-            "label": "Qwen3.8-27B-UD-Q4_K_XL",
+            "label": "Qwen3.8-27B-UD-Q4_K_M",
             "repo": "unsloth/Qwen3.8-27B-GGUF",
-            "gb": 17.56,
+            "gb": 16.56,
             "kind": "quant",
-            "bpw": 5.05
+            "bpw": 4.77
           },
           {
             "label": "Qwen3.8-27B-UD-IQ4_XS",
             "repo": "unsloth/Qwen3.8-27B-GGUF",
-            "gb": 14.25,
+            "gb": 14.35,
             "kind": "quant",
-            "bpw": 4.1
+            "bpw": 4.13
           },
           {
-            "label": "Qwen3.8-27B-UD-IQ3_S",
+            "label": "Qwen3.8-27B-UD-IQ3_XXS",
             "repo": "unsloth/Qwen3.8-27B-GGUF",
-            "gb": 12.04,
+            "gb": 10.93,
             "kind": "quant",
-            "bpw": 3.47
+            "bpw": 3.15
           },
           {
-            "label": "Qwen3.8-27B-UD-IQ2_S",
+            "label": "Qwen3.8-27B-UD-IQ2_XS",
             "repo": "unsloth/Qwen3.8-27B-GGUF",
-            "gb": 8.37,
+            "gb": 7.63,
             "kind": "quant",
-            "bpw": 2.41
+            "bpw": 2.19
           },
           {
             "label": "Qwen3.8-27B-UD-IQ1_S",
@@ -6396,6 +6396,438 @@
           }
         ]
       }
+    },
+    {
+      "ID": "inkling2s",
+      "MODALITY": "text",
+      "NAME": "Inkling 2 Small",
+      "ARCH": "MoE 594B (17B active) · 48 layers, 40 local SWA + 8 global GQA (8 KV heads × 128 head_dim) · 384 experts, top-8 · native image input · 5-layer MTP head",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "1M (1,048,576)",
+      "HF": "thinkingmachines/Inkling-2-Small",
+      "PARAMS_B": 594,
+      "NOTE": "Thinking Machines' second open-weights release (2026-11-04): a 594B MoE with 17B active per token (384 experts, top-8), native image input and a 1M window, aimed at agentic coding and knowledge work. It is the first TML model that can run on a Mac at all - the ollama library carries it, and that is currently the only engine path on this page. llama.cpp has two open PRs for the inkling2 architecture (a pure-model port and one stacked on Inkling 1, both 2026-11-13) and mlx-lm has one, and until one merges the GGUF and MLX quants that unsloth and mlx-community have published cannot load anywhere on this page. The native precision is NVFP4 (the lab's own checkpoint wants 500 GB of GPU VRAM); the 4-bit quants sit around 340-380 GB (GGUF UD-Q4_K_XL 354 GB, MLX oQ4e 341 GB, MLX 4bit 381 GB), so this is a 512 GB cluster model, and at 32 KiB/token a full 1M context costs ~32 GB of KV. The lab's self-reported table is strong - SWE-bench Pro v2 Hard at 86.3%, BrowseComp with compaction at 90.2% - and Artificial Analysis has since listed the model on its own (AA Index 30.6, which is what the nine ranked categories on this page use); the card's score table below keeps the lab's full harness list, including tests AA does not run (Sudo L7, PMPP, PostTrainBench, DeepSWE).",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/thinkingmachines/Inkling-2-Small"
+        ],
+        [
+          "Ollama library",
+          "https://ollama.com/library/inkling-2-small"
+        ]
+      ],
+      "SCORES": {
+        "coding": [
+          [
+            "FrontierCode v2.0 (stirrup v0.2.1)",
+            "25.4"
+          ],
+          [
+            "DeepSWE v1.1 (mini-swe-agent v2.4.6)",
+            "72.1"
+          ],
+          [
+            "SWE-bench Pro v2 Hard (mini-swe-agent v2.4.6)",
+            "86.3"
+          ],
+          [
+            "SWE-Atlas v1.1 (mini-swe-agent v2.4.6)",
+            "61.9"
+          ],
+          [
+            "Vibe Code Bench v1.1 (openhands)",
+            "81.6"
+          ]
+        ],
+        "agentic": [
+          [
+            "BrowseComp (with compaction)",
+            "90.2"
+          ],
+          [
+            "DeepSearchQA (with compaction)",
+            "90.9"
+          ],
+          [
+            "PostTrainBench v1.2 (Inkling 2 Small in Claude Code)",
+            "31.9"
+          ],
+          [
+            "Sudo L7",
+            "14.1"
+          ],
+          [
+            "PMPP-Hard (AUC, pi v0.83.0)",
+            "494.27"
+          ]
+        ],
+        "science": [
+          [
+            "Terminal Bench Science v0.1 (mini-swe-agent v2.4.6)",
+            "5.7"
+          ],
+          [
+            "BioMysteryBench (terminus v2)",
+            "70.0"
+          ]
+        ],
+        "gdpval": [
+          [
+            "GDPVal-AA v2.1 (lab-reported Elo)",
+            "1630"
+          ]
+        ],
+        "knowledge": [
+          [
+            "AA-Briefcase v1.1 (lab-reported)",
+            "1527"
+          ]
+        ],
+        "industry": [
+          [
+            "JobBench",
+            "70.5"
+          ]
+        ]
+      },
+      "BEST_ENGINE": "ollama",
+      "QUANT_SOURCES": {
+        "gguf": [
+          "unsloth/Inkling-2-Small-GGUF"
+        ],
+        "mlx": [
+          "mlx-community/Inkling-2-Small-oQ4e",
+          "mlx-community/Inkling-2-Small-4bit"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 32768,
+        "max_context": 1048576,
+        "derivation": "48 layers of which 40 are local sliding-window attention (window 1024, from config local_layer_ids) and 8 are global GQA (8 KV heads × 128 head_dim): 8 × 8 × 128 × 2 (K and V) × 2 (fp16) = 32,768 B = 32 KiB/token. The 5-layer MTP head (2 of its layers global) is speculative-decoding only and is not counted."
+      },
+      "ENGINES": {
+        "ollama": {
+          "status": "works",
+          "label": "Runs",
+          "note": "In the library as inkling-2-small (verified 2026-11-14) - the only engine path on this page today. A 594B MoE, so plan on a ~350 GB pull for the 4-bit build on the 512 GB cluster.",
+          "issues": []
+        },
+        "llamacpp": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "No inkling2 architecture in src/llama-arch.cpp (verified 2026-11-14). Two open PRs since 2026-11-13: a pure-model port and one stacked on Inkling 1. The unsloth GGUF quants wait on one of them merging.",
+          "issues": [
+            "ggml-org/llama.cpp#32217",
+            "ggml-org/llama.cpp#32187"
+          ]
+        },
+        "lmstudio": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "No inkling2 architecture in the llama.cpp that LM Studio's GGUF path builds on; the same open PRs as llama.cpp.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "oMLX runs mlx-lm, and mlx-lm has no released inkling2 class; the upstream PR is open.",
+          "issues": [
+            "ml-explore/mlx-lm#2061"
+          ]
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Same reason as oMLX - no inkling2 class in released mlx-lm.",
+          "issues": [
+            "ml-explore/mlx-lm#2061"
+          ]
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "mlx-lm PR #2061 (2026-11-13) adds the inkling2 model; until it merges the mlx-community quants cannot load.",
+          "issues": [
+            "ml-explore/mlx-lm#2061"
+          ]
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Inkling 2 is not in vllm-metal's supported_models.md (verified 2026-11-14).",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "Not one of the DeepSeek V4 checkpoints ds4 loads.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "Inkling-2-Small-BF16",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 484.38,
+            "kind": "quant",
+            "bpw": 6.52
+          },
+          {
+            "label": "Inkling-2-Small-UD-Q8_K_XL",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 386.51,
+            "kind": "quant",
+            "bpw": 5.21
+          },
+          {
+            "label": "Inkling-2-Small-UD-Q4_K_XL",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 354.15,
+            "kind": "quant",
+            "bpw": 4.77
+          },
+          {
+            "label": "Inkling-2-Small-UD-Q3_K_XL",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 285.13,
+            "kind": "quant",
+            "bpw": 3.84
+          },
+          {
+            "label": "Inkling-2-Small-UD-IQ3_XXS",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 225.99,
+            "kind": "quant",
+            "bpw": 3.04
+          },
+          {
+            "label": "Inkling-2-Small-UD-Q2_K_XL",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 204.97,
+            "kind": "quant",
+            "bpw": 2.76
+          },
+          {
+            "label": "Inkling-2-Small-UD-IQ2_XXS",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 190.58,
+            "kind": "quant",
+            "bpw": 2.57
+          },
+          {
+            "label": "Inkling-2-Small-UD-IQ1_M",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 178.54,
+            "kind": "quant",
+            "bpw": 2.4
+          },
+          {
+            "label": "Inkling-2-Small-UD-IQ1_S",
+            "repo": "unsloth/Inkling-2-Small-GGUF",
+            "gb": 171.73,
+            "kind": "quant",
+            "bpw": 2.31
+          }
+        ],
+        "mlx": [
+          {
+            "label": "Inkling-2-Small-4bit",
+            "repo": "mlx-community/Inkling-2-Small-4bit",
+            "gb": 380.79,
+            "kind": "quant",
+            "bpw": 5.13
+          },
+          {
+            "label": "Inkling-2-Small-oQ4e",
+            "repo": "mlx-community/Inkling-2-Small-oQ4e",
+            "gb": 341.48,
+            "kind": "quant",
+            "bpw": 4.6
+          }
+        ]
+      }
+    },
+    {
+      "ID": "zonos3",
+      "MODALITY": "audio",
+      "NAME": "ZONOS3-Mini",
+      "ARCH": "Mixture-of-Transformers TTS, 100M active",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "43 languages, 27 built-in voices",
+      "CONTEXT_LABEL": "Coverage",
+      "HF": "Zyphra/ZONOS3-Mini",
+      "PARAMS_B": 0.45,
+      "NOTE": "Zyphra's ZONOS3-Mini (2026-11-09) is a compact open TTS: 100M active parameters (a mixture of transformers, 0.45B in the checkpoint), 43 languages, 27 built-in voices, 44.1 kHz output, and voice cloning from a reference clip that needs no transcript. Apache-2.0, and small enough that the whole model is a rounding error next to the LLMs on this page. It is the first ZONOS-family model on the page, and it ships with a first-class MLX-Audio path (tts/models/zonos3) - the mlx-community/ZONOS3-Mini build is the supported checkpoint. No quality benchmark is published, so the narration ordering, like the rest of that category, rests on language coverage and build maturity rather than a shared test.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/Zyphra/ZONOS3-Mini"
+        ],
+        [
+          "MLX build",
+          "https://huggingface.co/mlx-community/ZONOS3-Mini"
+        ],
+        [
+          "MLX-Audio module",
+          "https://github.com/Blaizzy/mlx-audio/blob/main/mlx_audio/tts/models/zonos3/README.md"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mlxaudio",
+      "QUANT_SOURCES": {
+        "mlx": [
+          "mlx-community/ZONOS3-Mini"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": null,
+        "derivation": ""
+      },
+      "ENGINES": {
+        "mlxaudio": {
+          "status": "works",
+          "label": "Best path",
+          "note": "In MLX-Audio's own TTS table (tts/models/zonos3, verified 2026-11-14): 44.1 kHz mono, 27 voices, streaming, and voice cloning from reference audio without a transcript. At 100M active parameters it runs on anything this page targets.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "ZONOS3-Mini",
+            "repo": "mlx-community/ZONOS3-Mini",
+            "gb": 1.41,
+            "kind": "native",
+            "bpw": null
+          }
+        ]
+      }
+    },
+    {
+      "ID": "haru4b",
+      "MODALITY": "audio",
+      "NAME": "Haru-4B",
+      "ARCH": "4B full-duplex speech-to-speech · 7.5 Hz frames (133 ms) · 64-dim audio latent per frame, MeanFlow MLP head · text card + voice reference conditioning",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "10 languages, full-duplex at 7.5 Hz (133 ms frames)",
+      "CONTEXT_LABEL": "Behaviour",
+      "HF": "higurashi-ai/Haru-4B",
+      "PARAMS_B": 5.27,
+      "NOTE": "Haru-4B (higurashi-ai, 2026-11-12) is a pretrained full-duplex spoken-dialogue base model: every 133 ms it consumes one frame of the user's audio and produces one frame of its own audio and text, so it listens and speaks at the same time instead of taking turns, in English, Spanish, Portuguese, German, French, Chinese, Japanese, Russian and Korean. Audio is a 64-dimensional latent per frame generated by a small MeanFlow head in one sampling step - no separate audio transformer, no discrete audio tokens - and a text card sets the character while a short reference clip sets the voice. Apache-2.0, released for research, so it ships without voice clips and has no benchmark table; the name says 4B but the shipped bf16 checkpoint measures 5.27B parameters (10.5 GB). MLX-Audio loads the original checkpoint directly (sts/models/haru), which is the only engine path on this page.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/higurashi-ai/Haru-4B"
+        ],
+        [
+          "Technical blog",
+          "https://blog.higurashi.ai/melte/haru4b/"
+        ],
+        [
+          "MLX-Audio module",
+          "https://github.com/Blaizzy/mlx-audio/blob/main/mlx_audio/sts/models/haru/README.md"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mlxaudio",
+      "QUANT_SOURCES": {
+        "mlx": [
+          "higurashi-ai/Haru-4B"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": null,
+        "derivation": ""
+      },
+      "ENGINES": {
+        "mlxaudio": {
+          "status": "works",
+          "label": "Best path",
+          "note": "In MLX-Audio's speech-to-speech table (sts/models/haru, verified 2026-11-14); the original checkpoint loads directly with no separate codec download or PyTorch runtime. The bf16 checkpoint is 10.5 GB (5.27B parameters), so it fits on a laptop.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "Haru-4B",
+            "repo": "higurashi-ai/Haru-4B",
+            "gb": 10.54,
+            "kind": "native",
+            "bpw": null
+          }
+        ]
+      }
+    },
+    {
+      "ID": "stableaudio3",
+      "MODALITY": "audio",
+      "NAME": "Stable Audio 3",
+      "ARCH": "Diffusion transformer (24 layers, 8 ping-pong steps) + T5Gemma encoder + SAME-L decoder",
+      "LICENSE": "Stable Audio community",
+      "CONTEXT": "text in, 44.1 kHz stereo out, 120 s (small) / 380 s (medium)",
+      "CONTEXT_LABEL": "Output",
+      "HF": "stabilityai/stable-audio-3-medium",
+      "PARAMS_B": 2.47,
+      "NOTE": "Stability AI's Stable Audio 3 (weights since May 2026) turns a text prompt into music or sound effects: a T5Gemma Base encoder (~0.6B), a 24-layer diffusion transformer sampled in 8 ping-pong steps and a SAME-L decoder, 44.1 kHz stereo, up to 120 s on the small checkpoints and up to 380 s on medium. The medium checkpoint is 2.47B parameters (5.8 GB resident, DiT in float16, decoder in float32, T5Gemma encoder bundled). It enters the music category as the prompt-driven counterpart to MiniMax Music 3's lyrics-in path. The MLX side only just became real - mlx-community/stable-audio-3-medium landed 2026-11-11 and the mlx-audio support is on master, in review for the next release per the build card - so today the path is master-only. It ships under Stability's Stable Audio community licence rather than a standard open one.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/stabilityai/stable-audio-3-medium"
+        ],
+        [
+          "MLX build",
+          "https://huggingface.co/mlx-community/stable-audio-3-medium"
+        ],
+        [
+          "MLX-Audio",
+          "https://github.com/Blaizzy/mlx-audio"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mlxaudio",
+      "QUANT_SOURCES": {
+        "mlx": [
+          "mlx-community/stable-audio-3-medium",
+          "mlx-community/stable-audio-3-small-sfx",
+          "mlx-community/stable-audio-3-small-music"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": null,
+        "derivation": ""
+      },
+      "ENGINES": {
+        "mlxaudio": {
+          "status": "degraded",
+          "label": "Runs, master-only",
+          "note": "Stable Audio 3 is in the mlx-audio master README's model table, but the mlx-community build card (2026-11-11) says the support is in review and ships in the next release, so packaged installs do not have it yet. When it lands it is the only MLX path to prompt-driven music and sound effects.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "stable-audio-3-medium",
+            "repo": "mlx-community/stable-audio-3-medium",
+            "gb": 5.79,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "stable-audio-3-small-sfx",
+            "repo": "mlx-community/stable-audio-3-small-sfx",
+            "gb": 3.45,
+            "kind": "native",
+            "bpw": null
+          }
+        ]
+      }
     }
   ],
   "engines": [
@@ -6853,6 +7285,11 @@
           "46.1"
         ],
         [
+          "inkling2s",
+          "CRITPT-hard",
+          "35.0"
+        ],
+        [
           "maxm31flash",
           "CRITPT-hard",
           "32.5"
@@ -6866,6 +7303,11 @@
           "v41flash",
           "CRITPT-hard",
           "25.0"
+        ],
+        [
+          "q38fnext",
+          "CRITPT-hard",
+          "24.5"
         ],
         [
           "v4pro",
@@ -6976,6 +7418,11 @@
           "v4pro",
           "Terminal-Bench 4.0",
           "14.1"
+        ],
+        [
+          "inkling2s",
+          "Terminal-Bench 4.0",
+          "13.1"
         ],
         [
           "kimik3",
@@ -7132,6 +7579,11 @@
           "d13b",
           "3.1B, 16 KiB/token",
           "cheap"
+        ],
+        [
+          "inkling2s",
+          "594B MoE (17B active), 32 KiB/token",
+          "needs the 512 GB cluster"
         ]
       ]
     },
@@ -7141,7 +7593,7 @@
       "LABEL": "Long context",
       "MODALITY": "text",
       "FIDELITY_GATE": "mild",
-      "AXIS": "Ranked by KV bytes per token against the advertised ceiling - the models with a 1M window and latent attention are the only ones where a long context is affordable.",
+      "AXIS": "Ranked by KV bytes per token against the advertised ceiling - at a 1M window the KV pool, not the weights, decides whether long context is affordable.",
       "RANK": [
         [
           "glm53f",
@@ -7222,6 +7674,11 @@
           "d13b",
           "32k ctx at 16 KiB/token",
           "0.5 GB full"
+        ],
+        [
+          "inkling2s",
+          "1M ctx at 32 KiB/token",
+          "32 GB full"
         ]
       ]
     },
@@ -7307,6 +7764,11 @@
           "voicechat",
           "full-duplex, tools mid-turn",
           "~450 ms"
+        ],
+        [
+          "haru4b",
+          "full-duplex base model, 10 languages",
+          "research release, no tools"
         ]
       ]
     },
@@ -7332,6 +7794,11 @@
           "voicechat",
           "speaks, but built for conversation",
           "oversized for narration"
+        ],
+        [
+          "zonos3",
+          "43 languages, 27 voices, transcript-free voice cloning",
+          "new; mlx-audio first-class"
         ]
       ]
     },
@@ -7341,12 +7808,17 @@
       "LABEL": "Music generation",
       "MODALITY": "audio",
       "FIDELITY_GATE": "mild",
-      "AXIS": "Song generation from lyrics. One maintained MLX path.",
+      "AXIS": "Song and sound-effect generation. MiniMax Music 3 takes lyrics in; Stable Audio 3 is prompt-driven. One maintained MLX path: mlx-audio.",
       "RANK": [
         [
           "mmmusic3",
           "lyrics in, 44.1 kHz stereo out",
           "7 precisions"
+        ],
+        [
+          "stableaudio3",
+          "text to music and SFX, 44.1 kHz stereo",
+          "prompt-driven; mlx-audio master-only"
         ]
       ]
     },
@@ -7368,9 +7840,19 @@
           "31.7"
         ],
         [
+          "inkling2s",
+          "AA Index",
+          "30.6"
+        ],
+        [
           "maxm31flash",
           "AA Index",
           "29.1"
+        ],
+        [
+          "q38fnext",
+          "AA Index",
+          "28.6"
         ],
         [
           "glm53f",
@@ -7443,6 +7925,11 @@
           "53.4"
         ],
         [
+          "inkling2s",
+          "SciCode",
+          "52.3"
+        ],
+        [
           "glm53f",
           "SciCode",
           "51.6"
@@ -7502,6 +7989,11 @@
       "FIDELITY_GATE": "mild",
       "AXIS": "Humanity's Last Exam, diamond set, as run by Artificial Analysis: one test for every model, so the bars are directly comparable.",
       "RANK": [
+        [
+          "inkling2s",
+          "HLE Diamond",
+          "28.7"
+        ],
         [
           "maxm31flash",
           "HLE Diamond",
@@ -7588,9 +8080,9 @@
       "AXIS": "Omniscience accuracy: the share of factual questions a model answers correctly without hallucinating, per Artificial Analysis. Higher is better - it is the complement of their hallucination rate, and one metric, so directly comparable.",
       "RANK": [
         [
-          "glm47f",
+          "v4flash",
           "Omniscience accuracy",
-          "79.1"
+          "48.9"
         ],
         [
           "v4pro",
@@ -7608,9 +8100,19 @@
           "44.9"
         ],
         [
+          "kimik3",
+          "Omniscience accuracy",
+          "42.4"
+        ],
+        [
           "v41flash",
           "Omniscience accuracy",
           "39.6"
+        ],
+        [
+          "inkling2s",
+          "Omniscience accuracy",
+          "33.8"
         ],
         [
           "glm53",
@@ -7656,6 +8158,11 @@
           "qwen38",
           "Omniscience accuracy",
           "17.3"
+        ],
+        [
+          "glm47f",
+          "Omniscience accuracy",
+          "11.7"
         ]
       ],
       "DISPLAY_ORDER": 34
@@ -7675,72 +8182,77 @@
         [
           "glm53",
           "GDPval",
-          "1656.9"
+          "1654.8"
         ],
         [
           "glm53f",
           "GDPval",
-          "1649.0"
+          "1648.3"
         ],
         [
           "q38fnext",
           "GDPval",
-          "1635.8"
+          "1636.8"
+        ],
+        [
+          "inkling2s",
+          "GDPval",
+          "1630.2"
         ],
         [
           "qwenmax",
           "GDPval",
-          "1615.7"
+          "1613.9"
         ],
         [
           "kimik3",
           "GDPval",
-          "1542.8"
+          "1542.3"
         ],
         [
           "maxm31flash",
           "GDPval",
-          "1464.9"
+          "1465.3"
         ],
         [
           "v4pro",
           "GDPval",
-          "1457.4"
+          "1455.6"
         ],
         [
           "v4flash",
           "GDPval",
-          "1440.6"
+          "1436.8"
         ],
         [
           "qwen38",
           "GDPval",
-          "1426.7"
+          "1426.2"
         ],
         [
           "glm52",
           "GDPval",
-          "1381.5"
+          "1380.2"
         ],
         [
           "m3",
           "GDPval",
-          "1250.0"
+          "1249.7"
         ],
         [
           "gemma4",
           "GDPval",
-          "626.8"
+          "626.6"
         ],
         [
           "gptoss",
           "GDPval",
-          "616.0"
+          "615.3"
         ],
         [
           "qcnext",
           "GDPval",
-          "521.4"
+          "521.0"
         ]
       ],
       "DISPLAY_ORDER": 35
@@ -7781,6 +8293,11 @@
           "qwenmax",
           "strategy & ops",
           "44.4"
+        ],
+        [
+          "inkling2s",
+          "finance & accounting",
+          "44.3"
         ],
         [
           "mistral4",
@@ -7974,6 +8491,16 @@
           "severity": "medium",
           "headline": "Feature request: support Qwen3.8-Flash-Next",
           "why": "The request thread, still open even though the implementing PR (#27742) merged on 2026-08-27. Worth watching for the follow-up fixes rather than as a blocker; the remaining gap for this model is MLX, not llama.cpp."
+        },
+        "32217": {
+          "severity": "medium",
+          "headline": "feat: add Inkling 2 support (pure model)",
+          "why": "Open since 2026-11-13. Until it merges llama.cpp has no inkling2 architecture, so the unsloth GGUF quants of Thinking Machines' Inkling 2 Small cannot load in llama.cpp, LM Studio or any GGUF path. Ollama runs the model on its own runtime today, so this PR is what makes the GGUF quants usable on a Mac."
+        },
+        "32187": {
+          "severity": "medium",
+          "headline": "model: add Inkling 2 (stacked on Inkling 1)",
+          "why": "Competing PR (2026-11-13) implementing Inkling 2 on top of the Inkling 1 architecture work. Whichever of this or #32217 merges unblocks the GGUF quants."
         }
       }
     },
@@ -8274,6 +8801,11 @@
           "severity": "high",
           "headline": "Models that discard update_and_fetch's return leak one Metal buffer per layer per generation",
           "why": "Fixed upstream. #1784 makes decode evaluate cache state periodically and #1790 fixes the unevaluated graph in deepseek specifically; both merged, and this closed 2026-08-27. It was the general form of the DeepSeek V4 residency growth - any model class written that way leaked for the life of the process, aborting at around 11k generated tokens rather than failing on the first run."
+        },
+        "2061": {
+          "severity": "medium",
+          "headline": "Add Inkling 2 model",
+          "why": "Open since 2026-11-13. Until it merges mlx-lm has no inkling2 class, so the mlx-community Inkling 2 Small MLX quants cannot load through mlx-lm, oMLX or vllm-mlx."
         }
       }
     },
@@ -8482,7 +9014,10 @@
     "waybarrios/vllm-mlx#725",
     "waybarrios/vllm-mlx#729",
     "waybarrios/vllm-mlx#731",
-    "waybarrios/vllm-mlx#732"
+    "waybarrios/vllm-mlx#732",
+    "ggml-org/llama.cpp#32217",
+    "ggml-org/llama.cpp#32187",
+    "ml-explore/mlx-lm#2061"
   ],
   "news": [
     {
