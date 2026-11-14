@@ -9021,6 +9021,38 @@
   ],
   "news": [
     {
+      "date": "2026-11-14",
+      "top": [
+        [
+          "Inkling 2 Small reaches Apple silicon: Ollama entry and 4-bit quants",
+          "Thinking Machines' second open-weights release - a 594B MoE with 17B active per token, a 1M window, native image input and an Apache-2.0 licence - is in the Ollama library, and unsloth's GGUF ladder plus mlx-community's 4-bit MLX builds (both 2026-11-13, 341-381 GB, i.e. a 512 GB cluster model) made it the first TML model that can run on a Mac. Two llama.cpp PRs for the inkling2 architecture and one mlx-lm PR are open, so Ollama is the only engine path until one of them merges. The lab's own table puts it at 86.3% on SWE-bench Pro v2 Hard and 90.2% on BrowseComp with compaction, and Artificial Analysis has listed it at 30.6 on the AA Index.",
+          "https://huggingface.co/thinkingmachines/Inkling-2-Small"
+        ],
+        [
+          "MLX-Audio adds a full-duplex speech model and a 43-language TTS",
+          "Blaizzy's MLX-Audio now carries higurashi-ai's Haru-4B (2026-11-12, Apache-2.0) in its speech-to-speech table - a full-duplex spoken-dialogue base model that consumes one frame of user audio and emits one frame of its own speech and text every 133 ms, in 10 languages, loading the original 10.5 GB checkpoint directly - and Zyphra's ZONOS3-Mini (Apache-2.0) as a first-class TTS: 43 languages, 27 built-in voices, 44.1 kHz output, and voice cloning from a reference clip that needs no transcript, with a 1.4 GB mlx-community build.",
+          "https://github.com/Blaizzy/mlx-audio"
+        ],
+        [
+          "Stable Audio 3 gets an MLX path for prompt-driven music and SFX",
+          "mlx-community published Stable Audio 3 builds (2026-11-11): the medium checkpoint is a 2.47B-parameter diffusion model plus a T5Gemma Base encoder in 5.8 GB, 44.1 kHz stereo, up to 380 s per generation from a text prompt. The mlx-audio support is on master and in review for the next release, so packaged installs wait one more version. It enters the music category as the prompt-driven counterpart to MiniMax Music 3's lyrics-in path, under Stability's community licence.",
+          "https://huggingface.co/stabilityai/stable-audio-3-medium"
+        ]
+      ],
+      "newModels": [
+        [
+          "Inkling 2 Small",
+          "Thinking Machines' 594B MoE (17B active, 1M context, Apache-2.0): in the Ollama library now, with 4-bit GGUF and MLX quants at 341-381 GB - the entry price is a 512 GB cluster.",
+          "https://huggingface.co/thinkingmachines/Inkling-2-Small"
+        ],
+        [
+          "Haru-4B",
+          "A full-duplex spoken-dialogue model from higurashi-ai (Apache-2.0, 2026-11-12): it listens and speaks in 133 ms frames across 10 languages. A research release with no benchmark table; the 10.5 GB bf16 checkpoint loads directly in MLX-Audio.",
+          "https://huggingface.co/higurashi-ai/Haru-4B"
+        ]
+      ]
+    },
+    {
       "date": "2026-11-10",
       "top": [
         [
