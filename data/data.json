@@ -9113,6 +9113,27 @@
   ],
   "news": [
     {
+      "date": "2026-11-15",
+      "top": [
+        [
+          "Page now tracks MiniMax-H3-Image: 16 MP native, 33.1B DiT, no Mac engine can load it yet",
+          "MiniMax-H3-Image is the biggest image model on the page and the only one that outputs 16 MP natively: 4096x4096 up to 6272x2688 directly with no upscaler, distilled to 6 sampling steps without classifier-free guidance, with text-to-image and editing of up to 16 reference images unified in one checkpoint. The diffusion transformer is 33.1B parameters in BF16 (66.28 GB for transformer/, 2.34 GB for the VAE) and it loads a 66.7 GB Qwen3-VL text encoder from the MiniMax-H3 repo, so a full local copy is roughly 135 GB. It ships under MiniMax's community license agreement rather than a standard open licence. The card's deployment targets are all GPU frameworks (SGLang, vLLM-Omni, diffusers, LightX2V, ComfyUI, on H200, RTX PRO 6000 and MI350X); no engine on the page can load it yet, so the entry is a tracking card for the gap, not a working Mac recipe.",
+          "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image"
+        ],
+        [
+          "Leech-lattice quantization reaches Qwen3 at 2.7 bits per weight: better than IQ2_S on quality, slower, with a Metal build for Mac",
+          "A Rust runtime (Apache-2.0, github.com/pjmalandrino/llvq) implements Qualcomm's Leech-lattice vector quantization and publishes Qwen3-4B, 8B and 14B sealed at 2.70-2.73 bits per parameter: 1.38, 2.76 and 5.04 GB of weights, with measured MMLU of 63.4, 69.6 and 75.7 and WikiText-2 perplexity of 12.58, 9.71 and 8.44 on one L40S. The author reports +9.1, +4.1 and +2.9 MMLU points over llama.cpp's IQ2_S calibrated to the same bits, at the cost of speed: IQ2_S decodes 60, 64 and 34 tok/s faster than LLVQ's 113.8, 95.0 and 57.2 tok/s. llama.cpp cannot read the custom format; the runtime speaks the Ollama and OpenAI APIs, CUDA is the primary backend, and the repo builds with a Metal feature for Mac, though no Mac numbers have been published. So a 14B in 5 GB is a candidate for a 16 GB Mac on paper, not in practice.",
+          "https://github.com/pjmalandrino/llvq"
+        ],
+        [
+          "mlx-community ships an 8-bit MLX build of NVIDIA's Dory 1.0 4B looped reasoning model - with a patched-runtime catch",
+          "mlx-community converted NVIDIA's Dory 1.0 4B - a looped reasoning model with about 3.975B parameters, a declared 262k context, and weights shared across two recurrent loops by default - to uniform MLX affine 8-bit with group size 64 (remainder BF16), roughly 4 GB of weights. It is the first MLX path to the model, but stock mlx-lm 0.7.3 has no Dory model class and the upstream PR (#1988) is still pending, so the card ships pinned runtime patches and a tokenizer fallback instead of a drop-in install. The converter's local GPQA-Diamond run scored 69.7% at 2 loops and 75.3% at 4 loops against NVIDIA's reported 72.4% and 72.2% for the BF16 model, and the card itself says the methods were not matched, so that is not a quantization claim. The model is governed by NVIDIA's OpenMDW-1.1 agreement, not a standard open licence.",
+          "https://huggingface.co/mlx-community/NVIDIA-Nemotron-Labs-Dory1.0-4B-MLX-8bit"
+        ]
+      ],
+      "newModels": []
+    },
+    {
       "date": "2026-11-14",
       "top": [
         [
@@ -9346,43 +9367,6 @@
           "d1a-e4b-8bit",
           "The D1A framework on Gemma 4, a 4-bit MLX decision model - not to be confused with LiquidAI's d1-3B, whose name merely collides with this one. Ships with its own decision-head loader.",
           "https://huggingface.co/mlx-community/d1a-e4b-8bit"
-        ]
-      ]
-    },
-    {
-      "date": "2026-09-24",
-      "top": [
-        [
-          "r/LocalLLaMA: \"Qwen-3.8-27B is good enough that I stopped using API\"",
-          "The day's top post on the subreddit is a Qwen3.8-27B conversion story - a 27.8B hybrid Gated DeltaNet with 64 KiB of KV per token, so a full 262k context costs about 16 GB of KV instead of a terabyte. The model has 6.7M downloads and 16k likes, SWE-bench Pro of 61.7 and LiveCodeBench-v6 of 90.3, an MLX 4-bit at 16 GB and a GGUF ladder that reaches 6.2 GB. It is already ranked on this page under #qwen38.",
-          "https://www.reddit.com/r/LocalLLaMA/comments/1wp0z3i/qwen3827b_is_good_enough_that_i_stopped_using_api/"
-        ],
-        [
-          "Bonsai 2 27B: a ternary Qwen3.8-27B that runs at ~47 tok/s on an M5 Max laptop",
-          "The hottest repo on Hugging Face trending with ~3M downloads. Prism ML's ternary (2-value) retraining of Qwen3.8-27B puts the whole language model in ~5.9 GB - 9.3x smaller than FP16 - and reports 98.2% of FP16 intelligence across 14 thinking-mode benchmarks, with ~47 tok/s on an Apple M5 Max laptop. Apache-2.0, GGUF, tagged for Metal. If it holds up, 27B-class reasoning moves from a 16 GB build to a 6 GB one.",
-          "https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf"
-        ],
-        [
-          "Xing4.0-29B-A4B: China Telecom's new MoE ships with 256K context",
-          "XingChen (formerly TeleChat) published Xing4.0-29B-A4B this week: 29B total parameters with 4B active per token, mHC + MLA + MTP, 256K native context extensible to 512K, Apache-2.0. It is the first model of its scale trained entirely on Ascend NPUs, and it lands with 41k+ downloads. No MLX or llama.cpp support is announced yet, which is the gap to watch - the architecture is familiar enough that a port is plausible.",
-          "https://huggingface.co/XingChen-AGI/Xing4.0-29B-A4B"
-        ]
-      ],
-      "newModels": [
-        [
-          "Bonsai 2 27B (ternary)",
-          "A ternary retraining of Qwen3.8-27B, not a standard quant: weights are 2-value rather than 4-bit, and the checkpoint is ~5.9 GB with 98.2% of FP16 benchmark performance and ~47 tok/s reported on an M5 Max. Published 2026-09-16, Apache-2.0, GGUF for llama.cpp (Metal tagged).",
-          "https://huggingface.co/prism-ml/Ternary-Bonsai-2-27B-gguf"
-        ],
-        [
-          "Xing4.0-29B-A4B",
-          "New 29B-total/4B-active MoE from China Telecom's Xing series, 256K context (to 512K), agent-oriented architecture (mHC + MLA + MTP), Apache-2.0. Published 2026-09-16; no Apple-silicon runtime announced yet - transformers/vLLM/SGLang/KTransformers formats.",
-          "https://huggingface.co/XingChen-AGI/Xing4.0-29B-A4B"
-        ],
-        [
-          "Hemmingway-1",
-          "A 27B creative-writing fine-tune of Qwen3.8-27B from Altworld, pitched at writing that reads like a person. Published 2026-09-20 with Mac and Android apps; licence is CC-BY-NC-4.0, so it is open weights, non-commercial - which is why it is news here rather than a ranked model.",
-          "https://huggingface.co/Altworld/Hemmingway-1"
         ]
       ]
     }
