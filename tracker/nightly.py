@@ -693,13 +693,17 @@ class Discovery:
                 f["lab:" + org] = f"author={urllib.parse.quote(org)}&sort=createdAt&direction=-1&limit=10"
         return f
 
-    def collect(self):
+    def collect(self, window=None, signal=True, known=True, pipes=None):
+        """Candidates from every feed. window: how recent an upload must be;
+        signal: drop rows below the likes/two-feed floor; known: drop models
+        on the page or already decided; pipes: Hugging Face pipelines kept."""
+        pipes = pipes or KEEP_PIPES
         feeds = self.feeds()
         with ThreadPoolExecutor(max_workers=8) as pool:
             got = dict(zip(feeds, pool.map(
                 lambda q: fetch("https://huggingface.co/api/models?" + q), feeds.values())))
         self.failed = [k for k, v in got.items() if v is None]
-        cutoff = datetime.now(timezone.utc) - timedelta(days=WINDOW_DAYS)
+        cutoff = datetime.now(timezone.utc) - (window or timedelta(days=WINDOW_DAYS))
         cands = {}
         for src, rows in got.items():
             for m in rows or []:
@@ -708,7 +712,7 @@ class Discovery:
                 if "/" not in rid or not created or created < cutoff:
                     continue
                 pipe = m.get("pipeline_tag")
-                if pipe and pipe not in KEEP_PIPES:
+                if pipe and pipe not in pipes:
                     continue
                 author = rid.split("/")[0]
                 bases = base_models(m.get("tags"))
@@ -726,12 +730,12 @@ class Discovery:
                             and author.lower() not in self.labs:
                         continue        # a third party's fine-tune or merge
                     key = rid
-                if NOISE.search(key) or self.on_page(key) or (quant and quant.lower() in self.repos):
+                if NOISE.search(key) or (quant and quant.lower() in self.repos):
+                    continue
+                if known and (self.on_page(key) or ledger_blocks(self.led, key)):
                     continue
                 if key.split("/")[0] in PACKAGERS:
                     continue            # a packager's re-upload, not a release
-                if ledger_blocks(self.led, key):
-                    continue
                 e = cands.setdefault(key, {"sources": set(), "likes": 0, "downloads": 0,
                                            "quants": set()})
                 e["sources"].add(src.split(":")[0])
@@ -754,7 +758,7 @@ class Discovery:
         out = {}
         for key, e in merged.values():
             floor = MIN_LIKES_LAB if self.is_lab(key) else MIN_LIKES_OTHER
-            if len(e["sources"]) >= 2 or e["likes"] >= floor:
+            if not signal or len(e["sources"]) >= 2 or e["likes"] >= floor:
                 out[key] = e
         return out
 
@@ -844,6 +848,36 @@ class Discovery:
     def auto(self, key, reason):
         self.led["candidates"][key.lower()] = {"decision": "skip", "reason": "auto: " + reason,
                                                "date": today()}
+
+    def fresh_language_models(self, hours=36, limit=8):
+        """Language models first published in the last `hours`, for the rollup's
+        newModels: a quant uploaded today of an older model does not count, so
+        each candidate's own model page decides."""
+        cands = self.collect(window=timedelta(hours=hours), signal=False, known=False,
+                             pipes=TEXT_PIPES)
+        order = sorted(cands, key=lambda k: (not self.is_lab(k), -len(cands[k]["sources"]),
+                                             -cands[k]["likes"], k))
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        out = []
+        for key in order[:limit * 3]:
+            if len(out) >= limit:
+                break
+            info = fetch("https://huggingface.co/api/models/" + key)
+            if not isinstance(info, dict):
+                continue
+            created = parse_time(info.get("createdAt"))
+            pipe = info.get("pipeline_tag")
+            if not created or created < cutoff or (pipe and pipe not in TEXT_PIPES):
+                continue
+            author = key.split("/")[0].lower()
+            bases = base_models(info.get("tags"))
+            derived = [b for rel, b in bases if rel in ("finetune", "merge", "adapter")]
+            if any(rel == "quantized" for rel, _ in bases) or (
+                    derived and derived[0].split("/")[0].lower() != author
+                    and author not in self.labs):
+                continue
+            out.append((key, info, cands[key]))
+        return out
 
 
 def describe_candidate(i, key, e, info, pre, mt):
@@ -941,6 +975,7 @@ def cmd_news_brief(a):
                "mlx": pool.submit(cn.hf_mlx_newest, 12),
                "ollama": pool.submit(cn.ollama_new, 10)}
         got = {k: f.result() for k, f in fut.items()}
+    fresh = Discovery(d, {"candidates": {}, "prose_done": {}}).fresh_language_models()
     added = models_added_since(36)
     prev = next((r for r in news if r.get("date") != date), None)
     s = latest_refresh()
@@ -958,6 +993,17 @@ def cmd_news_brief(a):
             out.append("   newly ranked by Artificial Analysis: " + ", ".join(s["aa_entered"]))
         for mid in s.get("prose_ladders", []):
             out.append(f"   {mid} quants changed: {short(s['ladders'].get(mid, ''), 160)}")
+    out.append("\nNEW LANGUAGE MODELS, FIRST PUBLISHED IN THE LAST 36 HOURS (the only candidates "
+               "for newModels; already checked for date, fine-tunes and re-uploads)")
+    for i, (key, info, e) in enumerate(fresh, 1):
+        lic = next((t[8:] for t in info.get("tags") or [] if t.startswith("license:")), "?")
+        params = (info.get("safetensors") or {}).get("total")
+        out.append(f"N{i} {key}  [created {(info.get('createdAt') or '?')[:16].replace('T', ' ')} UTC, "
+                   f"{info.get('pipeline_tag') or 'no pipeline tag'}, {lic}"
+                   + (f", {params / 1e9:.1f}B params" if params else "")
+                   + f", {info.get('likes', 0)} likes]  https://huggingface.co/{key}")
+    if not fresh:
+        out.append("   (none - newModels is [] today)")
     out.append("\nR/LOCALLLAMA NEW (titles only - a community post is a lead, never a source)")
     out += [f"R{i} {short(c['title'], 140)}  {c['url']}" for i, c in enumerate(got["reddit"], 1)] \
         or ["(feed unavailable)"]
@@ -972,6 +1018,11 @@ def cmd_news_brief(a):
     if prev:
         out.append(f"\nPREVIOUS ROLLUP ({prev['date']}) - do not repeat these unless something new happened")
         out += [f"   - {short(t[0], 120)}" for t in prev.get("top", [])]
+    out.append("\nROLLUP FORMAT (publish-news checks all of it; the date is filled in for you)")
+    out.append('{"top": [["<title>", "<one paragraph, 60+ characters>", "https://..."]],   '
+               "<- 1 to 3 rows")
+    out.append(' "newModels": [["<name>", "<what it is and what it costs to run>", "https://..."]]}'
+               "   <- 0 to 10 rows, only from the N lines")
     print("\n".join(ln for ln in out if ln != ""))
     return 0
 
