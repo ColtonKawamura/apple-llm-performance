@@ -7,3 +7,6 @@ docs/
 
 # tooling only; the site has no runtime dependencies
 node_modules/
+
+# local state of tracker/nightly.py (decisions, acks, logs)
+.cache/
