@@ -997,8 +997,8 @@ def cmd_entry(a):
     out["ranked in"] = [f"{u['ID']}: {r[1]} {r[2]}" for u in d["useCases"]
                         for r in u.get("RANK", []) if r[0] == a.id]
     if a.fields:
-        want = set(a.fields.split(","))
-        out = {k: v for k, v in out.items() if k in want or k == "ID"}
+        want = [w.strip() for w in a.fields.split(",") if w.strip()]
+        out = {k: v for k, v in out.items() if k == "ID" or any(k.startswith(w) for w in want)}
     print(json.dumps(out, indent=1, ensure_ascii=False))
     return 0
 
