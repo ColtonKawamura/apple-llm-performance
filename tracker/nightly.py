@@ -26,9 +26,14 @@ one command per action.
                                         ENGINES.<eng>.status|label|note, or
                                         ENGINES.<eng>.issues+ (append one issue key)
     nightly.py ship "<subject>"         gate, commit data/data.json, push
+    nightly.py template <like-id> <new-id> <org/repo>
+                                        spec skeleton shaped like a similar model,
+                                        judgements left as TODO for the agent
     nightly.py add-model <spec.json> [--candidate <repo>]
                                         tracker/add_model.py --commit --direct, then
                                         records the candidate as handled
+    nightly.py track-issue <owner/repo#n> <severity> "<headline>" "<why>" [--pr]
+                                        add an upstream issue so a cell can cite it
     nightly.py decide <repo> skip|defer "<reason>"
     nightly.py ack <issue-key | prose:<id>> ...   (or --all)
     nightly.py publish-news <rollup.json>
@@ -1138,6 +1143,9 @@ def cmd_add_model(a):
         die(f"cannot read {a.spec}: {e}")
     if not isinstance(spec, dict) or not spec.get("ID"):
         die("the spec must be a JSON object with an ID")
+    if "TODO" in json.dumps(spec):
+        todo = [k for k, v in spec.items() if "TODO" in json.dumps(v)]
+        die(f"the spec still has TODO placeholders in: {', '.join(todo)}")
     mid = spec["ID"]
     if not find_model(load(), mid):
         need = ["NAME", "MODALITY", "ARCH", "LICENSE", "CONTEXT", "HF", "PARAMS_B", "NOTE",
@@ -1170,6 +1178,91 @@ def cmd_add_model(a):
     save_ledger(led)
     print(tail(r.stdout, 4))
     print(f"added {mid}: {git('log', '-1', '--format=%h %s')}")
+    return 0
+
+
+def cmd_template(a):
+    """A spec skeleton shaped like a similar model, every judgement left as TODO
+    (add-model refuses a spec that still contains one)."""
+    d = load()
+    like = find_model(d, a.like)
+    if not like:
+        die(f"no model {a.like!r} to copy the shape of")
+    if find_model(d, a.id):
+        die(f"{a.id!r} is already on the page; use patch to change it")
+    if not re.match(r"^[a-z][a-z0-9]*$", a.id):
+        die("the ID must be lowercase letters and digits, starting with a letter")
+    text = like["MODALITY"] == "text"
+    spec = {
+        "ID": a.id,
+        "NAME": "TODO",
+        "MODALITY": like["MODALITY"],
+        "ARCH": "TODO from config.json model_type and the card",
+        "LICENSE": "TODO",
+        "CONTEXT": "TODO",
+        "HF": a.hf,
+        "PARAMS_B": "TODO total parameters in billions, a number",
+        "NOTE": "TODO 80+ characters in the house style (AGENTS.md section 8)",
+        "SOURCES": [["Model card", f"https://huggingface.co/{a.hf}"]],
+        "SCORES": {},
+        "BEST_ENGINE": "TODO one of the ENGINES keys whose status is not none",
+        "ENGINES": {eid: {"status": "TODO works|degraded|blocked|none", "label": "TODO short tab label",
+                          "note": "TODO why this status", "issues": []}
+                    for eid in (like.get("ENGINES") or {})},
+        "QUANT_SOURCES": {fam: ["TODO org/repo from the pre-check line, or drop the family"]
+                          for fam in (like.get("QUANT_SOURCES") or {})},
+        "KV": ({"bytes_per_token": "TODO integer", "max_context": "TODO integer",
+                "derivation": "TODO arithmetic per AGENTS.md section 4"} if text else
+               {"bytes_per_token": None, "max_context": None, "derivation": ""}),
+        "ranks": [],
+    }
+    if like.get("CONTEXT_LABEL"):
+        spec["CONTEXT_LABEL"] = like["CONTEXT_LABEL"]
+    path = os.path.join(CACHE, f"{a.id}.json")
+    write_text(path, json.dumps(spec, indent=1, ensure_ascii=False) + "\n")
+    print(f"wrote {os.path.relpath(path, ROOT)} shaped like {a.like}. Replace every TODO "
+          "(write_file the whole file):\n"
+          "- SCORES only from the card or the lab's report, e.g. {\"coding\": [[\"SWE-bench Pro\", \"61.7\"]]}; "
+          "leave {} if none\n"
+          "- ranks: [[\"<use case id>\", \"<metric>\", \"<value>\"]] for categories it has numbers for, else []\n"
+          "- an engine cell that cites an upstream issue needs it tracked first: nightly.py track-issue\n"
+          f"then: python3 tracker/nightly.py add-model {os.path.relpath(path, ROOT)} --candidate {a.hf}")
+    return 0
+
+
+def cmd_track_issue(a):
+    """Add one upstream issue to the issues section, gate, commit and push, so
+    a model cell can cite it."""
+    m = re.match(r"^([\w.-]+/[\w.-]+)#(\d+)$", a.key)
+    if not m:
+        die("the key looks like owner/repo#123")
+    repo, num = m.groups()
+    if len(a.why) < 30:
+        die("why must say what the issue costs a reader of the page (30+ characters)")
+    with repo_lock():
+        ensure_main(stash=False)
+        pull()
+        d = load()
+        grp = next((g for g in d["issues"] if g["repo"].lower() == repo.lower()), None)
+        if grp and num in grp.get("issues", {}):
+            print(f"{a.key} is already tracked; nothing changed")
+            return 0
+        if grp is None:
+            grp = {"repo": repo, "issues": {}}
+            d["issues"].append(grp)
+        key = f"{grp['repo']}#{num}"
+        grp["issues"][num] = {"severity": a.severity, "headline": a.headline, "why": a.why}
+        if a.pr and key not in d["prKeys"]:
+            d["prKeys"].append(key)
+        save(d)
+        ok, report = gate()
+        if not ok:
+            git("checkout", "--", "data/data.json")
+            die("gate failed, nothing committed (data/data.json restored):\n" + report)
+        git("add", "data/data.json")
+        git("commit", "-q", "-m", f"track {key}: {short(a.headline, 60)}")
+        sha = push()
+    print(f"tracking {key} ({a.severity}): {sha}. Cite it in a cell's issues list.")
     return 0
 
 
@@ -1317,6 +1410,20 @@ def main():
     p.add_argument("spec")
     p.add_argument("--candidate", help="the candidate repo from the brief")
     p.set_defaults(fn=cmd_add_model)
+
+    p = sub.add_parser("template", help="write a spec skeleton shaped like a similar model")
+    p.add_argument("like", help="id of the most similar model on the page")
+    p.add_argument("id", help="the new model's id: lowercase letters and digits")
+    p.add_argument("hf", help="the new model's Hugging Face repo, org/name")
+    p.set_defaults(fn=cmd_template)
+
+    p = sub.add_parser("track-issue", help="add an upstream issue, gate, commit, push")
+    p.add_argument("key", help="owner/repo#123")
+    p.add_argument("severity", choices=("critical", "high", "medium", "low"))
+    p.add_argument("headline")
+    p.add_argument("why", help="what it costs a reader of the page")
+    p.add_argument("--pr", action="store_true", help="the key is a pull request")
+    p.set_defaults(fn=cmd_track_issue)
 
     p = sub.add_parser("decide", help="record a decision on a candidate")
     p.add_argument("repo")
