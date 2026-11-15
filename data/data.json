@@ -9003,6 +9003,16 @@
           "why": "Observability. Without it there is no way to confirm a hit rate from the API — which is how #730 stayed silent."
         }
       }
+    },
+    {
+      "repo": "mflux-community/mflux",
+      "issues": {
+        "987": {
+          "severity": "medium",
+          "headline": "Support for MiniMax-H3-Image (33B T2I + editing, 6 steps)",
+          "why": "A 33.1B image model that outputs 16 MP in 6 steps cannot load on any engine on this page; mflux is the image engine and this is the request that would unblock it."
+        }
+      }
     }
   ],
   "prKeys": [
