@@ -6828,6 +6828,88 @@
           }
         ]
       }
+    },
+    {
+      "ID": "mmh3image",
+      "NAME": "MiniMax-H3-Image",
+      "MODALITY": "image",
+      "ARCH": "33.1B dense DiT (50 layers, single-stream) + Qwen3-VL text encoder + VAE, distilled to 6 steps",
+      "LICENSE": "MiniMax-H3-Image Community License",
+      "CONTEXT": "up to 4096×4096 (16 MP), 6 steps",
+      "CONTEXT_LABEL": "Output",
+      "HF": "MiniMaxAI/MiniMax-H3-Image",
+      "PARAMS_B": 33.1,
+      "NOTE": "The biggest image model on this page and the only one that outputs 16 MP natively: up to 4096×4096 directly, in 6 steps without guidance, with text-to-image and editing of up to 16 reference images in one checkpoint. No engine on the page can load it yet - the DiT alone is 66.3 GB in bf16 and it rides on the 66.7 GB Qwen3-VL text encoder shared with MiniMax-H3 - but a 4-bit MLX package is 31.4 GB end to end (DiT, text encoder and VAE), and mflux has a support request open (mflux#987, filed 2026-11-10 by the author of that conversion). Commercial use needs the written authorization the community licence describes.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image"
+        ],
+        [
+          "mflux support request",
+          "https://github.com/mflux-community/mflux/issues/987"
+        ]
+      ],
+      "BEST_ENGINE": "mflux",
+      "QUANT_SOURCES": {
+        "mlx": [
+          "VisualInference/MiniMax-H3-Image-MLX-bf16",
+          "cguldogan/MiniMax-H3-Image-MLX-8bit",
+          "cguldogan/MiniMax-H3-Image-MLX-4bit"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": null,
+        "derivation": ""
+      },
+      "ENGINES": {
+        "mflux": {
+          "status": "blocked",
+          "label": "Requested",
+          "note": "No model class yet; support requested in mflux#987 (opened 2026-11-10 by the author of the MLX 4-bit conversion, with the architecture worked through). Until it lands, ComfyUI with the Comfy-Org repack is the working path - not an engine on this page.",
+          "issues": [
+            "mflux-community/mflux#987"
+          ]
+        },
+        "mlxvideo": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Not in the project's model list (LTX-2 and Wan only).",
+          "issues": []
+        },
+        "diffusionkit": {
+          "status": "blocked",
+          "label": "Predates it",
+          "note": "Not in the model table (SD3 and FLUX.1-dev only), and the project predates this model.",
+          "issues": []
+        }
+      },
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "MiniMax-H3-Image-MLX-bf16",
+            "repo": "VisualInference/MiniMax-H3-Image-MLX-bf16",
+            "gb": 94.16,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "MiniMax-H3-Image-MLX-8bit",
+            "repo": "cguldogan/MiniMax-H3-Image-MLX-8bit",
+            "gb": 53.24,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "MiniMax-H3-Image-MLX-4bit",
+            "repo": "cguldogan/MiniMax-H3-Image-MLX-4bit",
+            "gb": 31.41,
+            "kind": "native",
+            "bpw": null
+          }
+        ]
+      }
     }
   ],
   "engines": [
