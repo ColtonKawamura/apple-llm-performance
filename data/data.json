@@ -6910,6 +6910,154 @@
           }
         ]
       }
+    },
+    {
+      "ID": "qwenimage21",
+      "NAME": "Qwen-Image-2.1",
+      "MODALITY": "image",
+      "ARCH": "7.1B Single-Stream DiT, 32 layers, base (not distilled)",
+      "LICENSE": "Qwen Research licence (non-commercial only)",
+      "CONTEXT": "1024x1024 typical, 40 steps",
+      "CONTEXT_LABEL": "Output",
+      "HF": "Qwen/Qwen-Image-2.1",
+      "PARAMS_B": 7.1,
+      "NOTE": "The compact successor to the 20B Qwen-Image: a 7.1B single-stream DiT that unifies text-to-image and editing in one checkpoint, takes up to 10 reference images, and emits transparent RGBA images natively. It keeps the original's strength on long, compositional prompts at a fraction of the footprint. It is a base model at 40 steps with no guidance, not a turbo, so it is slower than the distilled 4-to-8-step options here. mflux measures a ~46 GB peak in bf16 (the 17.5 GB Qwen3-VL text encoder never quantizes, so 64 GB is the comfortable default) and ~78 s for a 40-step 1024 image on an M5 Max. The licence is a real change from the original's Apache-2.0: Qwen's research licence, non-commercial only - commercial use needs a separate license from Qwen.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/Qwen/Qwen-Image-2.1"
+        ],
+        [
+          "mflux support",
+          "https://github.com/mflux-community/mflux/blob/main/src/mflux/models/qwen21/README.md"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mflux",
+      "ENGINES": {
+        "mflux": {
+          "status": "degraded",
+          "label": "Runs, 40 steps",
+          "note": "Dedicated mflux implementation (qwen21): text-to-image, editing up to 10 reference images, RGBA output, and a Fun ControlNet-Union. A base model - 40 steps, no guidance, so slower than the distilled options. mflux measures ~46 GB peak in bf16 (the 17.5 GB Qwen3-VL text encoder never quantizes) and ~78 s for a 40-step 1024 image on an M5 Max; 64 GB is the comfortable default, -q 8 when tighter. A distilled Turbo checkpoint (8 steps) of the same model also loads here.",
+          "issues": []
+        },
+        "mlxvideo": {
+          "status": "blocked",
+          "label": "Blocked",
+          "note": "Not in MLX-Video's model list (LTX-2 and Wan only).",
+          "issues": []
+        },
+        "diffusionkit": {
+          "status": "blocked",
+          "label": "Predates it",
+          "note": "DiffusionKit implements Stable Diffusion 3 and FLUX.1 only.",
+          "issues": []
+        }
+      },
+      "QUANT_SOURCES": {
+        "mlx": [
+          "JoyFusionAI/Qwen-Image-2.1-MLX-4bit",
+          "JoyFusionAI/Qwen-Image-2.1-MLX-8bit"
+        ],
+        "gguf": [
+          "unsloth/Qwen-Image-2.1-GGUF"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": null,
+        "derivation": ""
+      },
+      "ranks": [
+        [
+          "image",
+          "7.1B, T2I + editing, native transparency",
+          "research licence only; 40 steps"
+        ]
+      ],
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "Qwen-Image-2.1-MLX-8bit",
+            "repo": "JoyFusionAI/Qwen-Image-2.1-MLX-8bit",
+            "gb": 24.03,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "Qwen-Image-2.1-MLX-4bit",
+            "repo": "JoyFusionAI/Qwen-Image-2.1-MLX-4bit",
+            "gb": 20.47,
+            "kind": "native",
+            "bpw": null
+          }
+        ],
+        "gguf": [
+          {
+            "label": "qwen-image-2.1-F16",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 14.23,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "qwen-image-2.1-Q8_0",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 7.64,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "qwen-image-2.1-Q6_K",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 6.27,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "qwen-image-2.1-Q5_K_M",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 5.39,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "qwen-image-2.1-Q4_K_M",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 4.2,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "qwen-image-2.1-Q4_K_S",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 3.91,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "qwen-image-2.1-Q3_K_XL",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 3.61,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "qwen-image-2.1-Q3_K_S",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 2.72,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "qwen-image-2.1-Q2_K",
+            "repo": "unsloth/Qwen-Image-2.1-GGUF",
+            "gb": 2.47,
+            "kind": "native",
+            "bpw": null
+          }
+        ]
+      }
     }
   ],
   "engines": [
@@ -7806,6 +7954,11 @@
           "flux2k9",
           "9B, better adherence",
           "bf16 only"
+        ],
+        [
+          "qwenimage21",
+          "7.1B, T2I + editing, native transparency",
+          "research licence only; 40 steps"
         ]
       ]
     },
