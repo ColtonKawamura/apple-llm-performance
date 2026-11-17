@@ -9266,6 +9266,22 @@
   ],
   "news": [
     {
+      "date": "2026-11-17",
+      "top": [
+        [
+          "Qwen-Image-2.1: 7.1B single-stream DiT that unifies text-to-image and editing",
+          "Qwen open-sourced the compact successor to the 20B Qwen-Image: a 7.1B single-stream DiT (32 layers) that does text-to-image and editing in one checkpoint, under the Qwen Research License rather than Apache. It takes up to 10 reference images, accepts local edits as circles, painted annotations or masks, and natively emits transparent RGBA output at up to 2752 px on the long edge (1:1 through 16:9). The card's quick start is bfloat16 - the 7B DiT is about 14 GB of weights plus the text encoder - and documents a CPU-offload path for smaller machines; the page tracks mflux as the best-fit engine.",
+          "https://huggingface.co/Qwen/Qwen-Image-2.1"
+        ],
+        [
+          "Tencent's DSpine draft model: 2.7-3.8x decode speedups for Qwen3.8-27B, SGLang-only for now",
+          "DSpine (arXiv 2609.36173) is a five-layer 2.0B-parameter draft model - block size 16, 8,192-token sliding window, Apache-2.0, about 4 GB on disk - that lets SGLang draft 16 tokens in parallel for Qwen3.8-27B. In the card's BF16 runs it raises end-to-end throughput to 2.7-3.8x autoregressive decoding (up to 840 tok/s on WorkBuddy Web with xhigh reasoning) and beats the DFlash2 draft on acceptance length in every table. The documented runtime is GPU SGLang with FlashAttention-3, Triton and FlashInfer, and an open llama.cpp PR (#31941, since Nov 9) is working on draft support - unmerged, so today it is a speed reference for the page's flagship, not a Mac download.",
+          "https://huggingface.co/tencent/Qwen3.8-27B-DSpine-b16"
+        ]
+      ],
+      "newModels": []
+    },
+    {
       "date": "2026-11-16",
       "top": [
         [
@@ -9468,43 +9484,6 @@
           "Qwen3.8-Flash-Next DGX-Spark GGUF",
           "A Japanese-targeted low-bit (LDLQ) GGUF of the Qwen3.8-Flash-Next MoE - a third-party quant rather than a new checkpoint.",
           "https://huggingface.co/zephel01/Qwen3.8-Flash-Next-DGX-Spark-GGUF"
-        ]
-      ]
-    },
-    {
-      "date": "2026-11-07",
-      "top": [
-        [
-          "First community GGUFs for DeepSeek V4.1-Flash ship the same day weights open",
-          "The day DeepSeek opened V4.1-Flash (552B, 16B active), the community shipped its first community GGUFs - AtomicChat's uncensored GSQ-RCO (the model's own grouped-sparse/DSA format) at 117,016 downloads and OBLITERATUS's obliterated variant, showing the 3T-class flagship already being quantized for GGUF and Apple-silicon consumers.",
-          "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF"
-        ],
-        [
-          "OBLITERATUS obliterates V4.1-Flash into safety-tuned and untuned GGUFs",
-          "A second V4.1-Flash GGUF, the obliterated (red-team / safety filters removed) build, confirming the community is splitting the new flagship into safety-tuned and untuned tracks for GGUF consumers.",
-          "https://huggingface.co/OBLITERATUS/DeepSeek-V4.1-Flash-1017-obliterated"
-        ],
-        [
-          "Community forks of Moonshot's 2.8T Kimi K3.1 Pro appear within days",
-          "Within days of Moonshot's 2.8T Kimi K3.1 Pro opening, community builds already exist - including an Eagle3.1 MLA-stack fork - as the newest 3T-class model starts getting quantized and variant-ed for GGUF and MLX consumers.",
-          "https://huggingface.co/lightseekorg/kimi-k3.1-pro-eagle3.1-mla"
-        ]
-      ],
-      "newModels": [
-        [
-          "roman220220/Dory1.0-4B-gptq-mlx-jang",
-          "A new 4B Dory text model shipped as a GPTQ build gated for mlx (mlx-jang), an Apple-silicon-adjacent quantization.",
-          "https://huggingface.co/roman220220/Dory1.0-4B-gptq-mlx-jang"
-        ],
-        [
-          "jsantillana/gemma-4-26B-A4B-it-abliterated",
-          "An abliterated, instruction-tuned 26B MoE (4B active) variant of Gemma 4.",
-          "https://huggingface.co/jsantillana/gemma-4-26B-A4B-it-abliterated"
-        ],
-        [
-          "42ailab/Nanbeige4.2-3B-GGUF",
-          "A new 3B text model shipped as a GGUF.",
-          "https://huggingface.co/42ailab/Nanbeige4.2-3B-GGUF"
         ]
       ]
     }
