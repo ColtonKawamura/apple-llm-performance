@@ -170,9 +170,13 @@ def engine_payload(m):
 
 def model_payload(m):
     bpt, maxctx, why = KV.get(m["id"], (None, None, ""))
+    params_b = PARAMS.get(m["id"])
+    # Compute weight in GB: params_b (billions) * 1.5 (bytes per param at FP16/NVFP4)
+    w = round(params_b * 1.5, 1) if params_b else None
     return {"engines": engine_payload(m),
             "kv": {"bpt": bpt, "maxctx": maxctx, "why": why},
-            "params": PARAMS.get(m["id"])}
+            "params": params_b,
+            "w": w}
 
 
 def index_rows(rows):
@@ -194,7 +198,14 @@ def index_rows(rows):
         else:
             sc = SCLASS.get(c["s"], "unknown")
         lad = ladder_for(eid, m["id"]) if eid else []
-        gb = lad[-1]["gb"] if lad else m.get("w", 0)
+        params_b = PARAMS.get(m["id"])
+        lad_gb = lad[-1]["gb"] if lad else None
+        if lad_gb:
+            gb = lad_gb
+        elif params_b:
+            gb = round(params_b * 1.5, 1)  # 1B params ~ 1.5 GB
+        else:
+            gb = 0
         payload = html.escape(json.dumps(model_payload(m)), quote=True)
         out.append(f"""
         <a class="ix-row v-{sc}" href="#{m['id']}" data-model="{m['id']}"

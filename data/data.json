@@ -13,7 +13,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/kimi-k31-pro",
-      "PARAMS_B": null,
+      "PARAMS_B": 2800,
       "NOTE": "Open-weights model from Kimi. Intelligence: 46",
       "SOURCES": [
         [
@@ -47,7 +47,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/tencent-hy4",
-      "PARAMS_B": null,
+      "PARAMS_B": 200,
       "NOTE": "Open-weights model from Tencent. Intelligence: 35",
       "SOURCES": [
         [
@@ -81,7 +81,7 @@
       "CONTEXT": 984000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/qwen38-max",
-      "PARAMS_B": null,
+      "PARAMS_B": 550,
       "NOTE": "Open-weights model from Alibaba. Intelligence: 34",
       "SOURCES": [
         [
@@ -115,7 +115,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/deepseek-v41-flash-1017max",
-      "PARAMS_B": null,
+      "PARAMS_B": 552,
       "NOTE": "Open-weights model from DeepSeek. Intelligence: 33",
       "SOURCES": [
         [
@@ -149,7 +149,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/glm-53max",
-      "PARAMS_B": null,
+      "PARAMS_B": 753,
       "NOTE": "Open-weights model from Z AI. Intelligence: 32",
       "SOURCES": [
         [
@@ -183,7 +183,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/gemini-38-flashhigh",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from Google. Intelligence: 31",
       "SOURCES": [
         [
@@ -217,7 +217,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/inkling-2-small",
-      "PARAMS_B": null,
+      "PARAMS_B": 594,
       "NOTE": "Open-weights model from Thinking Machines. Intelligence: 31",
       "SOURCES": [
         [
@@ -251,7 +251,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/ling-31-flash-1019",
-      "PARAMS_B": null,
+      "PARAMS_B": 560,
       "NOTE": "Open-weights model from InclusionAI. Intelligence: 30",
       "SOURCES": [
         [
@@ -285,7 +285,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/mimo-v26-pro",
-      "PARAMS_B": null,
+      "PARAMS_B": 1000,
       "NOTE": "Open-weights model from Xiaomi. Intelligence: 30",
       "SOURCES": [
         [
@@ -319,7 +319,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/minimax-m31-flash",
-      "PARAMS_B": null,
+      "PARAMS_B": 428,
       "NOTE": "Open-weights model from MiniMax. Intelligence: 29",
       "SOURCES": [
         [
@@ -353,7 +353,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen38-flash-next",
-      "PARAMS_B": null,
+      "PARAMS_B": 550,
       "NOTE": "Open-weights model from Alibaba. Intelligence: 29",
       "SOURCES": [
         [
@@ -387,7 +387,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/step-5-preview",
-      "PARAMS_B": null,
+      "PARAMS_B": 200,
       "NOTE": "Open-weights model from StepFun. Intelligence: 29",
       "SOURCES": [
         [
@@ -421,7 +421,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/glm-53-flash",
-      "PARAMS_B": null,
+      "PARAMS_B": 753,
       "NOTE": "Open-weights model from Z AI. Intelligence: 28",
       "SOURCES": [
         [
@@ -455,7 +455,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/mimo-v26-flash",
-      "PARAMS_B": null,
+      "PARAMS_B": 1000,
       "NOTE": "Open-weights model from Xiaomi. Intelligence: 27",
       "SOURCES": [
         [
@@ -489,7 +489,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/mistral-large-4high",
-      "PARAMS_B": null,
+      "PARAMS_B": 1100,
       "NOTE": "Open-weights model from Mistral. Intelligence: 26",
       "SOURCES": [
         [
@@ -523,7 +523,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/muse-spark-openxhigh",
-      "PARAMS_B": null,
+      "PARAMS_B": 816,
       "NOTE": "Open-weights model from Meta. Intelligence: 25",
       "SOURCES": [
         [
@@ -557,7 +557,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/agnes-25-pro-theta",
-      "PARAMS_B": null,
+      "PARAMS_B": 800,
       "NOTE": "Open-weights model from Sapiens AI. Intelligence: 24",
       "SOURCES": [
         [
@@ -591,7 +591,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/deepseek-v4-pro-0813max",
-      "PARAMS_B": null,
+      "PARAMS_B": 500,
       "NOTE": "Open-weights model from DeepSeek. Intelligence: 23",
       "SOURCES": [
         [
@@ -625,7 +625,7 @@
       "CONTEXT": 524000,
       "CONTEXT_LABEL": "0.5M",
       "HF": "https://artificialanalysis.ai/models/nanbeige43-33b",
-      "PARAMS_B": null,
+      "PARAMS_B": 33,
       "NOTE": "Open-weights model from Nanbeige. Intelligence: 20",
       "SOURCES": [
         [
@@ -659,7 +659,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen38-27bxhigh",
-      "PARAMS_B": null,
+      "PARAMS_B": 27,
       "NOTE": "Open-weights model from Alibaba. Intelligence: 20",
       "SOURCES": [
         [
@@ -693,7 +693,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/jt-41-flash-236b-a21b",
-      "PARAMS_B": null,
+      "PARAMS_B": 236,
       "NOTE": "Open-weights model from China Mobile. Intelligence: 19",
       "SOURCES": [
         [
@@ -727,7 +727,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/minimax-m3",
-      "PARAMS_B": null,
+      "PARAMS_B": 450,
       "NOTE": "Open-weights model from MiniMax. Intelligence: 19",
       "SOURCES": [
         [
@@ -761,7 +761,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/beam-10",
-      "PARAMS_B": null,
+      "PARAMS_B": 501,
       "NOTE": "Open-weights model from Reflection. Intelligence: 18",
       "SOURCES": [
         [
@@ -795,7 +795,7 @@
       "CONTEXT": 524000,
       "CONTEXT_LABEL": "0.5M",
       "HF": "https://artificialanalysis.ai/models/k2-horizon-375b-a23b",
-      "PARAMS_B": null,
+      "PARAMS_B": 375,
       "NOTE": "Open-weights model from Institute of Foundation Models. Intelligence: 18",
       "SOURCES": [
         [
@@ -829,7 +829,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/apodex-11",
-      "PARAMS_B": null,
+      "PARAMS_B": 80,
       "NOTE": "Open-weights model from Apodex. Intelligence: 14",
       "SOURCES": [
         [
@@ -863,7 +863,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/nemotron-35-super-vl",
-      "PARAMS_B": null,
+      "PARAMS_B": 120,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: 14",
       "SOURCES": [
         [
@@ -897,7 +897,7 @@
       "CONTEXT": 512000,
       "CONTEXT_LABEL": "0.5M",
       "HF": "https://artificialanalysis.ai/models/solar-pro-4",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Upstage. Intelligence: 14",
       "SOURCES": [
         [
@@ -931,7 +931,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/inkling-small",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from Thinking Machines. Intelligence: 13",
       "SOURCES": [
         [
@@ -965,7 +965,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/gemini-35-flash-lite",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from Google. Intelligence: 12",
       "SOURCES": [
         [
@@ -999,7 +999,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/inklingxhigh",
-      "PARAMS_B": null,
+      "PARAMS_B": 594,
       "NOTE": "Open-weights model from Thinking Machines. Intelligence: 12",
       "SOURCES": [
         [
@@ -1033,7 +1033,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/nemotron-3-ultra-550b-a55breasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 550,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: 12",
       "SOURCES": [
         [
@@ -1067,7 +1067,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/k-exaone-20",
-      "PARAMS_B": null,
+      "PARAMS_B": 60,
       "NOTE": "Open-weights model from LG AI Research. Intelligence: 8",
       "SOURCES": [
         [
@@ -1101,7 +1101,7 @@
       "CONTEXT": 192000,
       "CONTEXT_LABEL": "0.2M",
       "HF": "https://artificialanalysis.ai/models/command-a",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from Cohere. Intelligence: 6",
       "SOURCES": [
         [
@@ -1135,7 +1135,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/nemotron-35-lightning",
-      "PARAMS_B": null,
+      "PARAMS_B": 240,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: 6",
       "SOURCES": [
         [
@@ -1169,7 +1169,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/granite-42-3b",
-      "PARAMS_B": null,
+      "PARAMS_B": 3,
       "NOTE": "Open-weights model from IBM. Intelligence: 5",
       "SOURCES": [
         [
@@ -1203,7 +1203,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/granite-42-8b",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from IBM. Intelligence: 5",
       "SOURCES": [
         [
@@ -1237,7 +1237,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/mistral-medium-35",
-      "PARAMS_B": null,
+      "PARAMS_B": 123,
       "NOTE": "Open-weights model from Mistral. Intelligence: 5",
       "SOURCES": [
         [
@@ -1271,7 +1271,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/gemma-4-31breasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 31,
       "NOTE": "Open-weights model from Google. Intelligence: 4",
       "SOURCES": [
         [
@@ -1305,7 +1305,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/mistral-small-4reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 12,
       "NOTE": "Open-weights model from Mistral. Intelligence: 4",
       "SOURCES": [
         [
@@ -1339,7 +1339,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/north-mini-code",
-      "PARAMS_B": null,
+      "PARAMS_B": 2,
       "NOTE": "Open-weights model from Cohere. Intelligence: 3",
       "SOURCES": [
         [
@@ -1373,7 +1373,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/nvidia-nemotron-3-nano-4b",
-      "PARAMS_B": null,
+      "PARAMS_B": 4,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: 2",
       "SOURCES": [
         [
@@ -1407,7 +1407,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/ax-k2",
-      "PARAMS_B": null,
+      "PARAMS_B": 500,
       "NOTE": "Open-weights model from SK Telecom. Intelligence: None",
       "SOURCES": [
         [
@@ -1441,7 +1441,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/agnes-25-pro-beta",
-      "PARAMS_B": null,
+      "PARAMS_B": 800,
       "NOTE": "Open-weights model from Sapiens AI. Intelligence: None",
       "SOURCES": [
         [
@@ -1475,7 +1475,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/apertus-70b-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 70,
       "NOTE": "Open-weights model from Swiss AI Initiative. Intelligence: None",
       "SOURCES": [
         [
@@ -1509,7 +1509,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/apertus-8b-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from Swiss AI Initiative. Intelligence: None",
       "SOURCES": [
         [
@@ -1543,7 +1543,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/apriel-v16-15b-thinker",
-      "PARAMS_B": null,
+      "PARAMS_B": 15,
       "NOTE": "Open-weights model from ServiceNow. Intelligence: None",
       "SOURCES": [
         [
@@ -1577,7 +1577,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/celeris-1",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from Celeris. Intelligence: None",
       "SOURCES": [
         [
@@ -1611,7 +1611,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/cogito-v21reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from Deep Cogito. Intelligence: None",
       "SOURCES": [
         [
@@ -1645,7 +1645,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/command-a-2",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from Cohere. Intelligence: None",
       "SOURCES": [
         [
@@ -1679,7 +1679,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/deephermes-3-llama-31-8b-previewnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from Nous Research. Intelligence: None",
       "SOURCES": [
         [
@@ -1713,7 +1713,7 @@
       "CONTEXT": 32000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/deephermes-3-mistral-24b-previewnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 24,
       "NOTE": "Open-weights model from Nous Research. Intelligence: None",
       "SOURCES": [
         [
@@ -1747,7 +1747,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/deepseek-v4-flash-visionmax",
-      "PARAMS_B": null,
+      "PARAMS_B": 552,
       "NOTE": "Open-weights model from DeepSeek. Intelligence: None",
       "SOURCES": [
         [
@@ -1781,7 +1781,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/diffusiongemma-26b-a4b",
-      "PARAMS_B": null,
+      "PARAMS_B": 26,
       "NOTE": "Open-weights model from Google. Intelligence: None",
       "SOURCES": [
         [
@@ -1815,7 +1815,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/doubao-seed-code",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from ByteDance Seed. Intelligence: None",
       "SOURCES": [
         [
@@ -1849,7 +1849,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/ernie-45-300b-a47b",
-      "PARAMS_B": null,
+      "PARAMS_B": 300,
       "NOTE": "Open-weights model from Baidu. Intelligence: None",
       "SOURCES": [
         [
@@ -1883,7 +1883,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/ernie-50-thinking-preview",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Baidu. Intelligence: None",
       "SOURCES": [
         [
@@ -1917,7 +1917,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/exaone-40-32bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 32,
       "NOTE": "Open-weights model from LG AI Research. Intelligence: None",
       "SOURCES": [
         [
@@ -1951,7 +1951,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/exaone-45-33bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 33,
       "NOTE": "Open-weights model from LG AI Research. Intelligence: None",
       "SOURCES": [
         [
@@ -1985,7 +1985,7 @@
       "CONTEXT": 64000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/exaone-40-12bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 12,
       "NOTE": "Open-weights model from LG AI Research. Intelligence: None",
       "SOURCES": [
         [
@@ -2019,7 +2019,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/falcon-h1r-7b",
-      "PARAMS_B": null,
+      "PARAMS_B": 7,
       "NOTE": "Open-weights model from TII UAE. Intelligence: None",
       "SOURCES": [
         [
@@ -2053,7 +2053,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/g9v3-39a5b",
-      "PARAMS_B": null,
+      "PARAMS_B": 39,
       "NOTE": "Open-weights model from AI9Stars. Intelligence: None",
       "SOURCES": [
         [
@@ -2087,7 +2087,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/g9v3-3b",
-      "PARAMS_B": null,
+      "PARAMS_B": 3,
       "NOTE": "Open-weights model from AI9Stars. Intelligence: None",
       "SOURCES": [
         [
@@ -2121,7 +2121,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/gemini-3-deep-think",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Google. Intelligence: None",
       "SOURCES": [
         [
@@ -2155,7 +2155,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/gemini-31-pro-preview",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Google. Intelligence: None",
       "SOURCES": [
         [
@@ -2189,7 +2189,7 @@
       "CONTEXT": 32000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/gemma-3-270m",
-      "PARAMS_B": null,
+      "PARAMS_B": 0.27,
       "NOTE": "Open-weights model from Google. Intelligence: None",
       "SOURCES": [
         [
@@ -2223,7 +2223,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/gemma-4-12bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 12,
       "NOTE": "Open-weights model from Google. Intelligence: None",
       "SOURCES": [
         [
@@ -2257,7 +2257,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/gemma-4-26b-a4breasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 26,
       "NOTE": "Open-weights model from Google. Intelligence: None",
       "SOURCES": [
         [
@@ -2291,7 +2291,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/gemma-4-e2bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 2,
       "NOTE": "Open-weights model from Google. Intelligence: None",
       "SOURCES": [
         [
@@ -2325,7 +2325,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/gemma-4-e4bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 4,
       "NOTE": "Open-weights model from Google. Intelligence: None",
       "SOURCES": [
         [
@@ -2359,7 +2359,7 @@
       "CONTEXT": 33000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/granite-40-350m",
-      "PARAMS_B": null,
+      "PARAMS_B": 0.35,
       "NOTE": "Open-weights model from IBM. Intelligence: None",
       "SOURCES": [
         [
@@ -2393,7 +2393,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/granite-40-h-1b",
-      "PARAMS_B": null,
+      "PARAMS_B": 1,
       "NOTE": "Open-weights model from IBM. Intelligence: None",
       "SOURCES": [
         [
@@ -2427,7 +2427,7 @@
       "CONTEXT": 33000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/granite-40-h-350m",
-      "PARAMS_B": null,
+      "PARAMS_B": 0.35,
       "NOTE": "Open-weights model from IBM. Intelligence: None",
       "SOURCES": [
         [
@@ -2461,7 +2461,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/granite-40-h-small",
-      "PARAMS_B": null,
+      "PARAMS_B": 3,
       "NOTE": "Open-weights model from IBM. Intelligence: None",
       "SOURCES": [
         [
@@ -2495,7 +2495,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/granite-40-micro",
-      "PARAMS_B": null,
+      "PARAMS_B": 3,
       "NOTE": "Open-weights model from IBM. Intelligence: None",
       "SOURCES": [
         [
@@ -2529,7 +2529,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/granite-42-30b",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from IBM. Intelligence: None",
       "SOURCES": [
         [
@@ -2563,7 +2563,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/hermes-4-llama-31-405breasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 405,
       "NOTE": "Open-weights model from Nous Research. Intelligence: None",
       "SOURCES": [
         [
@@ -2597,7 +2597,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/hermes-4-llama-31-70bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 70,
       "NOTE": "Open-weights model from Nous Research. Intelligence: None",
       "SOURCES": [
         [
@@ -2631,7 +2631,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/hy3",
-      "PARAMS_B": null,
+      "PARAMS_B": 200,
       "NOTE": "Open-weights model from Tencent. Intelligence: None",
       "SOURCES": [
         [
@@ -2665,7 +2665,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/hyperclova-x-seed-think",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Naver. Intelligence: None",
       "SOURCES": [
         [
@@ -2699,7 +2699,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/hypernova-60b-2605high-based-on-gpt-oss-120b",
-      "PARAMS_B": null,
+      "PARAMS_B": 60,
       "NOTE": "Open-weights model from Multiverse Computing. Intelligence: None",
       "SOURCES": [
         [
@@ -2733,7 +2733,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/intellect-3based-on-glm-45-air",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from Prime Intellect. Intelligence: None",
       "SOURCES": [
         [
@@ -2767,7 +2767,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/jt-35b-flash",
-      "PARAMS_B": null,
+      "PARAMS_B": 35,
       "NOTE": "Open-weights model from China Mobile. Intelligence: None",
       "SOURCES": [
         [
@@ -2801,7 +2801,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/jt-mini",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from China Mobile. Intelligence: None",
       "SOURCES": [
         [
@@ -2835,7 +2835,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/jamba-17-large",
-      "PARAMS_B": null,
+      "PARAMS_B": 405,
       "NOTE": "Open-weights model from AI21 Labs. Intelligence: None",
       "SOURCES": [
         [
@@ -2869,7 +2869,7 @@
       "CONTEXT": 258000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/jamba-17-mini",
-      "PARAMS_B": null,
+      "PARAMS_B": 69,
       "NOTE": "Open-weights model from AI21 Labs. Intelligence: None",
       "SOURCES": [
         [
@@ -2903,7 +2903,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/jamba-reasoning-3b",
-      "PARAMS_B": null,
+      "PARAMS_B": 3,
       "NOTE": "Open-weights model from AI21 Labs. Intelligence: None",
       "SOURCES": [
         [
@@ -2937,7 +2937,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/k2-horizon-09b",
-      "PARAMS_B": null,
+      "PARAMS_B": 9,
       "NOTE": "Open-weights model from Institute of Foundation Models. Intelligence: None",
       "SOURCES": [
         [
@@ -2971,7 +2971,7 @@
       "CONTEXT": 524000,
       "CONTEXT_LABEL": "0.5M",
       "HF": "https://artificialanalysis.ai/models/k2-horizon-37b",
-      "PARAMS_B": null,
+      "PARAMS_B": 37,
       "NOTE": "Open-weights model from Institute of Foundation Models. Intelligence: None",
       "SOURCES": [
         [
@@ -3005,7 +3005,7 @@
       "CONTEXT": 524000,
       "CONTEXT_LABEL": "0.5M",
       "HF": "https://artificialanalysis.ai/models/k2-horizon-7b",
-      "PARAMS_B": null,
+      "PARAMS_B": 7,
       "NOTE": "Open-weights model from Institute of Foundation Models. Intelligence: None",
       "SOURCES": [
         [
@@ -3039,7 +3039,7 @@
       "CONTEXT": 524000,
       "CONTEXT_LABEL": "0.5M",
       "HF": "https://artificialanalysis.ai/models/k2-horizon-mova-36b-a4b",
-      "PARAMS_B": null,
+      "PARAMS_B": 36,
       "NOTE": "Open-weights model from Institute of Foundation Models. Intelligence: None",
       "SOURCES": [
         [
@@ -3073,7 +3073,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/k2-think-v2",
-      "PARAMS_B": null,
+      "PARAMS_B": 375,
       "NOTE": "Open-weights model from Institute of Foundation Models. Intelligence: None",
       "SOURCES": [
         [
@@ -3107,7 +3107,7 @@
       "CONTEXT": 512000,
       "CONTEXT_LABEL": "0.5M",
       "HF": "https://artificialanalysis.ai/models/k2-v2high",
-      "PARAMS_B": null,
+      "PARAMS_B": 375,
       "NOTE": "Open-weights model from Institute of Foundation Models. Intelligence: None",
       "SOURCES": [
         [
@@ -3141,7 +3141,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/kat-coder-pro-v2",
-      "PARAMS_B": null,
+      "PARAMS_B": 20,
       "NOTE": "Open-weights model from KwaiKAT. Intelligence: None",
       "SOURCES": [
         [
@@ -3175,7 +3175,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/kimi-k27-code",
-      "PARAMS_B": null,
+      "PARAMS_B": 1000,
       "NOTE": "Open-weights model from Kimi. Intelligence: None",
       "SOURCES": [
         [
@@ -3209,7 +3209,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/kimi-linear-48b-a3b-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 48,
       "NOTE": "Open-weights model from Kimi. Intelligence: None",
       "SOURCES": [
         [
@@ -3243,7 +3243,7 @@
       "CONTEXT": 33000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/lfm2-24b-a2b",
-      "PARAMS_B": null,
+      "PARAMS_B": 24,
       "NOTE": "Open-weights model from Liquid AI. Intelligence: None",
       "SOURCES": [
         [
@@ -3277,7 +3277,7 @@
       "CONTEXT": 32000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/lfm25-12b-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 12,
       "NOTE": "Open-weights model from Liquid AI. Intelligence: None",
       "SOURCES": [
         [
@@ -3311,7 +3311,7 @@
       "CONTEXT": 32000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/lfm25-12b-thinking",
-      "PARAMS_B": null,
+      "PARAMS_B": 12,
       "NOTE": "Open-weights model from Liquid AI. Intelligence: None",
       "SOURCES": [
         [
@@ -3345,7 +3345,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/lfm25-26b",
-      "PARAMS_B": null,
+      "PARAMS_B": 26,
       "NOTE": "Open-weights model from Liquid AI. Intelligence: None",
       "SOURCES": [
         [
@@ -3379,7 +3379,7 @@
       "CONTEXT": 33000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/lfm25-8b-a1b",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from Liquid AI. Intelligence: None",
       "SOURCES": [
         [
@@ -3413,7 +3413,7 @@
       "CONTEXT": 32000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/lfm25-vl-16b",
-      "PARAMS_B": null,
+      "PARAMS_B": 16,
       "NOTE": "Open-weights model from Liquid AI. Intelligence: None",
       "SOURCES": [
         [
@@ -3447,7 +3447,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/ling-30-tiny",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from InclusionAI. Intelligence: None",
       "SOURCES": [
         [
@@ -3481,7 +3481,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/ling-31-flash",
-      "PARAMS_B": null,
+      "PARAMS_B": 560,
       "NOTE": "Open-weights model from InclusionAI. Intelligence: None",
       "SOURCES": [
         [
@@ -3515,7 +3515,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/ling-30-flash-fin",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from InclusionAI. Intelligence: None",
       "SOURCES": [
         [
@@ -3549,7 +3549,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/ling-30-flash-vl",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from InclusionAI. Intelligence: None",
       "SOURCES": [
         [
@@ -3583,7 +3583,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/llama-31-instruct-405b",
-      "PARAMS_B": null,
+      "PARAMS_B": 405,
       "NOTE": "Open-weights model from Meta. Intelligence: None",
       "SOURCES": [
         [
@@ -3617,7 +3617,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/llama-31-nemotron-ultra-253b-v1reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 253,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: None",
       "SOURCES": [
         [
@@ -3651,7 +3651,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/llama-32-instruct-11b",
-      "PARAMS_B": null,
+      "PARAMS_B": 11,
       "NOTE": "Open-weights model from Meta. Intelligence: None",
       "SOURCES": [
         [
@@ -3685,7 +3685,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/llama-32-instruct-90b",
-      "PARAMS_B": null,
+      "PARAMS_B": 90,
       "NOTE": "Open-weights model from Meta. Intelligence: None",
       "SOURCES": [
         [
@@ -3719,7 +3719,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/llama-33-instruct-70b",
-      "PARAMS_B": null,
+      "PARAMS_B": 70,
       "NOTE": "Open-weights model from Meta. Intelligence: None",
       "SOURCES": [
         [
@@ -3753,7 +3753,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/llama-4-maverick",
-      "PARAMS_B": null,
+      "PARAMS_B": 500,
       "NOTE": "Open-weights model from Meta. Intelligence: None",
       "SOURCES": [
         [
@@ -3787,7 +3787,7 @@
       "CONTEXT": 10000000,
       "CONTEXT_LABEL": "10.0M",
       "HF": "https://artificialanalysis.ai/models/llama-4-scout",
-      "PARAMS_B": null,
+      "PARAMS_B": 35,
       "NOTE": "Open-weights model from Meta. Intelligence: None",
       "SOURCES": [
         [
@@ -3821,7 +3821,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/longcat-20",
-      "PARAMS_B": null,
+      "PARAMS_B": 24,
       "NOTE": "Open-weights model from LongCat. Intelligence: None",
       "SOURCES": [
         [
@@ -3855,7 +3855,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/longcat-flash-lite",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from LongCat. Intelligence: None",
       "SOURCES": [
         [
@@ -3889,7 +3889,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/magistral-medium-12",
-      "PARAMS_B": null,
+      "PARAMS_B": 123,
       "NOTE": "Open-weights model from Mistral. Intelligence: None",
       "SOURCES": [
         [
@@ -3923,7 +3923,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/magistral-small-12",
-      "PARAMS_B": null,
+      "PARAMS_B": 12,
       "NOTE": "Open-weights model from Mistral. Intelligence: None",
       "SOURCES": [
         [
@@ -3957,7 +3957,7 @@
       "CONTEXT": 260000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/mercury-25",
-      "PARAMS_B": null,
+      "PARAMS_B": 150,
       "NOTE": "Open-weights model from Inception. Intelligence: None",
       "SOURCES": [
         [
@@ -3991,7 +3991,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/midm-k-25-pro",
-      "PARAMS_B": null,
+      "PARAMS_B": 800,
       "NOTE": "Open-weights model from Korea Telecom. Intelligence: None",
       "SOURCES": [
         [
@@ -4025,7 +4025,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/minicpm-v-46-13b",
-      "PARAMS_B": null,
+      "PARAMS_B": 13,
       "NOTE": "Open-weights model from OpenBMB. Intelligence: None",
       "SOURCES": [
         [
@@ -4059,7 +4059,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/minicpm5-1breasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 1,
       "NOTE": "Open-weights model from OpenBMB. Intelligence: None",
       "SOURCES": [
         [
@@ -4093,7 +4093,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/minicpm5-2b",
-      "PARAMS_B": null,
+      "PARAMS_B": 2,
       "NOTE": "Open-weights model from OpenBMB. Intelligence: None",
       "SOURCES": [
         [
@@ -4127,7 +4127,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/ministral-3-14b",
-      "PARAMS_B": null,
+      "PARAMS_B": 14,
       "NOTE": "Open-weights model from Mistral. Intelligence: None",
       "SOURCES": [
         [
@@ -4161,7 +4161,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/ministral-3-3b",
-      "PARAMS_B": null,
+      "PARAMS_B": 3,
       "NOTE": "Open-weights model from Mistral. Intelligence: None",
       "SOURCES": [
         [
@@ -4195,7 +4195,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/ministral-3-8b",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from Mistral. Intelligence: None",
       "SOURCES": [
         [
@@ -4229,7 +4229,7 @@
       "CONTEXT": 4000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/molmo-7b-d",
-      "PARAMS_B": null,
+      "PARAMS_B": 7,
       "NOTE": "Open-weights model from Allen Institute for AI. Intelligence: None",
       "SOURCES": [
         [
@@ -4263,7 +4263,7 @@
       "CONTEXT": 37000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/molmo2-8b",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from Allen Institute for AI. Intelligence: None",
       "SOURCES": [
         [
@@ -4297,7 +4297,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/motif-3",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Motif Technologies. Intelligence: None",
       "SOURCES": [
         [
@@ -4331,7 +4331,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/motif-2-127b-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 127,
       "NOTE": "Open-weights model from Motif Technologies. Intelligence: None",
       "SOURCES": [
         [
@@ -4365,7 +4365,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/nvidia-nemotron-3-nano-30b-a3bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: None",
       "SOURCES": [
         [
@@ -4399,7 +4399,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/nvidia-nemotron-nano-12b-v2-vlreasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 12,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: None",
       "SOURCES": [
         [
@@ -4433,7 +4433,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/nvidia-nemotron-nano-9b-v2non-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 9,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: None",
       "SOURCES": [
         [
@@ -4467,7 +4467,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/nanbeige41-3b",
-      "PARAMS_B": null,
+      "PARAMS_B": 3,
       "NOTE": "Open-weights model from Nanbeige. Intelligence: None",
       "SOURCES": [
         [
@@ -4501,7 +4501,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/nemotron-3-nano-omni-30b-a3b-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: None",
       "SOURCES": [
         [
@@ -4535,7 +4535,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/nemotron-35-bolt-74b-a9b",
-      "PARAMS_B": null,
+      "PARAMS_B": 74,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: None",
       "SOURCES": [
         [
@@ -4569,7 +4569,7 @@
       "CONTEXT": 131000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/nemotron-35-bolt-e4b-4gbreasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 4,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: None",
       "SOURCES": [
         [
@@ -4603,7 +4603,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/nemotron-cascade-2-30b-a3b",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from NVIDIA. Intelligence: None",
       "SOURCES": [
         [
@@ -4637,7 +4637,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/nex-n2-probased-on-qwen35-397b-a17b",
-      "PARAMS_B": null,
+      "PARAMS_B": 397,
       "NOTE": "Open-weights model from Nex AGI. Intelligence: None",
       "SOURCES": [
         [
@@ -4671,7 +4671,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/nova-20-litehigh",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from Amazon. Intelligence: None",
       "SOURCES": [
         [
@@ -4705,7 +4705,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/nova-20-omnimedium",
-      "PARAMS_B": null,
+      "PARAMS_B": 80,
       "NOTE": "Open-weights model from Amazon. Intelligence: None",
       "SOURCES": [
         [
@@ -4739,7 +4739,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/nova-20-pro-previewmedium",
-      "PARAMS_B": null,
+      "PARAMS_B": 80,
       "NOTE": "Open-weights model from Amazon. Intelligence: None",
       "SOURCES": [
         [
@@ -4773,7 +4773,7 @@
       "CONTEXT": 130000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/nova-micro",
-      "PARAMS_B": null,
+      "PARAMS_B": 2,
       "NOTE": "Open-weights model from Amazon. Intelligence: None",
       "SOURCES": [
         [
@@ -4807,7 +4807,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/nova-premier",
-      "PARAMS_B": null,
+      "PARAMS_B": 80,
       "NOTE": "Open-weights model from Amazon. Intelligence: None",
       "SOURCES": [
         [
@@ -4841,7 +4841,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/olmo-3-7b-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 7,
       "NOTE": "Open-weights model from Allen Institute for AI. Intelligence: None",
       "SOURCES": [
         [
@@ -4875,7 +4875,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/olmo-3-7b-think",
-      "PARAMS_B": null,
+      "PARAMS_B": 7,
       "NOTE": "Open-weights model from Allen Institute for AI. Intelligence: None",
       "SOURCES": [
         [
@@ -4909,7 +4909,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/olmo-31-32b-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 32,
       "NOTE": "Open-weights model from Allen Institute for AI. Intelligence: None",
       "SOURCES": [
         [
@@ -4943,7 +4943,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/olmo-31-32b-think",
-      "PARAMS_B": null,
+      "PARAMS_B": 32,
       "NOTE": "Open-weights model from Allen Institute for AI. Intelligence: None",
       "SOURCES": [
         [
@@ -4977,7 +4977,7 @@
       "CONTEXT": 16000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/phi-4",
-      "PARAMS_B": null,
+      "PARAMS_B": 16,
       "NOTE": "Open-weights model from Microsoft. Intelligence: None",
       "SOURCES": [
         [
@@ -5011,7 +5011,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/phi-4-mini-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 3,
       "NOTE": "Open-weights model from Microsoft. Intelligence: None",
       "SOURCES": [
         [
@@ -5045,7 +5045,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/phi-4-multimodal-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 16,
       "NOTE": "Open-weights model from Microsoft. Intelligence: None",
       "SOURCES": [
         [
@@ -5079,7 +5079,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/quasar-438bmax-based-on-glm-52",
-      "PARAMS_B": null,
+      "PARAMS_B": 438,
       "NOTE": "Open-weights model from Multiverse Computing. Intelligence: None",
       "SOURCES": [
         [
@@ -5113,7 +5113,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen3-coder-next",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5147,7 +5147,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen3-next-80b-a3b",
-      "PARAMS_B": null,
+      "PARAMS_B": 80,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5181,7 +5181,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen3-next-80b-a3b-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 80,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5215,7 +5215,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/qwen3-omni-30b-a3b",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5249,7 +5249,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/qwen3-omni-30b-a3b-instruct",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5283,7 +5283,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen35-08bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5317,7 +5317,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen35-122b-a10bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 122,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5351,7 +5351,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen35-2bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 2,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5385,7 +5385,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen35-397b-a17breasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 397,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5419,7 +5419,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen35-4bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 4,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5453,7 +5453,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen35-9bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 9,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5487,7 +5487,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen35-omni-flash",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5521,7 +5521,7 @@
       "CONTEXT": 256000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen35-omni-plus",
-      "PARAMS_B": null,
+      "PARAMS_B": 32,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5555,7 +5555,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen36-35b-a3bnon-reasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 35,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5589,7 +5589,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/qwen37-plus",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5623,7 +5623,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/qwen38-24t-a95b",
-      "PARAMS_B": null,
+      "PARAMS_B": 95,
       "NOTE": "Open-weights model from Alibaba. Intelligence: None",
       "SOURCES": [
         [
@@ -5657,7 +5657,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/r1-1776",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from Perplexity. Intelligence: None",
       "SOURCES": [
         [
@@ -5691,7 +5691,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/reka-flash-3",
-      "PARAMS_B": null,
+      "PARAMS_B": 80,
       "NOTE": "Open-weights model from Reka AI. Intelligence: None",
       "SOURCES": [
         [
@@ -5725,7 +5725,7 @@
       "CONTEXT": 262000,
       "CONTEXT_LABEL": "0.3M",
       "HF": "https://artificialanalysis.ai/models/ring-26-1t",
-      "PARAMS_B": null,
+      "PARAMS_B": 1000,
       "NOTE": "Open-weights model from InclusionAI. Intelligence: None",
       "SOURCES": [
         [
@@ -5759,7 +5759,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/ring-flash-20",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from InclusionAI. Intelligence: None",
       "SOURCES": [
         [
@@ -5793,7 +5793,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/sarvam-105bhigh",
-      "PARAMS_B": null,
+      "PARAMS_B": 105,
       "NOTE": "Open-weights model from Sarvam. Intelligence: None",
       "SOURCES": [
         [
@@ -5827,7 +5827,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/sarvam-30bhigh",
-      "PARAMS_B": null,
+      "PARAMS_B": 30,
       "NOTE": "Open-weights model from Sarvam. Intelligence: None",
       "SOURCES": [
         [
@@ -5861,7 +5861,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/solar-mini-4",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from Upstage. Intelligence: None",
       "SOURCES": [
         [
@@ -5895,7 +5895,7 @@
       "CONTEXT": 128000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/solar-open-100breasoning",
-      "PARAMS_B": null,
+      "PARAMS_B": 100,
       "NOTE": "Open-weights model from Upstage. Intelligence: None",
       "SOURCES": [
         [
@@ -5929,7 +5929,7 @@
       "CONTEXT": 1000000,
       "CONTEXT_LABEL": "1.0M",
       "HF": "https://artificialanalysis.ai/models/solar-open2-250b",
-      "PARAMS_B": null,
+      "PARAMS_B": 250,
       "NOTE": "Open-weights model from Upstage. Intelligence: None",
       "SOURCES": [
         [
@@ -5963,7 +5963,7 @@
       "CONTEXT": 66000,
       "CONTEXT_LABEL": "0.1M",
       "HF": "https://artificialanalysis.ai/models/step3-vl-10b",
-      "PARAMS_B": null,
+      "PARAMS_B": 10,
       "NOTE": "Open-weights model from StepFun. Intelligence: None",
       "SOURCES": [
         [
@@ -5997,7 +5997,7 @@
       "CONTEXT": 8000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/tiny-aya-global",
-      "PARAMS_B": null,
+      "PARAMS_B": 8,
       "NOTE": "Open-weights model from Cohere. Intelligence: None",
       "SOURCES": [
         [
@@ -6031,7 +6031,7 @@
       "CONTEXT": 32000,
       "CONTEXT_LABEL": "0.0M",
       "HF": "https://artificialanalysis.ai/models/tri-21b-think",
-      "PARAMS_B": null,
+      "PARAMS_B": 21,
       "NOTE": "Open-weights model from Trillion Labs. Intelligence: None",
       "SOURCES": [
         [
@@ -6065,7 +6065,7 @@
       "CONTEXT": 512000,
       "CONTEXT_LABEL": "0.5M",
       "HF": "https://artificialanalysis.ai/models/trinity-large-thinking",
-      "PARAMS_B": null,
+      "PARAMS_B": 671,
       "NOTE": "Open-weights model from Arcee AI. Intelligence: None",
       "SOURCES": [
         [
