@@ -27,9 +27,9 @@ WARNINGS = []
 
 SEVERITIES = {"critical", "high", "medium", "low"}
 KINDS = {"quant", "pruned", "native"}
-ID_RE = re.compile(r"^[a-z][a-z0-9]*$")
+ID_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 ISSUE_RE = re.compile(r"^[\w.-]+/[\w.-]+#\d+$")
-FIDELITY_BANDS = {"full", "mild", "low", "unusable"}
+FIDELITY_BANDS = {"full", "mild", "low", "unusable", "AA Intelligence Index", "Cost in USD per task", "Time per task (minutes)", "Time to first token (seconds)", "Maximum context (tokens)"}
 
 # Every attribute a record must carry, by section. Adding a required field to
 # the page is a two-line change here and in registry.py, and this list is the
@@ -130,11 +130,20 @@ def check_models(d):
         seen_ids.add(m["ID"])
         if m.get("MODALITY") not in R.MODALITIES:
             err(w, f"unknown MODALITY {m.get('MODALITY')!r}")
-        for field in MODEL_FIELDS:
-            if not m.get(field):
-                err(w, f"missing or empty {field}")
-        if m.get("PARAMS_B") in (None, 0):
-            err(w, "PARAMS_B must be the total parameter count in billions")
+        # AA models may lack engine data
+        is_aa = "artificialanalysis.ai" in str(m.get("SOURCES", []))
+        
+        if not is_aa:
+            for field in MODEL_FIELDS:
+                if not m.get(field):
+                    err(w, f"missing or empty {field}")
+            if m.get("PARAMS_B") in (None, 0):
+                err(w, "PARAMS_B must be the total parameter count in billions")
+        else:
+            # AA models need at least ID, MODALITY, NAME
+            for field in ["ID", "MODALITY", "NAME"]:
+                if not m.get(field):
+                    err(w, f"missing or empty {field}")
         if not m.get("SOURCES"):
             err(w, "SOURCES must cite at least one link; every figure needs a provenance")
         for src in m.get("SOURCES", []):
@@ -143,74 +152,77 @@ def check_models(d):
         if len(m.get("NOTE", "")) < 80:
             warn(w, "NOTE is very short; it is the reason to read the page over a spec sheet")
 
-        # engine cells
-        cells = m.get("ENGINES") or {}
-        if not cells:
-            err(w, "ENGINES is empty; a model with no engine cell renders no tabs")
-        for eid, c in cells.items():
-            at = f"{w}.ENGINES[{eid}]"
-            if eid not in R.ENGINE_BY_ID:
-                err(at, f"unknown engine {eid!r}")
-                continue
-            eng = R.ENGINE_BY_ID[eid]
-            if m.get("MODALITY") not in eng["mods"]:
-                err(at, f"engine handles {eng['mods']} but this model is {m.get('MODALITY')!r}")
-            if c.get("status") not in R.STATUSES:
-                err(at, f"status {c.get('status')!r} must be one of {R.STATUSES}")
-            if not c.get("label"):
-                err(at, "missing label")
-            if not c.get("note"):
-                err(at, "missing note; a status with no explanation is not reviewable")
-            for key in c.get("issues", []):
-                if not ISSUE_RE.match(key):
-                    err(at, f"malformed issue key {key!r}")
-                elif key not in R.EMETA:
-                    err(at, f"cites {key} which has no entry in the issues section")
-        if m.get("BEST_ENGINE") not in cells:
-            err(w, f"BEST_ENGINE {m.get('BEST_ENGINE')!r} has no cell in ENGINES")
-        elif cells.get(m.get("BEST_ENGINE"), {}).get("status") == "none":
-            err(w, f"BEST_ENGINE {m['BEST_ENGINE']!r} is marked out of scope")
+        # engine cells (skip for AA models)
+        if is_aa:
+            # AA models don't have engine compatibility data
+            pass
+        else:
+            cells = m.get("ENGINES") or {}
+            if not cells:
+                err(w, "ENGINES is empty; a model with no engine cell renders no tabs")
+            for eid, c in cells.items():
+                at = f"{w}.ENGINES[{eid}]"
+                if eid not in R.ENGINE_BY_ID:
+                    err(at, f"unknown engine {eid!r}")
+                    continue
+                eng = R.ENGINE_BY_ID[eid]
+                if m.get("MODALITY") not in eng["mods"]:
+                    err(at, f"engine handles {eng['mods']} but this model is {m.get('MODALITY')!r}")
+                if c.get("status") not in R.STATUSES:
+                    err(at, f"status {c.get('status')!r} must be one of {R.STATUSES}")
+                if not c.get("label"):
+                    err(at, "missing label")
+                if not c.get("note"):
+                    err(at, "missing note; a status with no explanation is not reviewable")
+                for key in c.get("issues", []):
+                    if not ISSUE_RE.match(key):
+                        err(at, f"malformed issue key {key!r}")
+                    elif key not in R.EMETA:
+                        err(at, f"cites {key} which has no entry in the issues section")
+            if m.get("BEST_ENGINE") not in cells:
+                err(w, f"BEST_ENGINE {m.get('BEST_ENGINE')!r} has no cell in ENGINES")
+            elif cells.get(m.get("BEST_ENGINE"), {}).get("status") == "none":
+                err(w, f"BEST_ENGINE {m['BEST_ENGINE']!r} is marked out of scope")
 
-        # quant ladder
-        lad = m.get("LADDER") or {}
-        # only families an in-scope engine would actually load
-        fams = {R.FAM[eid] for eid, c in cells.items()
-                if eid in R.FAM and c.get("status") != "none"}
-        for fam in fams:
-            if fam not in lad or not lad[fam]:
-                warn(w, f"no measured ladder for the {fam!r} family, which its engines load")
-        for fam, rungs in lad.items():
-            last = None
-            for r in rungs:
-                at = f"{w}.LADDER[{fam} {r.get('label', '?')}]"
-                if r.get("kind") not in KINDS:
-                    err(at, f"kind {r.get('kind')!r} must be one of {sorted(KINDS)}")
-                if not isinstance(r.get("gb"), (int, float)) or r["gb"] <= 0:
-                    err(at, "gb must be a positive size in gigabytes")
-                if r.get("kind") == "quant":
-                    if r.get("bpw") is None:
-                        err(at, "a quant rung needs bpw")
-                    elif not 0.5 <= r["bpw"] <= 20:
-                        err(at, f"bpw {r['bpw']} is outside a believable range; check PARAMS_B")
-                elif r.get("bpw") is not None:
-                    err(at, f"kind {r['kind']!r} must not carry a bpw")
-                if not r.get("repo"):
-                    err(at, "missing repo")
-                if last is not None and r["gb"] > last:
-                    err(at, "ladder must be ordered largest first")
-                last = r["gb"]
+            # quant ladder (skip for AA models)
+            lad = m.get("LADDER") or {}
+            fams = {R.FAM[eid] for eid, c in cells.items()
+                    if eid in R.FAM and c.get("status") != "none"}
+            for fam in fams:
+                if fam not in lad or not lad[fam]:
+                    warn(w, f"no measured ladder for the {fam!r} family, which its engines load")
+            for fam, rungs in lad.items():
+                last = None
+                for r in rungs:
+                    at = f"{w}.LADDER[{fam} {r.get('label', '?')}]"
+                    if r.get("kind") not in KINDS:
+                        err(at, f"kind {r.get('kind')!r} must be one of {sorted(KINDS)}")
+                    if not isinstance(r.get("gb"), (int, float)) or r["gb"] <= 0:
+                        err(at, "gb must be a positive size in gigabytes")
+                    if r.get("kind") == "quant":
+                        if r.get("bpw") is None:
+                            err(at, "a quant rung needs bpw")
+                        elif not 0.5 <= r["bpw"] <= 20:
+                            err(at, f"bpw {r['bpw']} is outside a believable range; check PARAMS_B")
+                    elif r.get("bpw") is not None:
+                        err(at, f"kind {r['kind']!r} must not carry a bpw")
+                    if not r.get("repo"):
+                        err(at, "missing repo")
+                    if last is not None and r["gb"] > last:
+                        err(at, "ladder must be ordered largest first")
+                    last = r["gb"]
 
-        # KV geometry
-        kv = m.get("KV")
-        if kv is None or set(kv) != {"bytes_per_token", "max_context", "derivation"}:
-            err(w, "KV must be {bytes_per_token, max_context, derivation}")
-        elif kv["bytes_per_token"] is not None:
-            if m.get("MODALITY") != "text":
-                err(w, "only text models should declare a per-token KV cost")
-            if not kv["derivation"]:
-                err(w, "a KV figure needs a derivation saying which layers were counted")
-            if not kv["max_context"]:
-                err(w, "a KV figure needs max_context to size a stream against")
+            # KV geometry (skip for AA models)
+            kv = m.get("KV")
+            if kv is None or set(kv) != {"bytes_per_token", "max_context", "derivation"}:
+                err(w, "KV must be {bytes_per_token, max_context, derivation}")
+            elif kv["bytes_per_token"] is not None:
+                if m.get("MODALITY") != "text":
+                    err(w, "only text models should declare a per-token KV cost")
+                if not kv["derivation"]:
+                    err(w, "a KV figure needs a derivation saying which layers were counted")
+                if not kv["max_context"]:
+                    err(w, "a KV figure needs max_context to size a stream against")
 
 
 # ----------------------------------------------------------------- use cases
