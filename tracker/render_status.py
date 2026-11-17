@@ -862,11 +862,6 @@ STYLE = r"""
   .uc-slot-speed > i { background: #f59e0b; }
   .uc-slot-latency > i { background: #ef4444; }
   .uc-slot-context > i { background: #06b6d4; }
-  .uc-slot-intelligence > i { background: #8b5cf6; }
-  .uc-slot-cost > i { background: #10b981; }
-  .uc-slot-speed > i { background: #f59e0b; }
-  .uc-slot-latency > i { background: #ef4444; }
-  .uc-slot-context > i { background: #06b6d4; }
   .ix-strip { display: flex; gap: 3px; flex-wrap: wrap; }
   .sq { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--panel-3);
     box-shadow: inset 0 0 0 1px var(--line); }
