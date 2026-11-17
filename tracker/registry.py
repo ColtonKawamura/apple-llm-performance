@@ -94,11 +94,15 @@ RELEASE_FEEDS = [dict(m["RELEASE_FEED"], engine=m["ID"])
 
 # ---------------------------------------------------------------------- models
 def _model(m):
-    d = {"id": m["ID"], "mod": m["MODALITY"], "name": m["NAME"], "arch": m["ARCH"],
-         "lic": m["LICENSE"], "ctx": m["CONTEXT"], "hf": m["HF"], "note": m["NOTE"],
+    d = {"id": m["ID"], "mod": m.get("MODALITY", "text"), "name": m["NAME"], "arch": m.get("ARCH", ""),
+         "lic": m.get("LICENSE", ""), "ctx": m.get("CONTEXT"), "hf": m.get("HF", ""), "note": m.get("NOTE", ""),
          "srcs": [tuple(x) for x in m.get("SOURCES", [])],
-         "agentic": [tuple(x) for x in m.get("SCORES", {}).get("agentic", [])],
-         "coding": [tuple(x) for x in m.get("SCORES", {}).get("coding", [])],
+         # AA metrics
+         "intelligence": m.get("SCORES", {}).get("intelligence"),
+         "cost": m.get("SCORES", {}).get("cost"),
+         "speed": m.get("SCORES", {}).get("speed"),
+         "latency": m.get("SCORES", {}).get("latency"),
+         "context": m.get("SCORES", {}).get("context"),
          "w": 0.0, "est": False}
     if m.get("CONTEXT_LABEL"):
         d["ctx_label"] = m["CONTEXT_LABEL"]
@@ -110,17 +114,19 @@ def _model(m):
 
 MODELS = [_model(m) for m in MODEL_MODULES]
 MODEL_BY_ID = {m["id"]: m for m in MODELS}
-PARAMS = {m["ID"]: m["PARAMS_B"] for m in MODEL_MODULES}
+PARAMS = {m["ID"]: m.get("PARAMS_B") for m in MODEL_MODULES}
 LADDERS = {m["ID"]: (m.get("LADDER") or {}) for m in MODEL_MODULES}
 QUANT_SOURCES = {m["ID"]: (m.get("QUANT_SOURCES") or {}) for m in MODEL_MODULES}
-KV = {m["ID"]: (m["KV"]["bytes_per_token"], m["KV"]["max_context"], m["KV"]["derivation"])
+KV = {m["ID"]: ((m.get("KV") or {}).get("bytes_per_token", 0),
+       (m.get("KV") or {}).get("max_context"),
+       (m.get("KV") or {}).get("derivation", ""))
       for m in MODEL_MODULES}
-BEST = {m["ID"]: m["BEST_ENGINE"] for m in MODEL_MODULES}
+BEST = {m["ID"]: m.get("BEST_ENGINE") for m in MODEL_MODULES}
 
 MATRIX = {
-    m["ID"]: {eid: {"s": c["status"], "label": c["label"], "w": None, "q": None,
-                    "note": c["note"], "items": list(c["issues"])}
-              for eid, c in m["ENGINES"].items()}
+    m["ID"]: {eid: {"s": c.get("status", "none"), "label": c.get("label", ""), "w": None, "q": None,
+                    "note": c.get("note", ""), "items": list(c.get("issues", []))}
+              for eid, c in m.get("ENGINES", {}).items()}
     for m in MODEL_MODULES
 }
 

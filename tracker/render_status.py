@@ -77,8 +77,10 @@ def slug(name):
 
 def best_cell(m):
     """The engine a model card opens on."""
-    eid = BEST[m["id"]]
-    return eid, MATRIX[m["id"]][eid]
+    eid = BEST.get(m["id"])
+    if not eid:
+        return None, None
+    return eid, MATRIX.get(m["id"], {}).get(eid)
 
 
 def fam_for(eid, mid):
@@ -87,7 +89,8 @@ def fam_for(eid, mid):
 
 def ladder_for(eid, mid):
     """Measured rungs this engine can load for this model, largest first."""
-    if MATRIX[mid][eid]["s"] == "none":
+    c = MATRIX.get(mid, {}).get(eid)
+    if c is None or c["s"] == "none":
         return []
     return LADDERS.get(mid, {}).get(fam_for(eid, mid), [])
 
@@ -146,11 +149,13 @@ def engine_payload(m):
     engines.
     """
     mid = m["id"]
-    best = BEST[mid]
+    best = BEST.get(mid)
     rank = {"ready": 0, "degraded": 1, "blocked": 2, "unknown": 3}
     out = []
     for eid in engine_order(mid):
-        c = MATRIX[mid][eid]
+        c = MATRIX.get(mid, {}).get(eid)
+        if c is None:
+            continue
         lad = ladder_for(eid, mid)
         if not lad:
             continue
@@ -182,19 +187,25 @@ def index_rows(rows):
     out = []
     for m in sorted(MODELS, key=lambda m: m["name"].casefold()):
         eid, c = best_cell(m)
-        lad = ladder_for(eid, m["id"])
-        gb = lad[-1]["gb"] if lad else m["w"]
+        if c is None:
+            # No engine data for this model
+            c = {"s": "none", "label": "AA"}
+            sc = "unknown"
+        else:
+            sc = SCLASS.get(c["s"], "unknown")
+        lad = ladder_for(eid, m["id"]) if eid else []
+        gb = lad[-1]["gb"] if lad else m.get("w", 0)
         payload = html.escape(json.dumps(model_payload(m)), quote=True)
         out.append(f"""
-        <a class="ix-row v-{SCLASS[c['s']]}" href="#{m['id']}" data-model="{m['id']}"
-           data-sw="{SCLASS[c['s']]}" data-swlabel="{html.escape(c['label'])}"
+        <a class="ix-row v-{sc}" href="#{m['id']}" data-model="{m['id']}"
+           data-sw="{sc}" data-swlabel="{html.escape(c['label'])}"
            data-mod="{modality(m)}" data-payload="{payload}">
           <span class="ix-rank" aria-hidden="true"></span>
           <span class="ix-id"><span class="ix-name"><em>{html.escape(m['name'])}</em></span>
           <span class="ix-bars" aria-hidden="true">{lanes}<span class="ix-lane ix-lane-avg"><i></i></span></span></span>
           {support_strip(m)}
-          <span class="ix-verdict"><span class="ix-status v-{SCLASS[c['s']]}">{html.escape(c['label'])}</span>
-          <span class="ix-eng">{html.escape(ENGINE_BY_ID[eid]['name'])}</span></span>
+          <span class="ix-verdict"><span class="ix-status v-{sc}">{html.escape(c['label'])}</span>
+          <span class="ix-eng">{"N/A" if not eid else html.escape(ENGINE_BY_ID.get(eid, {}).get('name', 'N/A'))}</span></span>
           <span class="ix-fit"><span class="ix-fit-top"><span class="ix-size">{gb:.0f} GB</span>
           <span class="ix-meta fit"></span></span>
           <span class="ix-meter" aria-hidden="true"><i></i></span></span>
@@ -324,10 +335,16 @@ def engine_meta_line(e):
 
 def engine_tabs(m, rows):
     mid, order = m["id"], engine_order(m["id"])
+    # If no engine data, skip tabs
+    if not MATRIX.get(mid):
+        return "", ""
     tabs, panes = [], []
     for i, eid in enumerate(order):
-        c, e = MATRIX[mid][eid], ENGINE_BY_ID[eid]
-        sc = SCLASS[c["s"]]
+        c = MATRIX[mid].get(eid)
+        if c is None:
+            continue
+        e = ENGINE_BY_ID[eid]
+        sc = SCLASS.get(c["s"], "unknown")
         sel = "true" if i == 0 else "false"
         n_open = sum(1 for k in c["items"] if rows.get(k, "open").lower() == "open")
         tabs.append(f"""
@@ -483,12 +500,21 @@ def news_panel():
 
 
 def score_block(m):
-    cols = [(cat, m[k]) for cat, k in (("Agentic", "agentic"), ("Coding", "coding")) if m[k]]
+    # AA metrics
+    aa_scores = [(cat, m.get(k)) for cat, k in (
+        ("Intelligence", "intelligence"),
+        ("Cost", "cost"),
+        ("Speed", "speed"),
+        ("Latency", "latency"),
+        ("Context", "context"),
+    )]
+    cols = [(cat, val) for cat, val in aa_scores if val is not None]
     if not cols:
         return ""
-    body = "".join(f"""<div class="score-col"><span class="score-cat">{cat}</span>{scores(p)}</div>"""
-                   for cat, p in cols)
-    return f"""<div class="scores-wrap"><span class="q-cat">Benchmark scores</span>
+    body = "".join(f"""<div class="score-col"><span class="score-cat">{cat}</span>
+    <span class="score-val">{val}</span></div>"""
+                   for cat, val in cols)
+    return f"""<div class="scores-wrap"><span class="q-cat">AA Metrics</span>
           <div class="scores">{body}</div></div>"""
 
 
@@ -521,7 +547,12 @@ def render():
     cards = []
     for m in MODELS:
         eid, c = best_cell(m)
-        sc = SCLASS[c["s"]]
+        if c is None:
+            # No engine data for this model (AA models)
+            sc = "unknown"
+            c = {"s": "none", "label": "AA"}
+        else:
+            sc = SCLASS[c["s"]]
         payload = html.escape(json.dumps(model_payload(m)), quote=True)
         cards.append(f"""
     <section class="model v-{sc}" id="card-{m['id']}" data-model="{m['id']}" data-sw="{sc}"
@@ -534,7 +565,7 @@ def render():
         <dl class="spec">
           <div><dt>Architecture</dt><dd>{html.escape(m['arch'])}</dd></div>
           <div><dt>License</dt><dd>{html.escape(m['lic'])}</dd></div>
-          <div><dt>{html.escape(m.get('ctx_label', 'Context'))}</dt><dd>{html.escape(m['ctx'])}</dd></div>
+          <div><dt>{html.escape(m.get('ctx_label', 'Context'))}</dt><dd>{html.escape(str(m['ctx']) if m['ctx'] is not None else 'N/A')}</dd></div>
         </dl>
         <div class="model-gauge" hidden aria-hidden="true">
           <div class="mem-bar"><i class="mb-w"></i><i class="mb-o"></i><i class="mb-f"></i></div>
@@ -1512,13 +1543,13 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         rung = chosen.ladder[chosen.ladder.length - 1];
       }}
       if (!chosen) {{
-        var f0 = el.querySelector(".fit");
-        if (f0) f0.textContent = "no build published";
-        return;
-      }}
-
-      var f = fitDetail(rung.gb, over, kvWord);
-      var bd = band(rung);
+        // AA model: no engine data; set defaults so rankings still work
+        var aaGb = pl.w || 0;
+        var f = fitDetail(aaGb, over, "");
+        var cls = "unknown", label = "AA";
+      }} else {{
+        var f = fitDetail(rung.gb, over, kvWord);
+        var bd = band(rung);
       var cls, label;
       if (chosen.s === "blocked" || chosen.s === "unknown") {{
         cls = chosen.s; label = chosen.label;
@@ -1531,17 +1562,26 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       }} else {{
         cls = chosen.s; label = chosen.label;
       }}
+    }}
 
       if (el.classList.contains("ix-row")) {{
-        el.__pick = {{ model: el.querySelector(".ix-name").textContent.trim(), engine: chosen.name,
-                      engineId: chosen.id, gb: rung.gb, bpw: rung.bpw, band: bd.k,
-                      tooBig: f.tooBig || bd.k === "unusable" || chosen.s === "blocked" }};
+        // Set __pick for rankings
+        var pickGb = chosen ? rung.gb : (pl.w || 0);
+        var pickBand = chosen ? bd.k : "full";
+        var pickTooBig = chosen
+          ? (f.tooBig || bd.k === "unusable" || chosen.s === "blocked")
+          : f.tooBig;
+        el.__pick = {{ model: el.querySelector(".ix-name").textContent.trim(),
+                      engine: chosen ? chosen.name : "AA",
+                      engineId: chosen ? chosen.id : "aa",
+                      gb: pickGb, bpw: chosen ? rung.bpw : 16,
+                      band: pickBand, tooBig: pickTooBig }};
         el.className = "ix-row v-" + cls;
         var st = el.querySelector(".ix-status");
         st.className = "ix-status v-" + cls;
         st.textContent = label;
-        el.querySelector(".ix-eng").textContent = chosen.name;
-        el.querySelector(".ix-size").textContent = fmt(rung.gb);
+        el.querySelector(".ix-eng").textContent = chosen ? chosen.name : "AA";
+        el.querySelector(".ix-size").textContent = chosen ? fmt(rung.gb) : fmt(pl.w || 0);
         el.querySelector(".fit").textContent = f.short;
         var meter = el.querySelector(".ix-meter i");
         if (meter) {{
@@ -1555,7 +1595,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       // Open the card on the engine the glance row names for this cluster, so the
       // two never disagree - unless the reader has already picked a tab by hand.
       var grp = el.querySelector(".eng");
-      if (grp && !grp.hasAttribute("data-user-picked")) {{
+      if (grp && chosen && !grp.hasAttribute("data-user-picked")) {{
         var want = grp.querySelector('.eng-tab[data-eng="' + chosen.id + '"]');
         if (want && want.getAttribute("aria-selected") !== "true") {{
           grp.querySelectorAll(".eng-tab").forEach(function (t) {{
@@ -1571,17 +1611,24 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       vb.textContent = label;
       var mg = el.querySelector(".model-gauge");
       if (mg) {{
-        mg.hidden = chosen.s === "blocked" || f.tooBig;
-        if (!mg.hidden) setMem(mg.querySelector(".mem-bar"), rung.gb, over, f);
+        mg.hidden = chosen ? (chosen.s === "blocked" || f.tooBig) : f.tooBig;
+        if (!mg.hidden && chosen) setMem(mg.querySelector(".mem-bar"), rung.gb, over, f);
+        if (!mg.hidden && !chosen) setMem(mg.querySelector(".mem-bar"), pl.w || 0, over, f);
       }}
       var mf = el.querySelector(".model-fit");
       if (mf) {{
         mf.className = "model-fit" + (f.tooBig ? " toolarge" : "");
-        mf.textContent = chosen.s === "blocked"
-          ? "No engine here can load this yet \u2014 see the tabs below for why."
-          : f.tooBig
-            ? "Does not fit. Smallest build is " + chosen.name + " at " + fmt(rung.gb) + ", which " + f.text + "."
-            : "Best fit here: " + chosen.name + ", " + fmt(rung.gb) + " of weights, " + f.text + ".";
+        if (chosen) {{
+          mf.textContent = chosen.s === "blocked"
+            ? "No engine here can load this yet \u2014 see the tabs below for why."
+            : f.tooBig
+              ? "Does not fit. Smallest build is " + chosen.name + " at " + fmt(rung.gb) + ", which " + f.text + "."
+              : "Best fit here: " + chosen.name + ", " + fmt(rung.gb) + " of weights, " + f.text + ".";
+        }} else {{
+          mf.textContent = f.tooBig
+            ? "Does not fit. Model is " + fmt(pl.w || 0) + ", which " + f.text + "."
+            : "Model weights: " + fmt(pl.w || 0) + ", " + f.text + ".";
+        }}
       }}
 
       // Each engine tab reports its own rung on the same cluster.
