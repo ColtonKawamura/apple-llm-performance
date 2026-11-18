@@ -6089,6 +6089,88 @@
         "derivation": ""
       },
       "ENGINES": {}
+    },
+    {
+      "ID": "zonos3mini",
+      "NAME": "ZONOS3-Mini",
+      "MODALITY": "audio",
+      "ARCH": "Latent MoE 0.8B (100M active) - hybrid GDN (9 linear + 2 full-attn) - 10-codebook iSTFT TTS head",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "44.1 kHz mono",
+      "CONTEXT_LABEL": "Output",
+      "HF": "Zyphra/ZONOS3-Mini",
+      "PARAMS_B": 0.8,
+      "NOTE": "Zyphra's 800M-parameter open TTS (about 100M active per token, latent MoE): 43 languages, 27 built-in voices, voice cloning from a reference clip, 44.1 kHz mono. MLX-Audio lists it in its TTS table and mlx-community ships the quants; llama.cpp merged mtmd support in November 2026 and ggml-org ships the GGUFs.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/Zyphra/ZONOS3-Mini"
+        ],
+        [
+          "Technical report",
+          "https://arxiv.org/abs/2611.16525"
+        ],
+        [
+          "Zyphra blog",
+          "https://www.zyphra.com/our-work/zonos3-mini"
+        ],
+        [
+          "llama.cpp mtmd support",
+          "https://github.com/ggml-org/llama.cpp/pull/32020"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mlxaudio",
+      "ENGINES": {
+        "mlxaudio": {
+          "status": "works",
+          "label": "Runs",
+          "note": "In MLX-Audio's TTS table with mlx-community/ZONOS3-Mini; the engine's model README ships CLI and Python examples with the 27 built-in voices, voice cloning and streaming. llama.cpp also merged mtmd TTS support in November 2026 (PR 32020) and ggml-org ships BF16 and Q8_0 GGUFs.",
+          "issues": []
+        }
+      },
+      "QUANT_SOURCES": {
+        "mlx": [
+          "mlx-community/ZONOS3-Mini",
+          "mlx-community/ZONOS3-Mini-swift-ptq"
+        ],
+        "gguf": [
+          "ggml-org/ZONOS3-Mini-GGUF"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": null,
+        "derivation": ""
+      },
+      "ranks": [],
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "ZONOS3-Mini",
+            "repo": "mlx-community/ZONOS3-Mini",
+            "gb": 1.41,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "ZONOS3-Mini-swift-ptq",
+            "repo": "mlx-community/ZONOS3-Mini-swift-ptq",
+            "gb": 1.28,
+            "kind": "native",
+            "bpw": null
+          }
+        ],
+        "gguf": [
+          {
+            "label": "ZONOS3-Mini-BF16",
+            "repo": "ggml-org/ZONOS3-Mini-GGUF",
+            "gb": 1.61,
+            "kind": "native",
+            "bpw": null
+          }
+        ]
+      }
     }
   ],
   "engines": [
