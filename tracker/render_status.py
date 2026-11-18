@@ -1298,7 +1298,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   }};
   var GENS = ["M5", "M4", "M3", "M2", "M1"];
   var USE_CASES = {usecases};
-  var BAND_RANK = {{ full: 0, mild: 1, low: 2, pruned: 2, unusable: 3 }};
+  var BAND_RANK = {{ full: 0, mild: 1, low: 2, pruned: 2, unusable: 3, aaGb: 0 }};
   var ORDER = Object.keys(MACHINES);
   var MAX_UNITS = 6, PRACTICAL_UNITS = 4, OS_HOLD = 15;
   // Framework overhead. The larger figure covers an LLM server's KV pool and
