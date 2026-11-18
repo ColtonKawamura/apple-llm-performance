@@ -10,3 +10,6 @@ node_modules/
 
 # local state of tracker/nightly.py (decisions, acks, logs)
 .cache/
+
+# API keys and secrets
+.env
