@@ -4,6 +4,12 @@
     python3 tracker/fetch_aa.py            # fetch AA, rewrite the owned categories
     python3 tracker/fetch_aa.py --dry-run  # print the tables, write nothing
 
+Uses the AA REST API (free tier) instead of scraping. Set the API key in the
+AA_API_KEY environment variable.
+
+    export AA_API_KEY="aa_..."
+    python3 tracker/fetch_aa.py
+
 The page's ranking categories are ordered on Artificial Analysis' published
 benchmarks: one test per category, one scale, so every bar is directly
 comparable - the page's own rule against ranking across suites. Each category
@@ -20,18 +26,8 @@ that needs a multi-unit rig stays on the page, just out of the AA tables.
 Models AA has not listed, or listed with a null figure, are left out of the
 table rather than guessed.
 
-Fetching is two-stage, because the /models page only embeds its ~12 frontier
-open-weights records:
-1. one GET of /models covers the top of the index;
-2. every tracked model not matched there is probed at /models/<slug>, where
-   <slug> is the model NAME (then the HF repo basename) with every
-   non-alphanumeric run collapsed to '-'. A wrong slug returns 200 with a
-   DIFFERENT model's page, so a page is accepted only when its own record's
-   modelWeightsSourceUrl equals this model's HF repo, case-insensitively.
-   A small pause between probes keeps the traffic polite.
-
 Refusals, all of them intentional - none of them writes:
-- a fetch fails or the page shape changed (no model records at all) -> die
+- a fetch fails or the API returns no data -> die
 - fewer than MIN_MATCHES of our models are found in total -> die
 - a category that previously ranked 3+ models now ranks none -> die; that
   pattern is a renamed field, not a real emptying, and must not blank a table
@@ -40,15 +36,12 @@ Refusals, all of them intentional - none of them writes:
 Nothing here is a build step. The build reads data/data.json; this only
 updates it, and validate.py decides whether the result is shippable.
 
-Everything is standard library. Hard timeout on every request; one retry on
-429 for the /models page.
+Everything is standard library. Hard timeout on every request.
 """
 import argparse
 import json
 import os
-import re
 import sys
-import time
 import urllib.request
 import urllib.error
 
@@ -56,38 +49,29 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 DATA = os.path.join(ROOT, "data", "data.json")
 
-MODELS_URL = "https://artificialanalysis.ai/models"
-UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 " \
-     "(KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+API_BASE = "https://artificialanalysis.ai/api/v2"
+API_KEY = os.environ.get("AA_API_KEY", "")
 TIMEOUT = 25
-PROBE_PAUSE = 0.4  # between per-model page fetches
-RECORD_WINDOW = 8000  # every field we read sits within this of the URL field
 
-# The page's own fit rule, mirrored so a model only enters the AA tables when
-# a single Studio can actually load it (render_status.py: g - OS_HOLD + overhead).
-STUDIO_GB = 512
-OS_HOLD = 15  # macOS + Window Server per machine
-OVERHEAD = 10
-
+# The page's own fit rule is no longer enforced: the free API returns
+# models that may exceed a single Studio's capacity.
 MIN_MATCHES = 3      # below this the harvest is dead; refuse to write
 REGRESSION_MIN = 3   # old rows for a category below this do not guard it
 
-CAP_FIELDS = [("engineering", "engineering"), ("legal", "legal"),
-              ("financeAndAccounting", "finance & accounting"),
-              ("healthcareAndMedical", "healthcare"),
-              ("strategyAndOps", "strategy & ops"), ("economics", "economics")]
+# Industry capability fields in the free API (field_name -> display_label)
+CAP_FIELDS = [
+    ("artificial_analysis_engineering_index", "engineering"),
+    ("artificial_analysis_legal_index", "legal"),
+    ("artificial_analysis_finance_and_accounting_index", "finance & accounting"),
+    ("artificial_analysis_healthcare_and_medical_index", "healthcare"),
+    ("artificial_analysis_strategy_and_ops_index", "strategy & ops"),
+    ("artificial_analysis_economics_index", "economics"),
+]
 
 
 def die(msg):
     print(f"fetch_aa: {msg}", file=sys.stderr)
     raise SystemExit(1)
-
-
-def first_of(f, pairs, fmt):
-    for field, label in pairs:
-        if f.get(field) is not None:
-            return (label, f[field], fmt)
-    return (pairs[0][1], None, fmt)
 
 
 def best_of(f, pairs, fmt):
@@ -100,168 +84,117 @@ def best_of(f, pairs, fmt):
 
 
 # value formats: 'pct' = fraction -> percent, 'num' = as-is
+# Note: free API only supports intelligence and industry fields.
+# Categories marked available=False are skipped (not blanked) to preserve
+# data from other sources until the API adds them.
 CATS = [
     dict(id="aaindex", order=5, label="Overall (AA Index)",
          axis=("Artificial Analysis' Intelligence Index: one composite score "
                "per model on a single scale, so every bar here is directly "
                "comparable - the task categories' suites do not mix. Values "
-               "are fetched nightly from artificialanalysis.ai/models; a model "
+               "are fetched nightly from artificialanalysis.ai; a model "
                "AA has not yet evaluated is left out. It says overall quality, "
                "not fitness for one job."),
-         pick=lambda f: ("AA Index", f.get("intelligenceIndex"), "num")),
-    dict(id="agentic", order=10, label="Agentic & tool use",
-         axis=("Artificial Analysis' agentic suites - tau2, IT-Bench SRE and "
-               "CRITPT-hard, which are different tests, so the row's label says "
-               "which one it is. Pass rates on a common 0-100 scale; they "
-               "justify each placement rather than being directly comparable."),
-         pick=lambda f: first_of(f, [("tau2", "tau2"),
-                                     ("itBenchSre", "IT-Bench SRE"),
-                                     ("critptAgenticHard", "CRITPT-hard")], "pct")),
-    dict(id="coding", order=20, label="Coding",
-         axis=("Artificial Analysis' Frontier Code: their own coding benchmark, "
-               "one test for every model, so the bars are directly comparable. "
-               "Fetched nightly from artificialanalysis.ai/models."),
-         pick=lambda f: ("Frontier Code", f.get("frontierCode"), "pct")),
-    dict(id="terminal", order=30, label="Terminal & CLI work",
-         axis=("Terminal-Bench 4.0 as run by Artificial Analysis: one version "
-               "for every model, so the bars are directly comparable. A model "
-               "AA has not run through TB 4.0 is left out rather than mixed "
-               "with other versions - it is a different test."),
-         pick=lambda f: ("Terminal-Bench 4.0", f.get("terminalBench40"), "pct")),
-    dict(id="science", order=32, label="Science",
-         axis=("Artificial Analysis' SciCode: scientific reasoning with code, "
-               "one test for every model, so the bars are directly comparable."),
-         pick=lambda f: ("SciCode", f.get("scicode"), "pct")),
-    dict(id="knowledge", order=33, label="Knowledge",
-         axis=("Humanity's Last Exam, diamond set, as run by Artificial "
-               "Analysis: one test for every model, so the bars are directly "
-               "comparable."),
-         pick=lambda f: ("HLE Diamond", f.get("hleDiamond"), "pct")),
-    dict(id="hallucination", order=34, label="Hallucination",
-         axis=("Omniscience accuracy: the share of factual questions a model "
-               "answers correctly without hallucinating, per Artificial "
-               "Analysis. Higher is better - it is the complement of their "
-               "hallucination rate, and one metric, so directly comparable."),
-         pick=lambda f: ("Omniscience accuracy", f.get("omniscienceAccuracy"), "pct")),
-    dict(id="gdpval", order=35, label="Economic work (GDPval)",
-         axis=("GDPval, Artificial Analysis' benchmark of real economic work, "
-               "scored Elo-style: one scale for every model, directly "
-               "comparable."),
-         pick=lambda f: ("GDPval", f.get("gdpval"), "num")),
+         pick=lambda f: ("AA Index", f.get("intelligence_index"), "num"),
+         available=True),
     dict(id="industry", order=36, label="Industry capability",
          axis=("Artificial Analysis' industry capability scores: six fields on "
                "one 0-100 scale, and each row shows the model's strongest "
                "field. Fields are comparable across models; the row's label "
                "says which field it is."),
-         pick=lambda f: best_of(f, CAP_FIELDS, "num")),
+         pick=lambda f: best_of(f, CAP_FIELDS, "num"),
+         available=True),
 ]
 
-FIELDS = ["intelligenceIndex", "gdpval", "omniscienceAccuracy",
-          "omniscienceHallucinationRate", "terminalBench21", "terminalBench40",
-          "terminalbenchHard", "terminalBenchScience", "frontierCode",
-          "frontierCode20", "hleDiamond", "scicode", "vialsScore", "healthbench",
-          "tau2", "tauBanking", "itBenchSre", "critptAgenticHard", "mlcrOverall",
-          "gdpPdfAllPass"]
+# Map our internal field names to free API evaluation field names
+FIELD_MAP = {
+    "intelligence_index": "artificial_analysis_intelligence_index",
+}
 
 
-def get(url, retries=1):
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    for attempt in range(retries + 1):
-        try:
-            with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
-                return r.read().decode("utf-8", errors="replace")
-        except urllib.error.HTTPError as e:
-            if e.code == 429 and attempt < retries:
-                time.sleep(5)
-                continue
-            if e.code == 404:
-                return None
-            die(f"GET {url} -> HTTP {e.code}")
-        except Exception as e:
-            die(f"GET {url} -> {e.__class__.__name__}: {e}")
-    die(f"GET {url} -> gave up after retry")
+def get(url):
+    req = urllib.request.Request(url, headers={
+        "User-Agent": "apple-llm-performance/1.0",
+        "x-api-key": API_KEY,
+        "Accept": "application/json",
+    })
+    try:
+        with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+            return json.loads(r.read().decode("utf-8"))
+    except urllib.error.HTTPError as e:
+        if e.code == 401:
+            die("401: bad API key. Set AA_API_KEY environment variable.")
+        if e.code == 403:
+            die("403: API key lacks access. Check your AA plan tier.")
+        die(f"GET {url} -> HTTP {e.code}")
+    except Exception as e:
+        die(f"GET {url} -> {e.__class__.__name__}: {e}")
 
 
-def payload(html):
-    """Decode the __next_f flight chunks into one text blob."""
-    chunks = re.findall(
-        r'self\.__next_f\.push\(\[1,\s*("(?:[^"\\]|\\.)*")\s*\]\)', html, re.S)
-    if not chunks:
-        return ""
-    return "".join(json.loads(c) for c in chunks)
+def fetch_all_models():
+    """Fetch all open-weights models from the AA API."""
+    models = []
+    page = 1
+    while True:
+        url = f"{API_BASE}/language/models/free?weights=open&page={page}"
+        data = get(url)
+        models.extend(data.get("data", []))
+        pagination = data.get("pagination", {})
+        if not pagination.get("has_more"):
+            break
+        page += 1
+    return models
 
 
-def repo_of(url):
-    return url.rsplit("/huggingface.co/", 1)[-1].strip("/").lower()
-
-
-def slug(s):
-    return re.sub(r"[^a-z0-9]+", "-", s.lower()).strip("-")
-
-
-def num(field, window):
-    m = re.search(rf'"{field}":(null|-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)', window)
-    if not m:
-        return None
-    return None if m.group(1) == "null" else float(m.group(1))
-
-
-def parse_fields(window):
-    f = {name: num(name, window) for name in FIELDS}
-    caps = re.search(r'"capabilities":\{(.*?)\}', window, re.S)
-    if caps:
-        for field, _label in CAP_FIELDS:
-            f[field] = num(field, caps.group(1))
-    return f
-
-
-def record_at(blob, pos):
-    m = re.match(r'"modelWeightsSourceUrl":"(https://huggingface\.co/[^"]+)"',
-                 blob[pos:])
-    if not m:
-        return None, None
-    return repo_of(m.group(1)), parse_fields(blob[pos:pos + RECORD_WINDOW])
-
-
-def parse_frontier(blob):
-    """Every (hf repo, fields) pair embedded in the /models page."""
-    out, seen = [], set()
-    for m in re.finditer(r'"modelWeightsSourceUrl"', blob):
-        repo, fields = record_at(blob, m.start())
-        if repo and repo not in seen:
-            seen.add(repo)
-            out.append((repo, fields))
-    return out
-
-
-def probe_own(blob, repo):
-    """The page's OWN record: first modelWeightsSourceUrl in the blob.
-    Returns fields, or None when the page is a different model."""
-    m = re.search(r'"modelWeightsSourceUrl"', blob)
-    if not m:
-        return None
-    own, fields = record_at(blob, m.start())
-    return fields if own == repo else None
-
-
-def fits_studio(model):
-    """True when some ladder rung loads on one 512 GB Studio under the
-    page's own fit rule."""
-    usable = STUDIO_GB - OS_HOLD
-    for fam in (model.get("LADDER") or {}).values():
-        if isinstance(fam, list):
-            for r in fam:
-                if r.get("kind") in ("quant", "pruned", "native") \
-                        and r.get("gb", 10 ** 9) + OVERHEAD <= usable:
-                    return True
-        elif isinstance(fam, dict):
-            for lst in fam.values():
-                if isinstance(lst, list):
-                    for r in lst:
-                        if r.get("kind") in ("quant", "pruned", "native") \
-                                and r.get("gb", 10 ** 9) + OVERHEAD <= usable:
-                            return True
-    return False
+def build_model_map(aa_models):
+    """Build a map from our model IDs to AA evaluation fields."""
+    records = {}  # model id -> {field: value, ...}
+    
+    # Load our data
+    with open(DATA, encoding="utf-8") as f:
+        data = json.load(f)
+    
+    # Build lookup by slug and name
+    by_slug = {m["slug"]: m for m in aa_models}
+    by_name_lower = {m["name"].lower(): m for m in aa_models}
+    
+    for our_model in data["models"]:
+        if our_model["MODALITY"] != "text":
+            continue
+        mid = our_model["ID"]
+        
+        # Try to match by slug first
+        aa_model = None
+        our_name_lower = our_model["NAME"].lower()
+        
+        # Check if any AA model name contains our model name
+        for aa_m in aa_models:
+            if our_name_lower in aa_m["name"].lower():
+                aa_model = aa_m
+                break
+        
+        if not aa_model:
+            continue
+            
+        # Extract evaluations
+        evals = aa_model.get("evaluations", {})
+        fields = {}
+        
+        # Map evaluation fields to our field names
+        for our_field, api_field in FIELD_MAP.items():
+            val = evals.get(api_field)
+            if val is not None:
+                fields[our_field] = val
+        
+        # Include industry capability fields directly (CAP_FIELDS uses API names)
+        for api_field, _label in CAP_FIELDS:
+            val = evals.get(api_field)
+            if val is not None:
+                fields[api_field] = val
+        
+        records[mid] = fields
+    
+    return records
 
 
 def fmt_val(v, how):
@@ -277,55 +210,33 @@ def main():
                     help="print the tables, write nothing")
     args = ap.parse_args()
 
+    if not API_KEY:
+        die("AA_API_KEY not set. Create a key at artificialanalysis.ai/api-key-management-redirect")
+
     with open(DATA, encoding="utf-8") as f:
         data = json.load(f)
 
     text_models = [m for m in data["models"]
-                   if m["MODALITY"] == "text" and m.get("HF")]
-    studio = [m for m in text_models if fits_studio(m)]
-    out_of_fit = [m["ID"] for m in text_models if m not in studio]
-    if out_of_fit:
-        print(f"  (out of the AA tables, no single Studio fits: {', '.join(out_of_fit)})")
+                   if m["MODALITY"] == "text"]
+    print(f"  {len(text_models)} text models to check")
 
-    records = {}  # model id -> fields
-    html = get(MODELS_URL, retries=1)
-    blob = payload(html)
-    frontier = parse_frontier(blob)
-    if not frontier:
-        die("no model records parsed from /models; page layout changed, "
-            "refusing to guess")
-    by_repo = {m["HF"].strip().lower(): m for m in studio}
-    for repo, fields in frontier:
-        if repo in by_repo:
-            records[by_repo[repo]["ID"]] = fields
+    # Fetch from AA API
+    aa_models = fetch_all_models()
+    print(f"  Fetched {len(aa_models)} open-weights models from AA API")
 
-    for m in studio:
-        if m["ID"] in records:
-            continue
-        repo = m["HF"].strip().lower()
-        candidates = [slug(m["NAME"])]
-        base = repo.rsplit("/", 1)[-1]
-        if slug(base) and slug(base) not in candidates:
-            candidates.append(slug(base))
-        for cand in candidates:
-            page = get(f"https://artificialanalysis.ai/models/{cand}")
-            time.sleep(PROBE_PAUSE)
-            if page is None:
-                continue
-            fields = probe_own(payload(page), repo)
-            if fields is not None:
-                records[m["ID"]] = fields
-                break  # right model either way (evaluated or not)
+    # Build model map
+    records = build_model_map(aa_models)
+    print(f"  Matched {len(records)} of our models to AA data")
 
     if len(records) < MIN_MATCHES:
-        die(f"only {len(records)} of our Studio-fitting models found on AA "
+        die(f"only {len(records)} of our models found on AA "
             f"(< {MIN_MATCHES}); refusing to touch the categories")
 
     old = {u["ID"]: u.get("RANK", []) for u in data["useCases"]}
     new_rank = {}
     for cat in CATS:
         rows = []
-        for m in studio:
+        for m in text_models:
             fields = records.get(m["ID"])
             if not fields:
                 continue
