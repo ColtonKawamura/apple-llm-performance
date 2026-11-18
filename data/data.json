@@ -6120,7 +6120,7 @@
         "tools": "Native tool-call styles per model family with a generic fallback, `tool_choice`, and `parallel_tool_calls` gated on what the jinja template supports. Arguments stream as deltas.",
         "structured": "`response_format` accepts both `json_object` and `json_schema`, enforced by GBNF grammar sampling at the token level rather than validated afterwards.",
         "concurrency": "Parallel slots (`-np`), with per-slot prompt caches you can persist to disk.",
-        "gotcha": "Tool use requires the `--jinja` flag on both the OpenAI and Anthropic surfaces - without it `tools` is silently inert. The project's own docs decline to claim spec compliance: \u201cno strong claims of compatibility with OpenAI API spec is being made\u201d."
+        "gotcha": "Tool use requires the `--jinja` flag on both the OpenAI and Anthropic surfaces - without it `tools` is silently inert. The project's own docs decline to claim spec compliance: “no strong claims of compatibility with OpenAI API spec is being made”."
       },
       "CROSS_ISSUES": [
         "ggml-org/llama.cpp#25967",
@@ -8820,18 +8820,18 @@
         },
         "1418": {
           "severity": "critical",
-          "headline": "GLM-5.2 fails to load \u2014 missing per-layer indexer params",
+          "headline": "GLM-5.2 fails to load — missing per-layer indexer params",
           "why": "The loader expects a DeepSeek-V3.2-style indexer on every layer, but GLM-5.2's IndexShare places them on a subset. mlx-community/GLM-5.2-mxfp4 aborts with 285 missing parameters."
         },
         "1443": {
           "severity": "high",
           "headline": "DSA Indexer sparse top-k evicts attention sinks",
-          "why": "Past index_topk (2048) the indexer drops the attention sinks and decode collapses into repetition \u2014 a sharp cliff, not drift. Hits every sparse-attention model: DeepSeek V3.2/V4 and GLM-5.2 both decode through this module."
+          "why": "Past index_topk (2048) the indexer drops the attention sinks and decode collapses into repetition — a sharp cliff, not drift. Hits every sparse-attention model: DeepSeek V3.2/V4 and GLM-5.2 both decode through this module."
         },
         "1446": {
           "severity": "medium",
           "headline": "ArraysCache is not trimmable",
-          "why": "The structural reason the k=1 cap exists \u2014 GDN state layers cannot be rolled back on draft rejection. Same root cause as #730."
+          "why": "The structural reason the k=1 cap exists — GDN state layers cannot be rolled back on draft rejection. Same root cause as #730."
         },
         "1493": {
           "severity": "critical",
@@ -8961,7 +8961,7 @@
         "584": {
           "severity": "high",
           "headline": "Non-loopback requests silently dropped on --host 0.0.0.0",
-          "why": "Deployment blocker: a server on the LAN is reachable only from localhost. Silent \u2014 no log, recv-queue 0."
+          "why": "Deployment blocker: a server on the LAN is reachable only from localhost. Silent — no log, recv-queue 0."
         },
         "590": {
           "severity": "medium",
@@ -8991,7 +8991,7 @@
         "668": {
           "severity": "critical",
           "headline": "DeepSeek V4 Flash unsupported",
-          "why": "ValueError: Model type deepseek_v4 not supported. Open since 2026-08-01, no maintainer reply, no PR \u2014 and mlx-lm has no deepseek_v4.py, so the architecture is unimplemented upstream too."
+          "why": "ValueError: Model type deepseek_v4 not supported. Open since 2026-08-01, no maintainer reply, no PR — and mlx-lm has no deepseek_v4.py, so the architecture is unimplemented upstream too."
         },
         "672": {
           "severity": "high",
@@ -9001,7 +9001,7 @@
         "678": {
           "severity": "high",
           "headline": "Prefix cache trims RotatingKVCache past its window",
-          "why": "Cross-conversation KV leak and repetition loops. A correctness bug, not a speed bug \u2014 one tenant's context bleeding into another's is disqualifying for multi-agent serving."
+          "why": "Cross-conversation KV leak and repetition loops. A correctness bug, not a speed bug — one tenant's context bleeding into another's is disqualifying for multi-agent serving."
         },
         "682": {
           "severity": "medium",
@@ -9041,7 +9041,7 @@
         "730": {
           "severity": "critical",
           "headline": "Prefix-cache reuse silently disabled for hybrid architectures",
-          "why": "#691's all-or-nothing rewind gate rejects every hybrid model: ArraysCache leaves have no .keys and inherit is_trimmable() -> False. Measured on Qwen3.8-27B-8bit \u2014 an identical 24k prompt resent back-to-back gives zero speedup on main, versus ~58x before #691. Rejection logs only at DEBUG."
+          "why": "#691's all-or-nothing rewind gate rejects every hybrid model: ArraysCache leaves have no .keys and inherit is_trimmable() -> False. Measured on Qwen3.8-27B-8bit — an identical 24k prompt resent back-to-back gives zero speedup on main, versus ~58x before #691. Rejection logs only at DEBUG."
         },
         "731": {
           "severity": "critical",
@@ -9051,7 +9051,7 @@
         "732": {
           "severity": "medium",
           "headline": "PR: surface prefix-cache reuse via usage.prompt_tokens_details.cached_tokens",
-          "why": "Observability. Without it there is no way to confirm a hit rate from the API \u2014 which is how #730 stayed silent."
+          "why": "Observability. Without it there is no way to confirm a hit rate from the API — which is how #730 stayed silent."
         }
       }
     },
@@ -9081,6 +9081,33 @@
     "ml-explore/mlx-lm#2061"
   ],
   "news": [
+    {
+      "date": "2026-11-18",
+      "top": [
+        [
+          "Kimi K3.1 Pro open weights: 2.8T MoE at 1.56 TB in MXFP4, the page's top open model, and no Mac can hold it",
+          "Moonshot's Kimi K3.1 Pro is on the page with its full open weights (moonshotai/Kimi-K3.1-Pro): a 2.8T-parameter mixture of experts that activates 104B per token, natively multimodal (text plus image), 1M-token context, trained quantization-aware so the published weights are already MXFP4 with MXFP8 activations across 96 shards totalling 1.56 TB. It is the strongest open-weights model tracked here (Artificial Analysis intelligence 46, ahead of DeepSeek V4.1 Flash) and is already listed in the Ollama catalogue. The cost on a Mac is the point: 1.56 TB of weights is about three times the 512 GB of the largest Mac Studio, so no Mac can load the full model, and the card's own deployment path is vLLM, SGLang or TokenSpeed on multi-GPU servers. The Kimi K3.1 Pro licence permits use, fine-tuning and redistribution, with a separate agreement required for model-as-a-service operators above $20M annual revenue and attribution required for products above 100M monthly users.",
+          "https://huggingface.co/moonshotai/Kimi-K3.1-Pro"
+        ],
+        [
+          "Tencent Hy4 flash weights ship: 220B MoE with 12B active and a KV cache 1/24 the size of Hy3's",
+          "Tencent announced Hy4 flash on November 16 and the open weights landed on Hugging Face on November 17 (tencent/Hy4-flash, plus an FP8 variant and the pre-trained base): a 220B-parameter mixture of experts, 155.5B backbone plus a 63.5B n-gram Engram table, that activates only 12B parameters per token, takes text and images natively and runs a 1M-token context. Everything is built for cost: hybrid sparse (up to 2,048-token selection) plus 512-token sliding-window attention cuts the KV cache to 1/24 of Hy3's and 1/6 of Hy4's, LatentMoE routes 16 of 512 experts in a compressed latent space, and a built-in 0.85B DFly2 drafter does speculative decoding with zero extra KV memory. Tencent reports a WorkIndex score of 42.1, above Hy4 preview's 39.7, at 1/13 the cost per task, and past 150 tok/s decoding with 4-bit quantization and megakernels. On a Mac, the 220B of weights is roughly 110 GB at 4-bit, which is 256 GB or 512 GB Mac Studio territory on paper, but the card ships vLLM and SGLang (GPU) deployment only and whether llama.cpp or mlx-lm can load the new LatentMoE/Engram architecture is still open, so it is not runnable on Apple silicon today. It carries the custom Tencent Hy License.",
+          "https://huggingface.co/tencent/Hy4-flash"
+        ],
+        [
+          "Qwen3.8-27B gets a MACaQ MXFP4 MLX quant: 18.1 GB, 26-31 tok/s on an M5 Max",
+          "mlx-community published a new 4-bit MLX build of Qwen3.8-27B made with MACaQ, a calibrated MXFP4 post-training quantization (arXiv 2611.10649): MXFP4 weights with bf16 activations (W4A16), all 400 decoder linear layers at 4.25 bits per weight, 18.1 GB against 54.7 GB for the bf16 checkpoint, Apache-2.0 like the base model. Measured against bf16 on the same harness it holds 92.6-92.9% top-1 token agreement and beats both of mlx-lm's own 4-bit conversions on KL divergence and perplexity. The card reports 26-31 tok/s greedy decode on an M5 Max, about three times the roughly 9 tok/s of bf16, with 23.6 GB peak memory, which fits a 32 GB Mac. It runs through mlx-lm with a bundled roughly 100-line loader (macaq_model.py) via trust_remote_code; a plain mxfp4 load deliberately fails because it would drop the per-channel scale and Hadamard rotation. It is text-only: the base model's vision tower is not included.",
+          "https://huggingface.co/mlx-community/Qwen3.8-27B-MACaQ-W4A16-mlx"
+        ]
+      ],
+      "newModels": [
+        [
+          "SenseNova-Loop-9B",
+          "SenseNova's looped multimodal model, released November 17 under Apache-2.0: about 9B parameters (14.6B inference-equivalent) that re-run a shared 24-layer block twice, giving 56 decoder-layer executions from 32 physical layers, with hybrid linear/full attention and a 512K context. Text and image in, text out; it targets agentic, coding and data-analysis work and matches Qwen3.8-27B on AIDABench (65.31 vs 65.01) at a fraction of the memory. An official AWQ 4-bit build ships on launch day and the card puts multimodal inference at a 256K context with an 8-bit KV cache at about 15 GiB, comfortable on a 32 GB Mac; the 4-bit checkpoint itself is only about 4.7 GB, so shorter contexts run on 16 GB machines. Fourteen community quantizations for llama.cpp and LM Studio are already up.",
+          "https://huggingface.co/sensenova/SenseNova-Loop-9B"
+        ]
+      ]
+    },
     {
       "date": "2026-11-17",
       "top": [
@@ -9191,8 +9218,8 @@
           "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic"
         ],
         [
-          "NousResearch releases Ar\u00e9te-27B",
-          "NousResearch's Ar\u00e9te-27B is a value-aligned supervised fine-tune of Qwen3.8-27B (the qwen3.5 family), aimed at safety and instruction-following rather than raw capability. It is the most-downloaded new model from a recognised lab today.",
+          "NousResearch releases Aréte-27B",
+          "NousResearch's Aréte-27B is a value-aligned supervised fine-tune of Qwen3.8-27B (the qwen3.5 family), aimed at safety and instruction-following rather than raw capability. It is the most-downloaded new model from a recognised lab today.",
           "https://huggingface.co/NousResearch/Arete-27B"
         ]
       ],
@@ -9263,43 +9290,6 @@
           "Sam-2610/Llama-3.2-3B-Text2SQL-QLoRA",
           "A QLoRA Text2SQL finetune of Llama-3.2-3B published in the last day; see the link for weights and licence.",
           "https://huggingface.co/Sam-2610/Llama-3.2-3B-Text2SQL-QLoRA"
-        ]
-      ]
-    },
-    {
-      "date": "2026-11-08",
-      "top": [
-        [
-          "DeepSeek V4 Pro distilled into an uncensored 9B Qwen3.5",
-          "An Apache-2.0 reasoning and tool-use model that distills DeepSeek V4 Pro down into the ~9B Qwen3.5 family and runs the result through uncensored 'heretic' RL; it is the largest-talking-point release trending on today's polled Hugging Face sources.",
-          "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic"
-        ],
-        [
-          "A Qwen3.5-4B that writes GLB 3D assets for three.js and Godot",
-          "ccore's coding finetune learns to emit GLB 3D models from its ThreeJS-3D dataset and ships in both safetensors and GGUF, aimed at in-browser and game-engine asset pipelines rather than chat.",
-          "https://huggingface.co/ccore/Qwen3.5-4B-GLB-3D-Coder"
-        ],
-        [
-          "DeepSeek V4.1-Flash-1017 quant uncensored via AtomicChat's GSQ-RCO",
-          "A MIT-licensed GGUF of DeepSeek V4.1-Flash-1017 run through AtomicChat's GSQ/RCO/strata 'refusal direction' processing; at 117K+ pulls it is today's most-downloaded trending item.",
-          "https://huggingface.co/AtomicChat/DeepSeek-V4.1-Flash-1017-Uncensored-GSQ-RCO-GGUF"
-        ]
-      ],
-      "newModels": [
-        [
-          "Kataguru Sceptic-35B-A3B v3.2 in ten language variants",
-          "Kataguru released Apache-2.0 multilingual variants of its 35B-A3B Qwen3.5-MoE (Welsh, Georgian, Turkish, Basque, Icelandic, Latvian, Lithuanian, Hungarian, Estonian and Finnish), each a vision-and-reasoning instruction model.",
-          "https://huggingface.co/kataguru/Kataguru-Sceptic-35B-A3B-Welsh-v3.2"
-        ],
-        [
-          "slm4blender-0.5B GGUF",
-          "A 500M offline coding model built on Qwen2.5-Coder-0.5B-Instruct for calling Blender's tool API, shipped as a llama.cpp GGUF for on-device use.",
-          "https://huggingface.co/slm4apps/slm4blender-0.5b-GGUF"
-        ],
-        [
-          "Qwen3.8-Flash-Next DGX-Spark GGUF",
-          "A Japanese-targeted low-bit (LDLQ) GGUF of the Qwen3.8-Flash-Next MoE - a third-party quant rather than a new checkpoint.",
-          "https://huggingface.co/zephel01/Qwen3.8-Flash-Next-DGX-Spark-GGUF"
         ]
       ]
     }
