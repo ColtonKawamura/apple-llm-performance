@@ -9164,6 +9164,28 @@
   ],
   "news": [
     {
+      "date": "2026-11-19",
+      "top": [
+        [
+          "Zyphra releases ZONOS3-Mini: 800M-parameter open TTS, real-time voice cloning on a Mac",
+          "Zyphra published ZONOS3-Mini under Apache 2.0: an 800M-parameter text-to-speech model (about 100M active per token, a latent MoE of 64 experts over an 11-layer hybrid backbone of 9 Gated DeltaNet layers and 2 global-attention layers) that speaks 43 languages with 27 built-in voices, clones a voice from a reference clip, and outputs 44.1 kHz audio with a 32K context. On a Mac it runs through MLX-Audio via the mlx-community/ZONOS3-Mini conversion — model, codec and speaker encoder together weigh about 1.4 GB — and the card claims real-time on laptops and phones. Technical report: arXiv 2611.16525.",
+          "https://huggingface.co/Zyphra/ZONOS3-Mini"
+        ],
+        [
+          "Microsoft publishes Aion 1.0, the 2.3B Windows OS small language model, under MIT",
+          "Microsoft's Windows Applied Sciences group released Aion 1.0 Instruct, the 2.29B-parameter small language model that will become the Windows OS SLM by the end of January 2027, under an MIT licence. It is a 28-layer hybrid-attention causal LM (21 sliding-window layers at a 2048 window plus 7 full-attention layers, 32K context) trained on an extension of the Phi Silica data and aimed at on-device OS work in eight languages. The unquantized bf16 original is about 4.6 GB, and a 4-bit imatrix GGUF for llama.cpp (AtomicChat) is already published, so the quantised version is roughly a quarter of that and fits comfortably on any Apple silicon Mac.",
+          "https://huggingface.co/microsoft/Aion-1.0-Instruct-2.3B"
+        ]
+      ],
+      "newModels": [
+        [
+          "Aion 1.0 Instruct 2.3B",
+          "Microsoft's 2.29B-parameter, MIT-licensed on-device SLM (the future Windows OS model); the bf16 original is about 4.6 GB, and a 4-bit GGUF for llama.cpp has already shipped, so the quantised version runs in roughly a gigabyte or two on any Mac",
+          "https://huggingface.co/microsoft/Aion-1.0-Instruct-2.3B"
+        ]
+      ]
+    },
+    {
       "date": "2026-11-18",
       "top": [
         [
@@ -9320,58 +9342,6 @@
           "DeepSeek-V3 (community checkpoint)",
           "A community DeepSeek-V3 checkpoint surfaced on Hugging Face in the collection window, keeping an older flagship available alongside the newer V4 releases.",
           "https://huggingface.co/Alexs28/DeepSeek-V3"
-        ]
-      ]
-    },
-    {
-      "date": "2026-11-09",
-      "top": [
-        [
-          "webAI-Official/TwIL-8B",
-          "A Granite 4.2-8B-based model that has pulled over 22,000 downloads and leads today's trending signal across the polled sources.",
-          "https://huggingface.co/webAI-Official/TwIL-8B"
-        ],
-        [
-          "xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic",
-          "An uncensored 'heretic' variant of DeepSeek-V4-Pro-Qwen3.5-9B trending on Hugging Face with roughly 7,000 downloads.",
-          "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic"
-        ],
-        [
-          "NousResearch/Arete-27B",
-          "An Apache-2.0 value-alignment SFT of Qwen3.8-27B from NousResearch, trending with about 1,700 downloads.",
-          "https://huggingface.co/NousResearch/Arete-27B"
-        ]
-      ],
-      "newModels": [
-        [
-          "inferencerlabs/GLM-5.3-Flash-MTP-MLX",
-          "An MLX quant of GLM-5.3-Flash built with multi-task prediction, published in the last day; see the link for weights, licence and what it can do.",
-          "https://huggingface.co/inferencerlabs/GLM-5.3-Flash-MTP-MLX"
-        ],
-        [
-          "cultureyes-stack/Operator-4B",
-          "A new 4B text model published inside the collection window; see the link for weights, licence and what it can do.",
-          "https://huggingface.co/cultureyes-stack/Operator-4B"
-        ],
-        [
-          "shibatch/tinyqwen35dense2m",
-          "A small dense Qwen3.5-arch prototype from shibatch with an unusually long context window; see the link for weights and what it can do.",
-          "https://huggingface.co/shibatch/tinyqwen35dense2m"
-        ],
-        [
-          "axom-ai/axomai-brain-progya-8b",
-          "An 8B model published in the last day; see the link for weights, licence and what it can do.",
-          "https://huggingface.co/axom-ai/axomai-brain-progya-8b"
-        ],
-        [
-          "Karasumikura/Ying-K1.6-Lite-200M-base",
-          "A 200M param base model published inside the window; see the link for weights and licence.",
-          "https://huggingface.co/Karasumikura/Ying-K1.6-Lite-200M-base"
-        ],
-        [
-          "Sam-2610/Llama-3.2-3B-Text2SQL-QLoRA",
-          "A QLoRA Text2SQL finetune of Llama-3.2-3B published in the last day; see the link for weights and licence.",
-          "https://huggingface.co/Sam-2610/Llama-3.2-3B-Text2SQL-QLoRA"
         ]
       ]
     }
