@@ -9164,6 +9164,27 @@
   ],
   "news": [
     {
+      "date": "2026-11-20",
+      "top": [
+        [
+          "Qwen3.8-27B gets a MACaQ 4-bit MLX quant: 18.1 GB, ~3x bf16 decode speed",
+          "mlx-community has published a calibrated MXFP4 4-bit (W4A16) quantization of Qwen3.8-27B built with the MACaQ method (arXiv 2611.10649) at 18.1 GB versus 54.7 GB for bf16, licensed Apache-2.0. All 400 decoder linear layers sit at 4.25 bits per weight while embeddings, lm_head and norms stay bf16; it is text-only, with the vision tower not included. It runs on a Mac via mlx-lm with --trust-remote-code using a bundled ~100-line loader that depends only on mlx and mlx-lm, and is reported at about 26-31 tok/s greedy decode on an M5 Max (bf16: about 9 tok/s) with 23.6 GB peak memory. Card measurements: KLD on WikiText-2 of 0.0277 and PPL of 7.1565, better than both the affine 4-bit (KLD 0.0402) and plain mxfp4 (KLD 0.0606) conversions.",
+          "https://huggingface.co/mlx-community/Qwen3.8-27B-MACaQ-W4A16-mlx"
+        ],
+        [
+          "Edge0-145B: 145B/10B-active agent MoE posts 86.5 on Terminal-Bench 2.1 and runs on M2 Ultra",
+          "Edge0-145B is a 145B-parameter latent sparse MoE agent model - 10.12B active per token, 48 layers, 512 experts per layer (10 routed plus 1 shared active), 256K context, trained natively at 4 bits and built on Qwen3.8-Flash-Next - and it posts 86.5 on Terminal-Bench 2.1. The NVFP4 build in this repo targets NVIDIA GPUs (23.25 GiB VRAM plus 38.27 GiB host RAM on an RTX 5090 D); for a Mac, the card's speed table lists the Q3_K build on Apple M2 Ultra (Metal) at 755.6-800.3 tok/s prefill, 57.0 tok/s agent decode and 60.9 tok/s chat decode, with 40.81 GiB of Q3_K weights. It is licensed under the edge0-community-model-1.0 terms.",
+          "https://huggingface.co/Edge0/Edge0-145B-NVFP4"
+        ],
+        [
+          "NVIDIA's Dory 1.0 4B looped reasoning model gets an 8-bit MLX conversion (patched runtime required)",
+          "mlx-community has converted NVIDIA's Dory 1.0 4B - a ~4B-parameter looped reasoning model that declares 262,144 positions and a reasoning-mode chat template - to uniform MLX affine 8-bit (group size 64) with the remaining parameters in BF16; model.safetensors is 4.22 GB and the license is openmdw-1.1. The catch is that stock oMLX 0.7.3 lacks the Dory MLX-LM implementation and the relevant MLX-LM PR #1988 was still pending when the conversion was recorded, so the repo's pinned Dory-enabled MLX-LM overlay must be installed before the model loads; trust_remote_code alone does not supply the runtime.",
+          "https://huggingface.co/mlx-community/NVIDIA-Nemotron-Labs-Dory1.0-4B-MLX-8bit"
+        ]
+      ],
+      "newModels": []
+    },
+    {
       "date": "2026-11-19",
       "top": [
         [
@@ -9305,43 +9326,6 @@
           "Haru-4B",
           "A full-duplex spoken-dialogue model from higurashi-ai (Apache-2.0, 2026-11-12): it listens and speaks in 133 ms frames across 10 languages. A research release with no benchmark table; the 10.5 GB bf16 checkpoint loads directly in MLX-Audio.",
           "https://huggingface.co/higurashi-ai/Haru-4B"
-        ]
-      ]
-    },
-    {
-      "date": "2026-11-10",
-      "top": [
-        [
-          "webAI's TwIL-8B tops Hugging Face trending",
-          "webAI's TwIL-8B is an 8B reasoning model built on IBM Granite 4.2 and trained end-to-end with GRPO for math, code and instruction-following. It is the most-downloaded new model of the day, ahead of the heretic DeepSeek variants.",
-          "https://huggingface.co/webAI-Official/TwIL-8B"
-        ],
-        [
-          "A new uncensored heretic of DeepSeek V4 Pro surfaces",
-          "An uncensored 'heretic' conversion of DeepSeek V4 Pro (9B, in the qwen3.5 family) is trending on Hugging Face, part of the steady stream of abliterated DeepSeek checkpoints that keeps reappearing in the top ranks.",
-          "https://huggingface.co/xtools-at/DeepSeek-V4-Pro-Qwen3.5-9B-UNCENSORED-heretic"
-        ],
-        [
-          "NousResearch releases Aréte-27B",
-          "NousResearch's Aréte-27B is a value-aligned supervised fine-tune of Qwen3.8-27B (the qwen3.5 family), aimed at safety and instruction-following rather than raw capability. It is the most-downloaded new model from a recognised lab today.",
-          "https://huggingface.co/NousResearch/Arete-27B"
-        ]
-      ],
-      "newModels": [
-        [
-          "Ricky-Coder-Qwen3-Coder-30B-A3B-Instruct",
-          "A 30B-A3B Qwen3-Coder MoE instruct checkpoint for coding on modest hardware, one of several new Qwen3-coder finetunes in the window.",
-          "https://huggingface.co/MCES10-Software/Ricky-Coder-Qwen3-Coder-30B-A3B-Instruct"
-        ],
-        [
-          "bharat-sahayak-gemma4-e2b",
-          "A bharat-sahayak fine-tune of Google's Gemma 4 in a 2-bit E2B GGUF, aimed at low-end devices and Indian-language work.",
-          "https://huggingface.co/joshiyash666/bharat-sahayak-gemma4-e2b-GGUF"
-        ],
-        [
-          "DeepSeek-V3 (community checkpoint)",
-          "A community DeepSeek-V3 checkpoint surfaced on Hugging Face in the collection window, keeping an older flagship available alongside the newer V4 releases.",
-          "https://huggingface.co/Alexs28/DeepSeek-V3"
         ]
       ]
     }
