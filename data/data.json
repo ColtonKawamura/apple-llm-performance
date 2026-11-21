@@ -6171,6 +6171,260 @@
           }
         ]
       }
+    },
+    {
+      "ID": "inkling2mini",
+      "NAME": "Inkling 2 Mini",
+      "MODALITY": "text",
+      "ARCH": "Looped hybrid MoE 26.4B (3.4B active, 5.4B effective per token) - 24 layers, middle 12 looped x3 passes, 8 of 128 experts - local/global attention - ViT image encoder",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "1.0M",
+      "HF": "thinkingmachines/Inkling-2-Mini",
+      "PARAMS_B": 26.4,
+      "NOTE": "Thinking Machines' first looped transformer, released Nov 20: a 26.4B MoE (3.4B active) whose middle 12 of 24 layers run three times over shared weights, so each token costs 5.4B effective active parameters. Image+text in, 1M context, about 20 GB in the lab's NVFP4/MXFP8 checkpoint - the card targets 32 GB Apple silicon, and at 32 KiB/token of KV a full 1M context is another 32 GB on top of the weights. AA Index 20.1, level with Qwen3.8-27B on the lab's own table. llama.cpp and Ollama ship local support; mlx-lm has no model class yet.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/thinkingmachines/Inkling-2-Mini"
+        ],
+        [
+          "Thinking Machines blog",
+          "https://thinkingmachines.ai/news/inkling-2-mini/"
+        ],
+        [
+          "llama.cpp support",
+          "https://github.com/ggml-org/llama.cpp/pull/32217"
+        ],
+        [
+          "llama.cpp looped arch",
+          "https://github.com/ggml-org/llama.cpp/pull/32694"
+        ]
+      ],
+      "SCORES": {
+        "coding": [
+          [
+            "SWE-bench Verified (bash only)",
+            "79.2"
+          ],
+          [
+            "SWE-bench Pro v2 (Hard)",
+            "77.9"
+          ],
+          [
+            "Terminal-Bench v2.1 (pi v0.83.0)",
+            "71.6"
+          ],
+          [
+            "DeepSWE v1.1",
+            "48.2"
+          ]
+        ],
+        "agentic": [
+          [
+            "BrowseComp (with compaction)",
+            "79.0"
+          ],
+          [
+            "DeepSearchQA (with compaction)",
+            "85.3"
+          ],
+          [
+            "GDPVal-AA v2.1",
+            "1319"
+          ],
+          [
+            "AA-Briefcase v1.1",
+            "1263"
+          ],
+          [
+            "JobBench",
+            "49.6"
+          ]
+        ],
+        "vision": [
+          [
+            "MMMU Pro (Standard 10)",
+            "74.9"
+          ],
+          [
+            "OmniDocBench v1.6",
+            "92.8"
+          ],
+          [
+            "ScreenSpot Pro (original / with Python)",
+            "76.5/87.7"
+          ]
+        ],
+        "reasoning": [
+          [
+            "HLE-Diamond",
+            "15.2"
+          ],
+          [
+            "ARC-AGI v1 / v2",
+            "84.5/49.3"
+          ],
+          [
+            "LongBench v2",
+            "66.9"
+          ]
+        ],
+        "indexes": [
+          [
+            "AA Index (v5.0)",
+            "20.1"
+          ],
+          [
+            "Vals Index (v2.2)",
+            "46.5"
+          ]
+        ]
+      },
+      "BEST_ENGINE": "llamacpp",
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "Inkling 2 text+vision merged Nov 14 (PR 32217) with chat-template, attention-mask and mmproj fixes, and the looped arch landed Nov 20 (PR 32694); all of it is in release b12602, the current one. A looped-arch follow-up (PR 32695) is still open and the lab itself says local support for looped models is new, so first runs are unverified here. ggml-org ships the GGUFs.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "works",
+          "label": "Runs",
+          "note": "In the Ollama library (inkling-2-mini) with the lab's benchmark summary in the model description; the card lists Ollama on Apple silicon as a supported local path. On Mac, Ollama defaults to the MLX engine since v0.30 and mlx-lm has no inkling2 class, so whether the Mac MLX path serves it is unverified - the GGUF path should work.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "degraded",
+          "label": "Needs current engine",
+          "note": "lmstudio-community ships the GGUF quants and the app's catalogue lists them, but loading needs the looped-arch code that landed in upstream llama.cpp only on Nov 20 (PR 32694); the app's bundled engine must be current, which is unverified.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "No model class",
+          "note": "mlx-lm has no inkling2 or inkling2_loop model class as of Nov 21; mlx-community already ships 4-bit and oQ4e-mtp MLX quants that nothing can load until the class lands.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "blocked",
+          "label": "No model class",
+          "note": "oMLX's LLM coverage is mlx-lm's plus its hand-written kernels for GLM-5.2, MiniMax M3 and Qwen3.5; there is no inkling2 support, so it cannot load the mlx-community quants.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "No model",
+          "note": "No inkling2 implementation in the vLLM Metal fork as of Nov 21; upstream vLLM ships a CUDA recipe, which the card links.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "No model",
+          "note": "No inkling2 implementation in vllm-mlx as of Nov 21; upstream vLLM ships a CUDA recipe, which the card links.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "DwarfStar is purpose-built for DeepSeek V4 Flash, V4 PRO and GLM-5.2 and deliberately does not load other checkpoints.",
+          "issues": []
+        }
+      },
+      "QUANT_SOURCES": {
+        "gguf": [
+          "ggml-org/Inkling-2-Mini-GGUF",
+          "unsloth/Inkling-2-Mini-GGUF",
+          "lmstudio-community/Inkling-2-Mini-GGUF",
+          "bartowski/thinkingmachines_Inkling-2-Mini-GGUF"
+        ],
+        "mlx": [
+          "mlx-community/Inkling-2-Mini-4bit",
+          "mlx-community/Inkling-2-Mini-oQ4e-mtp"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 32768,
+        "max_context": 1048576,
+        "derivation": "24 layers; 20 are sliding-window (window 1024, excluded) and 4 are global attention (layers 5, 11, 17, 23), GQA with 8 KV heads x 128 head_dim. The middle 12 core layers (6-17) loop three times over shared weights and each pass gets its own KV slot (llama.cpp allocates 24 + 2*12 = 48 slots), so global layers 11 and 17 hold three caches each: (1+3+3+1) x 8 x 128 x 2 (K,V) x 2 (fp16) = 32,768 bytes/token."
+      },
+      "ranks": [],
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "Inkling-2-Mini-BF16",
+            "repo": "ggml-org/Inkling-2-Mini-GGUF",
+            "gb": 52.23,
+            "kind": "quant",
+            "bpw": 15.83
+          },
+          {
+            "label": "thinkingmachines_Inkling-2-Mini-Q6_K_S",
+            "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
+            "gb": 24.04,
+            "kind": "quant",
+            "bpw": 7.29
+          },
+          {
+            "label": "thinkingmachines_Inkling-2-Mini-Q5_K_M",
+            "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
+            "gb": 21.22,
+            "kind": "quant",
+            "bpw": 6.43
+          },
+          {
+            "label": "Inkling-2-Mini-IQ4_NL",
+            "repo": "ggml-org/Inkling-2-Mini-GGUF",
+            "gb": 17.63,
+            "kind": "quant",
+            "bpw": 5.34
+          },
+          {
+            "label": "thinkingmachines_Inkling-2-Mini-IQ4_NL",
+            "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
+            "gb": 16.11,
+            "kind": "quant",
+            "bpw": 4.88
+          },
+          {
+            "label": "thinkingmachines_Inkling-2-Mini-IQ3_XS",
+            "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
+            "gb": 13.77,
+            "kind": "quant",
+            "bpw": 4.17
+          },
+          {
+            "label": "thinkingmachines_Inkling-2-Mini-IQ2_S",
+            "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
+            "gb": 11.07,
+            "kind": "quant",
+            "bpw": 3.35
+          },
+          {
+            "label": "Inkling-2-Mini-UD-Q2_K_XL",
+            "repo": "unsloth/Inkling-2-Mini-GGUF",
+            "gb": 9.14,
+            "kind": "quant",
+            "bpw": 2.77
+          },
+          {
+            "label": "Inkling-2-Mini-UD-IQ1_S",
+            "repo": "unsloth/Inkling-2-Mini-GGUF",
+            "gb": 7.76,
+            "kind": "quant",
+            "bpw": 2.35
+          }
+        ],
+        "mlx": [
+          {
+            "label": "Inkling-2-Mini-4bit",
+            "repo": "mlx-community/Inkling-2-Mini-4bit",
+            "gb": 17.31,
+            "kind": "quant",
+            "bpw": 5.24
+          }
+        ]
+      }
     }
   ],
   "engines": [
