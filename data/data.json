@@ -9193,6 +9193,11 @@
           "severity": "medium",
           "headline": "Add Inkling 2 model",
           "why": "Open since 2026-11-13. Until it merges mlx-lm has no inkling2 class, so the mlx-community Inkling 2 Small MLX quants cannot load through mlx-lm, oMLX or vllm-mlx."
+        },
+        "2086": {
+          "severity": "medium",
+          "headline": "PR: Add Inkling 2 Mini model (looped inkling2_loop arch)",
+          "why": "Open. Until it merges mlx-lm has no inkling2_loop class, so the Inkling 2 Mini and TML-d24-varloop-research MLX quants cannot load through mlx-lm, oMLX or vllm-mlx; whether it exposes the variable pass count is unverified."
         }
       }
     },
@@ -9414,7 +9419,8 @@
     "waybarrios/vllm-mlx#732",
     "ggml-org/llama.cpp#32217",
     "ggml-org/llama.cpp#32187",
-    "ml-explore/mlx-lm#2061"
+    "ml-explore/mlx-lm#2061",
+    "ml-explore/mlx-lm#2086"
   ],
   "news": [
     {
