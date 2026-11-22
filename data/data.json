@@ -6425,6 +6425,196 @@
           }
         ]
       }
+    },
+    {
+      "ID": "tmld24varloop",
+      "NAME": "TML-d24-varloop-research",
+      "MODALITY": "text",
+      "ARCH": "Looped hybrid MoE 26.4B (3.4B active, 3.4-7.4B effective per token) - 24 layers, middle 12 looped 1-5 passes at inference, 8 of 128 experts - local/global attention - ViT image encoder",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": "1.0M",
+      "HF": "thinkingmachines/TML-d24-varloop-research",
+      "PARAMS_B": 26.4,
+      "NOTE": "Thinking Machines' variable-loop research counterpart to Inkling 2 Mini, released Nov 20: a 26.4B MoE (3.4B active) whose middle 12 of 24 layers run a pass count chosen at inference (trained 1-5, post-trained at 3), adding about 1.0B effective active parameters per pass - 3.4B at 1 pass, 7.4B at 5. Image+text in, 1M context, about 20 GB in the lab's native NVFP4/MXFP8 checkpoint, targeting 32 GB Apple silicon. KV scales with the pass count: 16,384 bytes/token at 1 pass, 32,768 at the shipped 3-pass default, 49,152 at 5. The lab calls it a research artifact, not tuned for deployment, and the scores below are the 3-pass column. It shares the inkling2_loop model type with Inkling 2 Mini, which llama.cpp loads; mlx-lm has no class for it yet.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/thinkingmachines/TML-d24-varloop-research"
+        ],
+        [
+          "llama.cpp looped arch",
+          "https://github.com/ggml-org/llama.cpp/pull/32694"
+        ]
+      ],
+      "SCORES": {
+        "coding": [
+          [
+            "SWE-bench Verified (bash only)",
+            "78.7"
+          ],
+          [
+            "SWE-bench Pro v2 (Hard)",
+            "78.9"
+          ],
+          [
+            "DeepSWE v1.1",
+            "47.4"
+          ]
+        ],
+        "agentic": [
+          [
+            "BrowseComp (original, no context management)",
+            "65.7"
+          ],
+          [
+            "MCP Atlas (Public)",
+            "79.4"
+          ],
+          [
+            "JobBench",
+            "63.8"
+          ]
+        ],
+        "vision": [
+          [
+            "MMMU Pro (Standard 10)",
+            "71.4"
+          ],
+          [
+            "OmniDocBench v1.6",
+            "92.1"
+          ],
+          [
+            "ScreenSpot Pro (original / with Python)",
+            "72.0/87.7"
+          ]
+        ],
+        "reasoning": [
+          [
+            "HLE-Diamond",
+            "9.5"
+          ],
+          [
+            "GPQA Diamond",
+            "84.2"
+          ],
+          [
+            "MRCR v2 (8-needle 256K-512K)",
+            "89.2"
+          ]
+        ]
+      },
+      "BEST_ENGINE": "llamacpp",
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "The looped arch (inkling2_loop) is the same model type as Inkling 2 Mini and landed with PR 32694 (Nov 20) plus the loop-slot re-share fix PR 32704 (Nov 21), both in the current release b12628; the pass count is a config value (3 by default, is_varloop on). ggml-org ships the first-party GGUFs - BF16, Q8_0, IQ4_NL - with the vision projector. The lab calls local support for looped models new, so a first load at other pass counts is unverified here.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "degraded",
+          "label": "No library entry",
+          "note": "The card lists Ollama on Apple silicon, but there is no Ollama library entry as of Nov 22 (inkling-2-mini and inkling-2-small do have one), so it has to be pulled as a GGUF. On Mac Ollama defaults to the MLX engine since v0.30 and mlx-lm has no inkling2_loop class, so the GGUF path is the one that should work - unverified.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "degraded",
+          "label": "Needs current engine",
+          "note": "No lmstudio-community GGUFs yet; the app would load ggml-org's first-party quants or Xylolabs' NVFP4 builds, and only if the bundled engine carries the looped-arch code that landed upstream on Nov 20 (PR 32694). Unverified.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "No model class",
+          "note": "mlx-lm has no inkling2_loop model class as of Nov 22. Open PR 2086 (looped Inkling 2, stacked on PR 2061) targets the same model type and should unblock it - whether it exposes the variable pass count is unverified. Xylolabs already ships a 4-bit MLX quant that nothing can load until it lands.",
+          "issues": [
+            "ml-explore/mlx-lm#2086"
+          ]
+        },
+        "omlx": {
+          "status": "blocked",
+          "label": "No model class",
+          "note": "oMLX's LLM coverage is mlx-lm's plus hand-written kernels for GLM-5.2, MiniMax M3 and Qwen3.5; there is no inkling2 support, so it cannot load the Xylolabs MLX quant until PR 2086 lands.",
+          "issues": [
+            "ml-explore/mlx-lm#2086"
+          ]
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "No model",
+          "note": "No inkling2_loop implementation in the vLLM Metal fork as of Nov 22; the card's vLLM support targets the usual upstream GPU stack.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "No model",
+          "note": "No inkling2 implementation in vllm-mlx as of Nov 22; the card's vLLM support targets the upstream stack, not the MLX fork.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "DwarfStar is purpose-built for DeepSeek V4 Flash, V4 PRO and GLM-5.2 and deliberately does not load other checkpoints.",
+          "issues": []
+        }
+      },
+      "QUANT_SOURCES": {
+        "gguf": [
+          "ggml-org/TML-d24-varloop-research-GGUF",
+          "Xylolabs/TML-d24-varloop-research-GGUF"
+        ],
+        "mlx": [
+          "Xylolabs/TML-d24-varloop-research-MLX"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 32768,
+        "max_context": 1048576,
+        "derivation": "24 layers; 20 are sliding-window (window 1024, excluded) and 4 are global attention (layers 5, 11, 17, 23), GQA with 8 KV heads x 128 head_dim. The middle 12 looped layers (6-17) get one cache per pass for their two global layers (11, 17), so the cost scales with the pass count: (2 + 2 x passes) x 8 x 128 x 2 (K,V) x 2 (fp16) - 16,384 bytes/token at 1 pass, 32,768 at the shipped 3-pass default, 49,152 at 5."
+      },
+      "ranks": [],
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "TML-d24-varloop-research-BF16",
+            "repo": "ggml-org/TML-d24-varloop-research-GGUF",
+            "gb": 52.23,
+            "kind": "quant",
+            "bpw": 15.83
+          },
+          {
+            "label": "TML-d24-varloop-research-Q8_0",
+            "repo": "ggml-org/TML-d24-varloop-research-GGUF",
+            "gb": 27.82,
+            "kind": "quant",
+            "bpw": 8.43
+          },
+          {
+            "label": "TML-d24-varloop-research-NVFP4",
+            "repo": "Xylolabs/TML-d24-varloop-research-GGUF",
+            "gb": 22.92,
+            "kind": "quant",
+            "bpw": 6.95
+          },
+          {
+            "label": "TML-d24-varloop-research-IQ4_NL",
+            "repo": "ggml-org/TML-d24-varloop-research-GGUF",
+            "gb": 17.63,
+            "kind": "quant",
+            "bpw": 5.34
+          }
+        ],
+        "mlx": [
+          {
+            "label": "TML-d24-varloop-research-MLX",
+            "repo": "Xylolabs/TML-d24-varloop-research-MLX",
+            "gb": 18.09,
+            "kind": "quant",
+            "bpw": 5.48
+          }
+        ]
+      }
     }
   ],
   "engines": [
