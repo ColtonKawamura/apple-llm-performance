@@ -9418,6 +9418,27 @@
   ],
   "news": [
     {
+      "date": "2026-11-22",
+      "top": [
+        [
+          "Thinking Machines releases Inkling 2 Mini: 26.2B looped-transformer MoE with image input and 1M context",
+          "Thinking Machines' first looped transformer, released Nov 20 under Apache-2.0: a 24-layer, 26.2B sparse MoE (3.4B active) whose middle 12 layers run three times over shared weights, giving 5.4B effective active parameters per token, with image and text input through a built-in vision transformer and a 1M-token context. It ships as a single ~20GB checkpoint in mixed NVFP4/MXFP8 and is aimed at local hardware - the card names Apple silicon devices with 32GB or more (MacBooks, Mac minis and Studios) and lists Ollama, llama.cpp (via Unsloth GGUFs), vLLM, SGLang and Hugging Face Transformers as supported runtimes. Lab scores: Terminal-Bench 2.1 71.6% (pi v0.83.0), SWE-bench Verified 79.2% (bash only).",
+          "https://huggingface.co/thinkingmachines/Inkling-2-Mini"
+        ],
+        [
+          "Edge0-145B: 145B latent-MoE agent model natively trained at 4-bit trends on Hugging Face with a Metal build",
+          "A 145B agent model with 88,713 downloads last month and a documented Metal path for Macs: a 48-layer latent sparse MoE - 512 experts per layer, 10 routed plus 1 shared active per token, 10.1B active of 145B total (84.6B expert pool plus a 51.2B fp8 n-gram table), 256K context - rebuilt from Qwen3.8-Flash-Next's expert layer and trained natively at 4 bits rather than quantized afterwards, with a 120B sibling in the same family. Builds are Q3_K at 40.81 GiB and NVFP4 at 47.79 GiB; the Edge0 engine runs both on CUDA 13 and on Metal (Apple silicon macOS), where the NVFP4 expert pool stays in unified memory, and the Apple M2 Ultra row posts 800.3 tok/s 16K prefill and 60.9 tok/s chat decode on Q3_K. Terminal-Bench 2.1 86.5, DeepSWE 1.1 64.6. Licensed under the Edge0 Community Model License 1.0 with Qwen Community License terms for Qwen-derived material: personal, research, internal use and commercial use of outputs are permitted, but running a commercial service needs a separate license.",
+          "https://huggingface.co/Edge0/Edge0-145B-NVFP4"
+        ],
+        [
+          "Inkling-2 Mini and Small land on Ollama for one-command Mac inference",
+          "Ollama's library gained inkling-2-mini about 18 hours ago, with inkling-2-small alongside it in the newest list, so Thinking Machines' release is one `ollama run` away on a Mac. Ollama's card describes it as a 26B-parameter, 5.4B-active model with looped layers for more computation per token, tagged for vision, tools and thinking; the model is 26.2B total parameters with 5.4B effective active per token, about 20GB of weights, Apache-2.0, and the lab's own card targets Apple silicon with 32GB or more of memory.",
+          "https://ollama.com/library/inkling-2-mini"
+        ]
+      ],
+      "newModels": []
+    },
+    {
       "date": "2026-11-21",
       "top": [
         [
@@ -9550,27 +9571,6 @@
           "https://huggingface.co/internlm/Sage-S2.1-Flash"
         ]
       ]
-    },
-    {
-      "date": "2026-11-15",
-      "top": [
-        [
-          "Page now tracks MiniMax-H3-Image: 16 MP native, 33.1B DiT, no Mac engine can load it yet",
-          "MiniMax-H3-Image is the biggest image model on the page and the only one that outputs 16 MP natively: 4096x4096 up to 6272x2688 directly with no upscaler, distilled to 6 sampling steps without classifier-free guidance, with text-to-image and editing of up to 16 reference images unified in one checkpoint. The diffusion transformer is 33.1B parameters in BF16 (66.28 GB for transformer/, 2.34 GB for the VAE) and it loads a 66.7 GB Qwen3-VL text encoder from the MiniMax-H3 repo, so a full local copy is roughly 135 GB. It ships under MiniMax's community license agreement rather than a standard open licence. The card's deployment targets are all GPU frameworks (SGLang, vLLM-Omni, diffusers, LightX2V, ComfyUI, on H200, RTX PRO 6000 and MI350X); no engine on the page can load it yet, so the entry is a tracking card for the gap, not a working Mac recipe.",
-          "https://huggingface.co/MiniMaxAI/MiniMax-H3-Image"
-        ],
-        [
-          "Leech-lattice quantization reaches Qwen3 at 2.7 bits per weight: better than IQ2_S on quality, slower, with a Metal build for Mac",
-          "A Rust runtime (Apache-2.0, github.com/pjmalandrino/llvq) implements Qualcomm's Leech-lattice vector quantization and publishes Qwen3-4B, 8B and 14B sealed at 2.70-2.73 bits per parameter: 1.38, 2.76 and 5.04 GB of weights, with measured MMLU of 63.4, 69.6 and 75.7 and WikiText-2 perplexity of 12.58, 9.71 and 8.44 on one L40S. The author reports +9.1, +4.1 and +2.9 MMLU points over llama.cpp's IQ2_S calibrated to the same bits, at the cost of speed: IQ2_S decodes 60, 64 and 34 tok/s faster than LLVQ's 113.8, 95.0 and 57.2 tok/s. llama.cpp cannot read the custom format; the runtime speaks the Ollama and OpenAI APIs, CUDA is the primary backend, and the repo builds with a Metal feature for Mac, though no Mac numbers have been published. So a 14B in 5 GB is a candidate for a 16 GB Mac on paper, not in practice.",
-          "https://github.com/pjmalandrino/llvq"
-        ],
-        [
-          "mlx-community ships an 8-bit MLX build of NVIDIA's Dory 1.0 4B looped reasoning model - with a patched-runtime catch",
-          "mlx-community converted NVIDIA's Dory 1.0 4B - a looped reasoning model with about 3.975B parameters, a declared 262k context, and weights shared across two recurrent loops by default - to uniform MLX affine 8-bit with group size 64 (remainder BF16), roughly 4 GB of weights. It is the first MLX path to the model, but stock mlx-lm 0.7.3 has no Dory model class and the upstream PR (#1988) is still pending, so the card ships pinned runtime patches and a tokenizer fallback instead of a drop-in install. The converter's local GPQA-Diamond run scored 69.7% at 2 loops and 75.3% at 4 loops against NVIDIA's reported 72.4% and 72.2% for the BF16 model, and the card itself says the methods were not matched, so that is not a quantization claim. The model is governed by NVIDIA's OpenMDW-1.1 agreement, not a standard open licence.",
-          "https://huggingface.co/mlx-community/NVIDIA-Nemotron-Labs-Dory1.0-4B-MLX-8bit"
-        ]
-      ],
-      "newModels": []
     }
   ]
 }
