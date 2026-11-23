@@ -9614,6 +9614,27 @@
   ],
   "news": [
     {
+      "date": "2026-11-23",
+      "top": [
+        [
+          "Thinking Machines releases TML-d24-varloop-research, a variable-loop MoE that runs on a 32GB Mac",
+          "A multimodal text-plus-image model and the variable-loop counterpart to Inkling 2 Mini, released Nov 20 as open weights under Apache 2.0. It is a 24-layer decoder with sparse MoE feed-forward layers: 26.4B total parameters, 3.4B active, with the middle 12 layers looping a pass count chosen at inference (trained 1-5, post-trained at 3); each extra pass adds about 1.0B effective active parameters, so it runs at 3.4B active at one pass, 5.4B at three and 7.4B at five. The checkpoint is a single ~20GB file in its native mixed NVFP4 / MXFP8 / BF16 precision, so no further quantization is needed. The card lists llama.cpp and Unsloth for quantized GGUF builds and Ollama and Exo Labs on Apple silicon, and explicitly names a 32GB unified-memory Mac (e.g. a Mac mini) as the minimum machine.",
+          "https://huggingface.co/thinkingmachines/TML-d24-varloop-research"
+        ],
+        [
+          "InclusionAI publishes LingSante-3.1-flash MXFP4, the 292GB quant of its 560B medical MoE",
+          "InclusionAI's open-weight medical model, built on Ling-3.1-flash: a hybrid-linear MoE with ~560B total parameters, ~25B active per token, 63 KDA and 9 Gated-MLA layers (7:1) and 512 routed experts, with a 1M context window per the release card. The MXFP4 checkpoint published Nov 22 RTN-quantizes the routed experts to E2M1 while keeping dense MLP, shared-expert and attention modules in FP8/BF16; it measures 291.72 GiB (313.23 GB) and is MIT-licensed, configured for a 262,144-token context. Recommended deployment is 4x NVIDIA H20-3e, and at ~292GB the checkpoint exceeds the 192GB of unified memory in the largest Macs - a datacentre release, not a Mac one.",
+          "https://huggingface.co/inclusionAI/LingSante-3.1-flash-MXFP4"
+        ],
+        [
+          "Microsoft publishes Aion-1.0-Instruct-2.3B under MIT, the SLM headed into Windows by January 2027",
+          "Microsoft's Windows Applied Sciences Group released Aion 1.0 Instruct, a 2.3B-parameter small language model from the Windows ecosystem under an MIT licence, with a 32K context window and English, German, Spanish, Portuguese, Italian, French, Chinese and Japanese. It is the foundation SLM for on-device Windows AI, and a further optimized version paired with a content-moderation model is to become the Windows OS SLM by the end of January 2027. It ships unquantized in PyTorch, ONNX and GGUF with quantized versions promised to follow; at 2.3B parameters it is roughly 4.6GB unquantized, so it fits any Mac today.",
+          "https://huggingface.co/microsoft/Aion-1.0-Instruct-2.3B"
+        ]
+      ],
+      "newModels": []
+    },
+    {
       "date": "2026-11-22",
       "top": [
         [
@@ -9740,33 +9761,6 @@
         ]
       ],
       "newModels": []
-    },
-    {
-      "date": "2026-11-16",
-      "top": [
-        [
-          "GLM-Tandem: GLM-5.3-Flash on two Mac Studios, tensor-parallel, at about 140 tokens/s",
-          "A new repo, icryo/GLM-Tandem, is a recipe for serving GLM-5.3-Flash across two Mac Studios (M5 Ultra, 256 GB each) joined by Thunderbolt 5 RDMA, split tensor-parallel, on top of oMLX's cluster loader and stock mlx_lm.server with an OpenAI-style API. The checkpoint is a uniform 4-bit (group 64) GLM-5.3-Flash with its MTP draft head, 169 GiB, half on each machine. Fresh prose decodes at 141-146 tok/s for one request (speculative decoding with the model's own MTP head accepts about 77-79% of drafts), 223 tok/s total across 8 concurrent requests, and 122 tok/s at 80-200k context; prompt processing runs at about 2,080 tok/s. The cost is the top of the current lineup - two 256 GB M5 Ultra Mac Studios - and the recipe is tied to oMLX 0.8.0rc1, which it patches at load time; requests with very different context lengths decoded together fall to about 5 tok/s each.",
-          "https://github.com/icryo/GLM-Tandem"
-        ],
-        [
-          "InternLM ships Sage-S2.1: a 753B flagship and a 321B Flash, MIT-licensed",
-          "The internlm org has published the Sage-S2.1 family on Hugging Face: a 753B-parameter flagship and a 321.3B 'Flash' variant first published 2026-11-15, each with FP8 and BF16 checkpoints, MIT-licensed. The model card is empty - no architecture, context length or benchmarks - so nothing on the page can rank it yet. What it costs to run: the smallest published checkpoint of the 321B Flash is the FP8 build, roughly one byte per weight, around 320 GB, which is 512 GB Mac Studio territory at best and no MLX or GGUF quant is out yet; the 753B flagship is beyond any single Mac at the published precision.",
-          "https://huggingface.co/internlm/Sage-S2.1-Flash"
-        ],
-        [
-          "Zyphra's ZONOS3-Mini: open TTS with 100M active parameters and an MLX server for Apple silicon",
-          "ZONOS3-Mini is Zyphra's compact open-source text-to-speech model: 800M parameters total, about 100M active per token (latent MoE, 64 experts, top-2 routing), 44.1 kHz audio, 43 languages, voice cloning from a reference clip of up to 60 seconds, word-level control of emotion, pace and delivery, and up to 10 minutes per generation, under Apache 2.0 with a technical report (arXiv 2611.16525). It claims real time on phones and laptops, and the repo ships the runtimes to match: a CUDA server, an MLX server for Apple silicon, a C++/ggml server that can use Metal, and a WebGPU in-browser build. Within the last 36 hours Zyphra also published ZAC-1-hf, the native Transformers port of its ZAC-1 codec (15 Hz frames, 10 codebooks of 4,096 entries, causal multi-resolution iSTFT decoder): encoder and decoder in one float32 checkpoint of about 2B parameters (~8 GB), Apache-2.0, loadable with plain AutoModel on a Mac.",
-          "https://huggingface.co/Zyphra/ZAC-1-hf"
-        ]
-      ],
-      "newModels": [
-        [
-          "Sage-S2.1-Flash",
-          "InternLM's 321.3B-parameter Flash variant of the new Sage-S2.1 family (753B flagship alongside, FP8 and BF16 checkpoints of each), MIT-licensed, first published 2026-11-15. No MLX or GGUF quant is out yet: the smallest published checkpoint is FP8 at roughly one byte per weight (~320 GB), so expect 512 GB Mac Studio territory at best, and the card still carries no architecture or benchmarks.",
-          "https://huggingface.co/internlm/Sage-S2.1-Flash"
-        ]
-      ]
     }
   ]
 }
