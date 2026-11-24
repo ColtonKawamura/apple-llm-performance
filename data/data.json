@@ -6615,6 +6615,207 @@
           }
         ]
       }
+    },
+    {
+      "ID": "ling32air",
+      "NAME": "Ling 3.2 Air",
+      "MODALITY": "text",
+      "ARCH": "Hybrid-linear MoE 127.9B (5.5B active) - 42 text layers, 35 KDA linear-attention + 7 Gated MLA (5:1), 8 of 512 routed + 1 shared experts - image+video in",
+      "LICENSE": "MIT",
+      "CONTEXT": "256k",
+      "HF": "inclusionAI/Ling-3.2-air",
+      "PARAMS_B": 127.9,
+      "NOTE": "Released Nov 23 in InclusionAI's Ling line: a 127.9B MoE (5.5B active, 8 of 512 routed experts) whose 42 text layers split 35 KDA linear-attention over 7 Gated MLA at 5:1, so the KV cache is only 8 KiB/token and the recommended 256k context is 2 GB on top of the weights. Image+video in; AA Index 23. On the lab's own card Terminal-Bench 4.0 is 27% and AA-Briefcase v1.1 Elo is 1340, up from 987 on Ling-3.0-flash-VL. The GGUFs declare bailingmoe3, which has been in llama.cpp releases since August, so llama.cpp loads it; mlx-lm has no bailing_moe_v3_vl class yet and Ollama has not listed it.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/inclusionAI/Ling-3.2-air"
+        ],
+        [
+          "llama.cpp bailingmoe3 arch",
+          "https://github.com/ggml-org/llama.cpp/pull/26608"
+        ],
+        [
+          "llama.cpp Ling 3.0 VL support",
+          "https://github.com/ggml-org/llama.cpp/pull/29151"
+        ]
+      ],
+      "SCORES": {
+        "coding": [
+          [
+            "Terminal-Bench 4.0",
+            "27"
+          ]
+        ],
+        "agentic": [
+          [
+            "AA-Briefcase v1.1",
+            "1340"
+          ],
+          [
+            "AutomationBench-AA",
+            "61"
+          ],
+          [
+            "GDP.pdf (all-pass)",
+            "16"
+          ],
+          [
+            "Harvey LAB-AA v1.1 (criterion pass)",
+            "87.7"
+          ]
+        ],
+        "indexes": [
+          [
+            "AA Index (v5.0.1)",
+            "23"
+          ]
+        ]
+      },
+      "BEST_ENGINE": "llamacpp",
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "The GGUFs declare bailingmoe3, which has been in llama.cpp since Aug 17 (PR 26608), with Ling 3.0 VL support since Sep 24 (PR 29151); both are in the current release b12671. No mmproj has been published as of Nov 24, so on a Mac it loads text-only; first runs are unverified here. bartowski, bloomer010, linuxid10t and wren6991 ship the GGUFs.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "degraded",
+          "label": "No library entry",
+          "note": "No Ollama library entry as of Nov 24, so it has to be pulled as a GGUF from one of the packagers. On Mac Ollama defaults to the MLX engine since v0.30 and mlx-lm has no bailing_moe_v3_vl class, so the GGUF (llama.cpp bailingmoe3) path is the one that should work - unverified.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "degraded",
+          "label": "Needs current engine",
+          "note": "No lmstudio-community GGUF as of Nov 24; the app would load the third-party quants (bartowski et al.) and only if its bundled engine carries the bailingmoe3 arch that has been in upstream llama.cpp since Aug 17 (PR 26608). Unverified.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "No model class",
+          "note": "mlx-lm has a bailing_moe_v3 class for the Ling text stack but no bailing_moe_v3_vl class as of Nov 24, and no mlx-community quant exists; hermitdave ships an MLX RCO quant that nothing can load until the class lands.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "blocked",
+          "label": "No model class",
+          "note": "oMLX's LLM coverage is mlx-lm's plus its hand-written kernels; there is no bailing_moe_v3_vl support, so it cannot load the MLX quant.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "No model",
+          "note": "No bailing_moe_v3_vl in the vLLM Metal fork as of Nov 24; the lab's own serving recipe is a CUDA vLLM fork (inclusionAI/vllm-ling-v3), which the card links.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "No model",
+          "note": "No bailing_moe_v3_vl implementation in vllm-mlx as of Nov 24; the lab's own serving recipe is a CUDA vLLM fork (inclusionAI/vllm-ling-v3), which the card links.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "DwarfStar is purpose-built for DeepSeek V4 Flash, V4 PRO and GLM-5.2 and deliberately does not load other checkpoints.",
+          "issues": []
+        }
+      },
+      "QUANT_SOURCES": {
+        "gguf": [
+          "bartowski/Ling-3.2-air-GGUF",
+          "bloomer010/Ling-3.2-air-GGUF",
+          "linuxid10t/Ling-3.2-air-GGUF",
+          "wren6991/Ling-3.2-Air-GGUF"
+        ],
+        "mlx": [
+          "hermitdave/Ling-3.2-air-MLX-RCO-2.75bpw"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 8064,
+        "max_context": 262144,
+        "derivation": "42 text layers; 35 are KDA linear-attention layers holding a fixed recurrent state (excluded) and 7 are Gated MLA full-attention layers. An MLA layer caches one compressed latent per token: (kv_lora_rank 512 + qk_rope_head_dim 64) x 2 (fp16) = 1,152 bytes per layer. 7 x 1,152 = 8,064 bytes/token, so a full 262k context costs 2.1 GB."
+      },
+      "ranks": [],
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "Ling-3.2-air-bf16",
+            "repo": "bartowski/Ling-3.2-air-GGUF",
+            "gb": 255.09,
+            "kind": "quant",
+            "bpw": 15.96
+          },
+          {
+            "label": "Ling-3.2-air-Q6_K_XXL",
+            "repo": "bloomer010/Ling-3.2-air-GGUF",
+            "gb": 115.58,
+            "kind": "quant",
+            "bpw": 7.23
+          },
+          {
+            "label": "Ling-3.2-air-Q5_K_M",
+            "repo": "bartowski/Ling-3.2-air-GGUF",
+            "gb": 97.62,
+            "kind": "quant",
+            "bpw": 6.11
+          },
+          {
+            "label": "Ling-3.2-air-IQ4_NL",
+            "repo": "bartowski/Ling-3.2-air-GGUF",
+            "gb": 80.41,
+            "kind": "quant",
+            "bpw": 5.03
+          },
+          {
+            "label": "Ling-3.2-air-MXFP4_MOE",
+            "repo": "bloomer010/Ling-3.2-air-GGUF",
+            "gb": 69.85,
+            "kind": "quant",
+            "bpw": 4.37
+          },
+          {
+            "label": "Ling-3.2-air-Q3_K_M",
+            "repo": "bartowski/Ling-3.2-air-GGUF",
+            "gb": 61.5,
+            "kind": "quant",
+            "bpw": 3.85
+          },
+          {
+            "label": "Ling-3.2-air-Q2_K",
+            "repo": "bartowski/Ling-3.2-air-GGUF",
+            "gb": 49.54,
+            "kind": "quant",
+            "bpw": 3.1
+          },
+          {
+            "label": "Ling-3.2-air-IQ2_XS",
+            "repo": "bartowski/Ling-3.2-air-GGUF",
+            "gb": 40.34,
+            "kind": "quant",
+            "bpw": 2.52
+          },
+          {
+            "label": "Ling-3.2-air-IQ1_S",
+            "repo": "bartowski/Ling-3.2-air-GGUF",
+            "gb": 29.8,
+            "kind": "quant",
+            "bpw": 1.86
+          }
+        ],
+        "mlx": [
+          {
+            "label": "Ling-3.2-air-MLX-RCO-2.75bpw",
+            "repo": "hermitdave/Ling-3.2-air-MLX-RCO-2.75bpw",
+            "gb": 43.97,
+            "kind": "quant",
+            "bpw": 2.75
+          }
+        ]
+      }
     }
   ],
   "engines": [
