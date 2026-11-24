@@ -6359,14 +6359,14 @@
             "bpw": 15.83
           },
           {
-            "label": "thinkingmachines_Inkling-2-Mini-Q6_K_S",
+            "label": "Inkling-2-Mini-Q6_K_S",
             "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
             "gb": 24.04,
             "kind": "quant",
             "bpw": 7.29
           },
           {
-            "label": "thinkingmachines_Inkling-2-Mini-Q5_K_M",
+            "label": "Inkling-2-Mini-Q5_K_M",
             "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
             "gb": 21.22,
             "kind": "quant",
@@ -6380,21 +6380,21 @@
             "bpw": 5.34
           },
           {
-            "label": "thinkingmachines_Inkling-2-Mini-IQ4_NL",
+            "label": "Inkling-2-Mini-IQ4_NL",
             "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
             "gb": 16.11,
             "kind": "quant",
             "bpw": 4.88
           },
           {
-            "label": "thinkingmachines_Inkling-2-Mini-IQ3_XS",
+            "label": "Inkling-2-Mini-IQ3_XS",
             "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
             "gb": 13.77,
             "kind": "quant",
             "bpw": 4.17
           },
           {
-            "label": "thinkingmachines_Inkling-2-Mini-IQ2_S",
+            "label": "Inkling-2-Mini-IQ2_S",
             "repo": "bartowski/thinkingmachines_Inkling-2-Mini-GGUF",
             "gb": 11.07,
             "kind": "quant",
