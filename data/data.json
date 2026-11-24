@@ -9614,6 +9614,38 @@
   ],
   "news": [
     {
+      "date": "2026-11-24",
+      "top": [
+        [
+          "Inkling 2 Mini's quant ladder fills in: Q2_K to Q8_0 imatrix rungs and a 7.8GB entry point",
+          "Thinking Machines' Inkling 2 Mini - a 26.4B-total, 3.4B-active looped MoE (24 layers of weights, the middle 12 run three times, 8 of 128 experts per token, multimodal text-plus-image, Apache 2.0) - has been on the page since its 20GB NVFP4/MXFP8 checkpoint arrived on Nov 20 with no low-memory options. That changed: bartowski's imatrix ladder now runs Q2_K through Q8_0, unsloth's UD rungs go from a 7.8GB IQ1_S to a 22.9GB Q8_K_XL, and ggml-org's first-party repo carries BF16, IQ4_NL and Q8_0. The card itself recommends 32GB or more of Apple-silicon memory for the native checkpoint (MacBooks, Mac minis and Studios, via Ollama, llama.cpp or Exo Labs), so the ~16.6GB Q4_K_M rung fits a 32GB Mac with room for context, and the sub-8GB IQ rungs put a usable copy in the 16GB-class machine. mlx-community also publishes a 4-bit MLX conversion.",
+          "https://huggingface.co/thinkingmachines/Inkling-2-Mini"
+        ],
+        [
+          "Baidu opens the ERNIE 5.5 Flash Preview: 280B MoE, 14B active, 1M context",
+          "Baidu's first post-trained checkpoint on ERNIE 5.5 Flash Base is a 280B-total MoE with 14B active per token and a 1M-token context window, stretched from 128K in mid-training, under Apache 2.0. The card leads with long-horizon agent work - one 11-hour task produced a complete third-person wuxia game in C++ on Unreal Engine 5.8 - and with FP4 expert weights plus a DSpark draft head for speculative decoding. The as-published checkpoint is 166GB of safetensors, and no GGUF or MLX quant exists yet, so the realistic Apple-silicon target is a 512GB-class Mac Studio once the first quant lands; the model_type (ernie5_5_moe) is new to the engine tables, so loadability is unverified. Baidu says post-training is still in progress and this is an intermediate checkpoint, not a final release.",
+          "https://huggingface.co/baidu/ERNIE-5.5-Flash-Preview"
+        ],
+        [
+          "InclusionAI ships Ling-3.2-air: 124B hybrid-linear MoE with 5.5B active, MIT",
+          "Ling-3.2-air is InclusionAI's open-weight native multimodal model sharing the Ling-3.0-flash-VL architecture: a hybrid-linear MoE of 35 KDA and 7 Gated-MLA layers, 124B total with 5.5B active (512 routed experts, 8 activated), MIT-licensed, with a 262K-context recipe in the card. Its headline numbers are the agentic deltas over the predecessor - AutomationBench-AA up from 15.7% to 61%, AA-Briefcase Elo from 987 to 1340, Terminal-Bench 4.0 from 0% to 27% - and a 23 on the Artificial Analysis Intelligence Index v5.0.1. The as-published checkpoint is 129GB, so today it points at a 256GB-class Mac; no Mac quant has been published, but mlx-community already converts the Ling family, so a 4-bit rung is the expected next step, and 5.5B active per token should decode quickly once one lands.",
+          "https://huggingface.co/inclusionAI/Ling-3.2-air"
+        ]
+      ],
+      "newModels": [
+        [
+          "inclusionAI/Ling-3.2-air",
+          "124B-total / 5.5B-active hybrid-linear MoE, native multimodal, MIT, 262K context; 129GB as-published so a 256GB-class Mac for now, no Mac quant yet",
+          "https://huggingface.co/inclusionAI/Ling-3.2-air"
+        ],
+        [
+          "baidu/ERNIE-5.5-Flash-Preview",
+          "280B-total / 14B-active MoE, 1M context, Apache 2.0; 166GB FP4 checkpoint targets a 512GB-class Mac, no GGUF/MLX quant yet and engine support unverified",
+          "https://huggingface.co/baidu/ERNIE-5.5-Flash-Preview"
+        ]
+      ]
+    },
+    {
       "date": "2026-11-23",
       "top": [
         [
@@ -9745,22 +9777,6 @@
           "https://huggingface.co/sensenova/SenseNova-Loop-9B"
         ]
       ]
-    },
-    {
-      "date": "2026-11-17",
-      "top": [
-        [
-          "Qwen-Image-2.1: 7.1B single-stream DiT that unifies text-to-image and editing",
-          "Qwen open-sourced the compact successor to the 20B Qwen-Image: a 7.1B single-stream DiT (32 layers) that does text-to-image and editing in one checkpoint, under the Qwen Research License rather than Apache. It takes up to 10 reference images, accepts local edits as circles, painted annotations or masks, and natively emits transparent RGBA output at up to 2752 px on the long edge (1:1 through 16:9). The card's quick start is bfloat16 - the 7B DiT is about 14 GB of weights plus the text encoder - and documents a CPU-offload path for smaller machines; the page tracks mflux as the best-fit engine.",
-          "https://huggingface.co/Qwen/Qwen-Image-2.1"
-        ],
-        [
-          "Tencent's DSpine draft model: 2.7-3.8x decode speedups for Qwen3.8-27B, SGLang-only for now",
-          "DSpine (arXiv 2609.36173) is a five-layer 2.0B-parameter draft model - block size 16, 8,192-token sliding window, Apache-2.0, about 4 GB on disk - that lets SGLang draft 16 tokens in parallel for Qwen3.8-27B. In the card's BF16 runs it raises end-to-end throughput to 2.7-3.8x autoregressive decoding (up to 840 tok/s on WorkBuddy Web with xhigh reasoning) and beats the DFlash2 draft on acceptance length in every table. The documented runtime is GPU SGLang with FlashAttention-3, Triton and FlashInfer, and an open llama.cpp PR (#31941, since Nov 9) is working on draft support - unmerged, so today it is a speed reference for the page's flagship, not a Mac download.",
-          "https://huggingface.co/tencent/Qwen3.8-27B-DSpine-b16"
-        ]
-      ],
-      "newModels": []
     }
   ]
 }
