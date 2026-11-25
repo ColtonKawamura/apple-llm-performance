@@ -9815,6 +9815,43 @@
   ],
   "news": [
     {
+      "date": "2026-11-25",
+      "top": [
+        [
+          "Ling-3.2-air joins the page: 124B hybrid MoE with an 8 KiB/token KV cache",
+          "InclusionAI's Ling-3.2-air — a hybrid-linear MoE with 124B total parameters (127.9B on disk) and 5.5B active, built from 35 KDA linear-attention layers and 7 Gated MLA layers at a 5:1 split with 8 of 512 routed experts active, MIT-licensed — is now tracked on the page with llama.cpp as its best engine. Only the 7 MLA layers hold a KV cache, at 8 KiB per token, so the recommended 256k context costs just 2 GB on top of the weights. GGUF quants appeared the day of the Nov 23 release and MLX conversions followed, including a 2.75 bpw build, which is the Mac entry point. The card's headline is 23 on the Artificial Analysis Intelligence Index v5.0.1, with the gains over Ling-3.0-flash-VL concentrated in document and terminal work: AutomationBench-AA from 15.7% to 61%, GDP.pdf all-pass from 8.4% to 16%, Terminal-Bench 4.0 from 0% to 27%.",
+          "https://huggingface.co/inclusionAI/Ling-3.2-air"
+        ],
+        [
+          "KRAFTON ships Raon-1 mini: 28.8B hybrid MoE with same-day GGUF and MLX quants",
+          "KRAFTON AI's Raon-1 mini is a 28.8B-total, 4.3B-active MoE trained from scratch — 25 layers, 18 of them a new Raon Delta Attention (RDA) with a fixed-size recurrent state and 7 Gated MLA, 6 of 128 routed experts plus 1 shared active per token — Apache-2.0, with a native 262k context and a KV cost of about 8 KiB per token in BF16. It leads the MoE baselines it is compared against on AIME 2026 (96.7) and GPQA Diamond (86.0), and is tuned for Korean alongside English, Japanese, Chinese, Spanish, French, and Thai. KRAFTON published first-party GGUF and MLX quants within the hour of the base release, plus a DFlash2 draft model for speculative decoding; the native checkpoint is about 32 GB, mostly FP8. As of this morning neither llama.cpp nor mlx-lm ships a model class for RDA, so the quants are ahead of the engine support and it is not yet loadable on a Mac.",
+          "https://huggingface.co/KRAFTON/Raon-1-mini"
+        ],
+        [
+          "Tencent ships Apple-silicon builds for WePocketModel 1.0",
+          "Tencent's WePocketModel 1.0 is a 2.2B and 4.5B image-and-text family (Apache-2.0) on a Qwen3.5 backbone — a Qwen3-VL vision tower plus a 24- or 32-layer hybrid language model — that serves three jobs from one set of weights: text generation from text, images, or interleaved input (OCR, captioning, VQA, chat), 2048-dim text-and-image embeddings with MRL truncations, and structured decision outputs. The base weights shipped Nov 16–17 with GGUF quants, but today Tencent published MLX-layout builds of both sizes with a self-contained runtime that needs no PyTorch — a pinned dependency set including mlx, mlx-vlm, transformers, and Pillow. The 2B carries 4.12 GiB of BF16 backbone weights; the 4B is 9.1 GB of weight files with a card-measured BF16 peak memory of 8.99 GiB.",
+          "https://huggingface.co/tencent/WePocketModel1.0-2B-MLX"
+        ]
+      ],
+      "newModels": [
+        [
+          "WePocketModel 1.0 2B (MLX)",
+          "2.2B Apache-2.0 image-and-text model (Qwen3-VL vision tower + 24-layer hybrid LM) that generates text from text or interleaved image/text, embeds text and images into 2048-dim vectors, and returns structured decision outputs; today's MLX build is BF16 with 4.12 GiB of backbone weights, run by a bundled no-PyTorch runtime.",
+          "https://huggingface.co/tencent/WePocketModel1.0-2B-MLX"
+        ],
+        [
+          "WePocketModel 1.0 4B (MLX)",
+          "4.5B Apache-2.0 sibling with a 32-layer hybrid LM and the same three capability families; today's MLX build is BF16 with 9.1 GB of weight files and a card-measured peak memory of 8.99 GiB.",
+          "https://huggingface.co/tencent/WePocketModel1.0-4B-MLX"
+        ],
+        [
+          "Raon-1-mini",
+          "28.8B-total / 4.3B-active hybrid MoE from KRAFTON AI (18 fixed-state RDA layers + 7 Gated MLA, ~8 KiB/token KV, native 262k context), Apache-2.0, tuned for Korean plus six other languages; first-party GGUF and MLX quants shipped within the hour of the release, but no engine has an RDA class yet, so it is not loadable on a Mac today — the native checkpoint is about 32 GB, mostly FP8.",
+          "https://huggingface.co/KRAFTON/Raon-1-mini"
+        ]
+      ]
+    },
+    {
       "date": "2026-11-24",
       "top": [
         [
@@ -9949,33 +9986,6 @@
           "Aion 1.0 Instruct 2.3B",
           "Microsoft's 2.29B-parameter, MIT-licensed on-device SLM (the future Windows OS model); the bf16 original is about 4.6 GB, and a 4-bit GGUF for llama.cpp has already shipped, so the quantised version runs in roughly a gigabyte or two on any Mac",
           "https://huggingface.co/microsoft/Aion-1.0-Instruct-2.3B"
-        ]
-      ]
-    },
-    {
-      "date": "2026-11-18",
-      "top": [
-        [
-          "Kimi K3.1 Pro open weights: 2.8T MoE at 1.56 TB in MXFP4, the page's top open model, and no Mac can hold it",
-          "Moonshot's Kimi K3.1 Pro is on the page with its full open weights (moonshotai/Kimi-K3.1-Pro): a 2.8T-parameter mixture of experts that activates 104B per token, natively multimodal (text plus image), 1M-token context, trained quantization-aware so the published weights are already MXFP4 with MXFP8 activations across 96 shards totalling 1.56 TB. It is the strongest open-weights model tracked here (Artificial Analysis intelligence 46, ahead of DeepSeek V4.1 Flash) and is already listed in the Ollama catalogue. The cost on a Mac is the point: 1.56 TB of weights is about three times the 512 GB of the largest Mac Studio, so no Mac can load the full model, and the card's own deployment path is vLLM, SGLang or TokenSpeed on multi-GPU servers. The Kimi K3.1 Pro licence permits use, fine-tuning and redistribution, with a separate agreement required for model-as-a-service operators above $20M annual revenue and attribution required for products above 100M monthly users.",
-          "https://huggingface.co/moonshotai/Kimi-K3.1-Pro"
-        ],
-        [
-          "Tencent Hy4 flash weights ship: 220B MoE with 12B active and a KV cache 1/24 the size of Hy3's",
-          "Tencent announced Hy4 flash on November 16 and the open weights landed on Hugging Face on November 17 (tencent/Hy4-flash, plus an FP8 variant and the pre-trained base): a 220B-parameter mixture of experts, 155.5B backbone plus a 63.5B n-gram Engram table, that activates only 12B parameters per token, takes text and images natively and runs a 1M-token context. Everything is built for cost: hybrid sparse (up to 2,048-token selection) plus 512-token sliding-window attention cuts the KV cache to 1/24 of Hy3's and 1/6 of Hy4's, LatentMoE routes 16 of 512 experts in a compressed latent space, and a built-in 0.85B DFly2 drafter does speculative decoding with zero extra KV memory. Tencent reports a WorkIndex score of 42.1, above Hy4 preview's 39.7, at 1/13 the cost per task, and past 150 tok/s decoding with 4-bit quantization and megakernels. On a Mac, the 220B of weights is roughly 110 GB at 4-bit, which is 256 GB or 512 GB Mac Studio territory on paper, but the card ships vLLM and SGLang (GPU) deployment only and whether llama.cpp or mlx-lm can load the new LatentMoE/Engram architecture is still open, so it is not runnable on Apple silicon today. It carries the custom Tencent Hy License.",
-          "https://huggingface.co/tencent/Hy4-flash"
-        ],
-        [
-          "Qwen3.8-27B gets a MACaQ MXFP4 MLX quant: 18.1 GB, 26-31 tok/s on an M5 Max",
-          "mlx-community published a new 4-bit MLX build of Qwen3.8-27B made with MACaQ, a calibrated MXFP4 post-training quantization (arXiv 2611.10649): MXFP4 weights with bf16 activations (W4A16), all 400 decoder linear layers at 4.25 bits per weight, 18.1 GB against 54.7 GB for the bf16 checkpoint, Apache-2.0 like the base model. Measured against bf16 on the same harness it holds 92.6-92.9% top-1 token agreement and beats both of mlx-lm's own 4-bit conversions on KL divergence and perplexity. The card reports 26-31 tok/s greedy decode on an M5 Max, about three times the roughly 9 tok/s of bf16, with 23.6 GB peak memory, which fits a 32 GB Mac. It runs through mlx-lm with a bundled roughly 100-line loader (macaq_model.py) via trust_remote_code; a plain mxfp4 load deliberately fails because it would drop the per-channel scale and Hadamard rotation. It is text-only: the base model's vision tower is not included.",
-          "https://huggingface.co/mlx-community/Qwen3.8-27B-MACaQ-W4A16-mlx"
-        ]
-      ],
-      "newModels": [
-        [
-          "SenseNova-Loop-9B",
-          "SenseNova's looped multimodal model, released November 17 under Apache-2.0: about 9B parameters (14.6B inference-equivalent) that re-run a shared 24-layer block twice, giving 56 decoder-layer executions from 32 physical layers, with hybrid linear/full attention and a 512K context. Text and image in, text out; it targets agentic, coding and data-analysis work and matches Qwen3.8-27B on AIDABench (65.31 vs 65.01) at a fraction of the memory. An official AWQ 4-bit build ships on launch day and the card puts multimodal inference at a 256K context with an 8-bit KV cache at about 15 GiB, comfortable on a 32 GB Mac; the 4-bit checkpoint itself is only about 4.7 GB, so shorter contexts run on 16 GB machines. Fourteen community quantizations for llama.cpp and LM Studio are already up.",
-          "https://huggingface.co/sensenova/SenseNova-Loop-9B"
         ]
       ]
     }
