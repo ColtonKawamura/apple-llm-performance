@@ -32,6 +32,20 @@ if "data-payload" not in html:
 if "dict_items" in html or "OrderedDict" in html:
     problems.append("a Python repr leaked into the page")
 
+# A helper that returns a tuple and is interpolated straight into the template
+# ships the tuple's repr, and "('', '')" under 179 model cards was invisible to
+# every other check. Catch the shape, not just that one instance.
+# Python reprs use single quotes; the page's JS uses double quotes, so this
+# shape does not false-positive on setAttribute("a", "b") calls.
+tuple_repr = re.search(r"\('[^']*',\s*'[^']*'\)", html)
+if tuple_repr:
+    problems.append(f"a tuple repr leaked into the page: {tuple_repr.group(0)[:40]}")
+
+# `hf` is a repo path for HF models and a full URL for AA-listed ones. Blindly
+# prefixing it produced https://huggingface.co/https://artificialanalysis.ai/...
+if "huggingface.co/http" in html:
+    problems.append("a source link is double-prefixed with huggingface.co/")
+
 # The build already refuses to emit C0/C1 characters; this is the belt to that
 # brace, because an octal escape in embedded CSS once shipped U+0091 to the page.
 for ch in re.findall(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\x9f]", html):

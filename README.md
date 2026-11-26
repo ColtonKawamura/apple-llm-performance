@@ -17,8 +17,13 @@ per model: whether it runs, which engine to use, which quantisation that engine
 should load at that memory size, how much fidelity you give up, and how many
 concurrent contexts fit in what's left.
 
-Corrections and additions are welcome — open an issue or send a PR. Everything
-the page renders from is in this repo, in plain Python data structures.
+The model list is Artificial Analysis' open-weights leaderboard, so the "What
+for?" chips rank on its published Intelligence Index, cost per task, time per
+task, latency and context window. Engine compatibility is tracked separately
+and only exists for models someone has actually evaluated on Apple silicon.
+Most AA-listed models have no Mac data yet; the page says so rather than
+guessing. Corrections and additions are welcome — open an issue or send a PR.
+Everything the page renders from is in this repo, in `data/data.json`.
 
 ## This was made by AI, and AI contributions are welcome
 
@@ -156,8 +161,12 @@ bitten us here.
 
 ## How the numbers are derived
 
-- **Weights** are summed file sizes from the linked Hugging Face repository —
-  safetensors for MLX builds, GGUF for the rest. Measured, not estimated.
+- **Weights are measured where a build exists.** For a model with engine data,
+  sizes are summed file sizes from the linked Hugging Face repository —
+  safetensors for MLX builds, GGUF for the rest. The AA-listed models have no
+  published quantisation build here, so their size is an estimate of ~1.5 GB
+  per billion parameters (12-bit) and is marked `~` and `*` on the page. An
+  estimate is not a build you can download.
 - **Bits per weight** is `bytes * 8 / total parameters`, so it is the effective
   figure rather than whatever the quant is named. Those diverge badly on MoE
   models: GLM-5.2's `UD-IQ1_S` is really 2.33 bpw, because the non-expert
@@ -175,14 +184,15 @@ bitten us here.
   state, so neither belongs in a per-token figure. Latent-attention models store
   one compressed vector per layer instead of separate K and V, which is why they
   are so much cheaper.
-- **Use-case rankings are curated, not computed.** The benchmarks are not
-  mutually comparable — Terminal-Bench 2.0 and 2.1 are different tests — so
-  sorting by "score" would invent a comparison that does not exist. Each list is
-  explicit, with the evidence for each placement, and the browser picks the
-  highest-ranked model that actually fits at a usable precision.
-- **Fit** assumes a 90% wired-memory limit plus framework overhead — ~10 GB for
-  an LLM server holding a paged KV pool, ~1.5 GB for an image or audio runtime.
-  It answers "does this load", not "does this run well".
+- **Use-case rankings are Artificial Analysis' numbers, not ours.** Each of the
+  five chips owns one AA table (Intelligence Index, cost per task, time per
+  task, latency, context window) and ranks models on that single scale. They are
+  not mixed: a $3.68 cost per task is not compared with an Intelligence score.
+- **Fit** assumes 15 GB per machine for macOS + Window Server plus framework
+  overhead — ~10 GB for an LLM server holding a paged KV pool, ~1.5 GB for an
+  image or audio runtime — and that pooling shards weights evenly. It answers
+  "does this load", not "does this run well". A model with only an estimated
+  size is marked, and its fit is an estimate too.
 
 ## Limits worth stating plainly
 

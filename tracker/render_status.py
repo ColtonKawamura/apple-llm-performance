@@ -75,6 +75,35 @@ def slug(name):
     return "m-" + "".join(c.lower() if c.isalnum() else "-" for c in name).strip("-")
 
 
+def fmt_ctx(v):
+    """A context figure a reader can scan: 1M, 262K, 66K. Raw token counts are
+    the one number on the page where the digit string itself is unreadable."""
+    if v is None:
+        return "N/A"
+    if isinstance(v, str):
+        return v
+    if v >= 1_000_000:
+        return f"{v / 1_000_000:g}M"
+    if v >= 1_000:
+        return f"{v / 1_000:g}K"
+    return str(v)
+
+
+def fmt_score(kind, v):
+    """AA figures carry units; a bare 3.68 or 40.1 means nothing."""
+    if v is None:
+        return None
+    if kind == "cost":
+        return f"${v:,.2f} per task"
+    if kind == "speed":
+        return f"{v:g} min per task"
+    if kind == "latency":
+        return f"{v:g} s to first token"
+    if kind == "context":
+        return f"{fmt_ctx(v)} tokens"
+    return f"{v:g}"
+
+
 def best_cell(m):
     """The engine a model card opens on."""
     eid = BEST.get(m["id"])
@@ -192,20 +221,28 @@ def index_rows(rows):
     for m in sorted(MODELS, key=lambda m: m["name"].casefold()):
         eid, c = best_cell(m)
         if c is None:
-            # No engine data for this model
-            c = {"s": "none", "label": "AA"}
+            # AA-listed model: no engine has been evaluated against it, so there
+            # is no verdict to give. Saying "AA" in a verdict pill reads like a
+            # status, which it is not.
+            c = {"s": "none", "label": "No Mac data"}
             sc = "unknown"
         else:
             sc = SCLASS.get(c["s"], "unknown")
         lad = ladder_for(eid, m["id"]) if eid else []
         params_b = PARAMS.get(m["id"])
         lad_gb = lad[-1]["gb"] if lad else None
+        estimated = False
         if lad_gb:
             gb = lad_gb
         elif params_b:
-            gb = round(params_b * 1.5, 1)  # 1B params ~ 1.5 GB
+            gb = round(params_b * 1.5, 1)  # ~1.5 GB per 1B params, i.e. 12-bit
+            estimated = True
         else:
             gb = 0
+        size = f"{gb:.0f} GB" if not estimated else f"~{gb:.0f} GB*"
+        size_title = ("Measured build size" if not estimated else
+                      "Estimated at ~1.5 GB per 1B parameters (12-bit); "
+                      "no build has been measured")
         payload = html.escape(json.dumps(model_payload(m)), quote=True)
         out.append(f"""
         <a class="ix-row v-{sc}" href="#{m['id']}" data-model="{m['id']}"
@@ -216,8 +253,8 @@ def index_rows(rows):
           <span class="ix-bars" aria-hidden="true">{lanes}<span class="ix-lane ix-lane-avg"><i></i></span></span></span>
           {support_strip(m)}
           <span class="ix-verdict"><span class="ix-status v-{sc}">{html.escape(c['label'])}</span>
-          <span class="ix-eng">{"N/A" if not eid else html.escape(ENGINE_BY_ID.get(eid, {}).get('name', 'N/A'))}</span></span>
-          <span class="ix-fit"><span class="ix-fit-top"><span class="ix-size">{gb:.0f} GB</span>
+          <span class="ix-eng">{"&mdash;" if not eid else html.escape(ENGINE_BY_ID.get(eid, {}).get('name', 'N/A'))}</span></span>
+          <span class="ix-fit"><span class="ix-fit-top"><span class="ix-size" title="{html.escape(size_title, quote=True)}">{size}</span>
           <span class="ix-meta fit"></span></span>
           <span class="ix-meter" aria-hidden="true"><i></i></span></span>
         </a>""")
@@ -227,22 +264,55 @@ def index_rows(rows):
 def support_strip(m):
     """One square per engine of the model's modality, coloured by its status -
     a caniuse-style support row. Fixed engine order so the columns line up
-    down the list; an engine with no cell for this model shows as empty."""
+    down the list; an engine with no cell for this model shows as empty.
+
+    A missing cell means nobody has evaluated this model on that engine. It is
+    not the same claim as "does not support", which is a cell with status none.
+    """
     mid, mod = m["id"], modality(m)
+    if not MATRIX[mid]:
+        # No engine has been checked. Eight empty squares per row read as a row
+        # of "no" rather than "unknown", and they dominated the list.
+        return ('<span class="ix-strip ix-strip-none" role="img" '
+                'aria-label="Engine support: no engine evaluated" '
+                'title="No engine has been evaluated for this model">&mdash;</span>')
     cells = []
     for e in ENGINES:
         if mod not in e["mods"]:
             continue
         c = MATRIX[mid].get(e["id"])
         sc = SCLASS[c["s"]] if c else "unknown"
-        tip = f"{e['name']}: {c['label'] if c and c['s'] != 'none' else 'not supported'}"
+        if c is None:
+            tip = f"{e['name']}: not evaluated"
+        elif c["s"] == "none":
+            tip = f"{e['name']}: not supported"
+        else:
+            tip = f"{e['name']}: {c['label']}"
         cells.append(f'<i class="sq s-{sc}" title="{html.escape(tip, quote=True)}"></i>')
     return f'<span class="ix-strip" role="img" aria-label="Engine support">{"".join(cells)}</span>'
 
 
 def src_links(m):
-    out = [f"""<a class="src" href="https://huggingface.co/{m['hf']}" target="_blank" rel="noopener">{html.escape(m['hf'])}</a>"""]
-    out += [f"""<a class="src" href="{u}" target="_blank" rel="noopener">{html.escape(lbl)}</a>""" for lbl, u in m["srcs"]]
+    """Every source as a labelled link.
+
+    `HF` is a repo path for a Hugging Face model (Qwen/Qwen3.8-27B) and a full
+    URL for an AA-listed one. Prefixing the latter produced
+    https://huggingface.co/https://artificialanalysis.ai/..., so detect the
+    scheme and never render a raw URL as the link text. The SOURCES list comes
+    first because it carries the labels; the HF link is added only if it is a
+    different URL, so an AA profile listed twice shows once.
+    """
+    out, seen = [], set()
+    for lbl, u in m["srcs"]:
+        if u in seen:
+            continue
+        seen.add(u)
+        out.append(f"""<a class="src" href="{html.escape(u, quote=True)}" target="_blank" rel="noopener">{html.escape(lbl)}</a>""")
+    hf = (m.get("hf") or "").strip()
+    if hf:
+        url = hf if hf.startswith(("http://", "https://")) else f"https://huggingface.co/{hf}"
+        if url not in seen:
+            out.append(f"""<a class="src" href="{html.escape(url, quote=True)}" target="_blank" rel="noopener">Hugging Face</a>""")
     return "".join(out)
 
 
@@ -346,9 +416,11 @@ def engine_meta_line(e):
 
 def engine_tabs(m, rows):
     mid, order = m["id"], engine_order(m["id"])
-    # If no engine data, skip tabs
+    # If no engine data, skip tabs. This must be one string, not a tuple: it is
+    # interpolated into the card template, and a returned ("", "") shipped the
+    # literal "('', '')" under every AA model card.
     if not MATRIX.get(mid):
-        return "", ""
+        return ""
     tabs, panes = [], []
     for i, eid in enumerate(order):
         c = MATRIX[mid].get(eid)
@@ -511,22 +583,24 @@ def news_panel():
 
 
 def score_block(m):
-    # AA metrics
-    aa_scores = [(cat, m.get(k)) for cat, k in (
+    # AA metrics. Each carries its unit: a reader seeing "40.1" under "Speed"
+    # cannot tell tokens per second from minutes per task.
+    aa_scores = [(cat, key, m.get(key)) for cat, key in (
         ("Intelligence", "intelligence"),
         ("Cost", "cost"),
         ("Speed", "speed"),
         ("Latency", "latency"),
         ("Context", "context"),
     )]
-    cols = [(cat, val) for cat, val in aa_scores if val is not None]
+    cols = [(cat, fmt_score(key, val)) for cat, key, val in aa_scores if val is not None]
     if not cols:
         return ""
     body = "".join(f"""<div class="score-col"><span class="score-cat">{cat}</span>
-    <span class="score-val">{val}</span></div>"""
+    <span class="score-val">{html.escape(val)}</span></div>"""
                    for cat, val in cols)
     return f"""<div class="scores-wrap"><span class="q-cat">AA Metrics</span>
-          <div class="scores">{body}</div></div>"""
+          <div class="scores">{body}</div>
+          <p class="scores-src">Artificial Analysis figures, not measured here. Speed is time per task.</p></div>"""
 
 
 def render_items(keys, rows):
@@ -559,11 +633,17 @@ def render():
     for m in MODELS:
         eid, c = best_cell(m)
         if c is None:
-            # No engine data for this model (AA models)
+            # AA-listed model: no engine has been evaluated, so there is no
+            # verdict. "AA" in the verdict pill read as a status.
             sc = "unknown"
-            c = {"s": "none", "label": "AA"}
+            c = {"s": "none", "label": "No Mac data"}
         else:
             sc = SCLASS[c["s"]]
+        ctx = m.get("ctx")
+        ctx_label = "Context" if modality(m) == "text" else (m.get("ctx_label") or "Context")
+        ctx_value = fmt_ctx(ctx) if not isinstance(ctx, str) else ctx
+        if ctx is not None and modality(m) == "text":
+            ctx_value += " tokens"
         payload = html.escape(json.dumps(model_payload(m)), quote=True)
         cards.append(f"""
     <section class="model v-{sc}" id="card-{m['id']}" data-model="{m['id']}" data-sw="{sc}"
@@ -576,7 +656,7 @@ def render():
         <dl class="spec">
           <div><dt>Architecture</dt><dd>{html.escape(m['arch'])}</dd></div>
           <div><dt>License</dt><dd>{html.escape(m['lic'])}</dd></div>
-          <div><dt>{html.escape(m.get('ctx_label', 'Context'))}</dt><dd>{html.escape(str(m['ctx']) if m['ctx'] is not None else 'N/A')}</dd></div>
+          <div><dt>{html.escape(ctx_label)}</dt><dd title="{html.escape(str(ctx)) if ctx is not None else ''}">{html.escape(ctx_value if ctx is not None else 'N/A')}</dd></div>
         </dl>
         <div class="model-gauge" hidden aria-hidden="true">
           <div class="mem-bar"><i class="mb-w"></i><i class="mb-o"></i><i class="mb-f"></i></div>
@@ -752,7 +832,15 @@ STYLE = r"""
   /* ---------- use-case chips ---------- */
   .index { margin: 0 0 2.5rem; background: var(--panel); border: 1px solid var(--line); border-radius: var(--r);
     padding: 1.2rem 1.3rem 1rem; box-shadow: var(--shadow); }
-  .ix-top { margin-bottom: .8rem; }
+  .ix-top { margin-bottom: .8rem; display: flex; align-items: flex-end; justify-content: space-between; gap: .8rem 1rem; flex-wrap: wrap; }
+  .ix-search { flex: 0 1 17rem; display: flex; }
+  .ix-search input { font: inherit; font-size: .88rem; color: var(--ink); width: 100%;
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 10px;
+    padding: .5rem .75rem; }
+  .ix-search input::placeholder { color: var(--muted); }
+  .ix-search input:focus { border-color: var(--accent); outline: 2px solid color-mix(in srgb, var(--accent) 35%, transparent); outline-offset: 1px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
   .uc-f { display: flex; flex-direction: column; }
   .uc-list { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0; padding: 0; }
   .uc-chip { margin: 0; display: inline-flex; align-items: center; gap: .45rem; font: inherit; font-size: .82rem;
@@ -776,6 +864,11 @@ STYLE = r"""
   .uc-chip[data-uc="voice"] { --c: var(--bar-voice); }
   .uc-chip[data-uc="narration"] { --c: var(--bar-narration); }
   .uc-chip[data-uc="music"] { --c: var(--bar-music); }
+  .uc-chip[data-uc="intelligence"] { --c: #8b5cf6; }
+  .uc-chip[data-uc="cost"] { --c: #10b981; }
+  .uc-chip[data-uc="speed"] { --c: #f59e0b; }
+  .uc-chip[data-uc="latency"] { --c: #ef4444; }
+  .uc-chip[data-uc="context"] { --c: #06b6d4; }
   .uc-chip .uc-dot { background: var(--c, var(--low)); border-color: var(--c, var(--low)); }
   .uc-chip[aria-pressed="true"] { border-color: var(--c, var(--ok));
     background: color-mix(in srgb, var(--c, var(--ok)) 14%, var(--panel));
@@ -798,6 +891,11 @@ STYLE = r"""
   .uc-legend .uc-slot-voice { background: var(--bar-voice); }
   .uc-legend .uc-slot-narration { background: var(--bar-narration); }
   .uc-legend .uc-slot-music { background: var(--bar-music); }
+  .uc-legend .uc-slot-intelligence { background: #8b5cf6; }
+  .uc-legend .uc-slot-cost { background: #10b981; }
+  .uc-legend .uc-slot-speed { background: #f59e0b; }
+  .uc-legend .uc-slot-latency { background: #ef4444; }
+  .uc-legend .uc-slot-context { background: #06b6d4; }
   .uc-out { margin: 0 0 .9rem; font-size: .88rem; color: var(--ink-2); }
   .uc-out:not(:empty) { padding: .85rem 1rem .85rem 3.1rem; border-radius: 14px; position: relative;
     background: color-mix(in srgb, var(--ok) 8%, var(--panel-2)); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent); }
@@ -863,6 +961,7 @@ STYLE = r"""
   .uc-slot-latency > i { background: #ef4444; }
   .uc-slot-context > i { background: #06b6d4; }
   .ix-strip { display: flex; gap: 3px; flex-wrap: wrap; }
+  .ix-strip-none { color: var(--muted); font-family: var(--f-mono); font-size: .8rem; cursor: help; }
   .sq { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--panel-3);
     box-shadow: inset 0 0 0 1px var(--line); }
   .sq.s-ready { background: var(--ok); box-shadow: none; }
@@ -964,6 +1063,7 @@ STYLE = r"""
   .score-bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--bar-score-a), var(--bar-score-b)); border-radius: 4px; }
   .score-bar.none { background: repeating-linear-gradient(90deg, var(--line) 0 3px, transparent 3px 7px); height: 2px; }
   .score-v { font-family: var(--f-mono); font-size: .78rem; font-weight: 700; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scores-src { margin: .75rem 0 0; font-size: .72rem; color: var(--muted); }
 
   /* engine rail */
   .eng { display: grid; grid-template-columns: 14rem 1fr; background: var(--panel); border: 1px solid var(--line);
@@ -1134,22 +1234,22 @@ STYLE = r"""
 
 TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Open weight AI models and their Apple M-series compatibility.">
+<meta name="description" content="Open-weight AI models ranked on Artificial Analysis benchmarks, with what fits on which Apple silicon and engine.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Colton Kawamura">
 <meta property="og:url" content="https://coltonkawamura.github.io/apple-llm-performance/">
 <meta property="og:title" content="Apple LLM Performance Tracker">
-<meta property="og:description" content="Open weight AI models and their Apple M-series compatibility.">
+<meta property="og:description" content="Open-weight AI models ranked on Artificial Analysis benchmarks, with what fits on which Apple silicon and engine.">
 <meta property="og:image" content="https://coltonkawamura.github.io/apple-llm-performance/card.jpg">
 <meta property="og:image:type" content="image/jpeg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Dark card over a glowing Apple Silicon die reading Can Your Mac Run It? - find the best LLM for your Mac, updated daily. Open source on GitHub.">
+<meta property="og:image:alt" content="Dark card over a glowing Apple Silicon die, showing open-weight models and which Apple silicon they fit on.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Apple LLM Performance Tracker">
-<meta name="twitter:description" content="Open weight AI models and their Apple M-series compatibility.">
+<meta name="twitter:description" content="Open-weight AI models ranked on Artificial Analysis benchmarks, with what fits on which Apple silicon and engine.">
 <meta name="twitter:image" content="https://coltonkawamura.github.io/apple-llm-performance/card.jpg">
-<meta name="twitter:image:alt" content="Dark card over a glowing Apple Silicon die reading Can Your Mac Run It? - find the best LLM for your Mac, updated daily. Open source on GitHub.">
+<meta name="twitter:image:alt" content="Dark card over a glowing Apple Silicon die, showing open-weight models and which Apple silicon they fit on.">
 <link rel="canonical" href="https://coltonkawamura.github.io/apple-llm-performance/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1198,6 +1298,9 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         <span class="sec-k">02 &middot; What for?</span>
         <div class="uc-list" id="uc-sel" role="group" aria-label="Jobs to combine"></div>
       </div>
+      <label class="ix-search"><span class="sr-only">Filter models</span>
+        <input type="search" id="model-filter" placeholder="Filter models&hellip;" autocomplete="off" spellcheck="false">
+      </label>
     </div>
     <div class="uc-legend" id="uc-legend" aria-hidden="true"></div>
     <p class="uc-out" id="uc-out"></p>
@@ -1205,7 +1308,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     <div class="ix-rows">{index}
     </div>
     <div class="ix-key" aria-hidden="true"><span class="sq s-ready"></span>runs <span class="sq s-degraded"></span>caveats
-      <span class="sq s-blocked"></span>blocked <span class="sq s-unknown"></span>n/a
+      <span class="sq s-blocked"></span>blocked <span class="sq s-unknown"></span>not evaluated
       <span class="ix-key-m"><i></i></span>share of usable memory</div>
   </nav>
 
@@ -1225,12 +1328,13 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     <details class="panel-fold">
       <summary><h2>General engine information</h2></summary>
     <p class="panel-lead">What each engine is, what its API actually implements, and the defects that follow
-    you whichever model you load on it. All seven speak OpenAI on <code>/v1/chat/completions</code> with SSE
+    you whichever model you load on it. All eight text engines speak OpenAI on <code>/v1/chat/completions</code> with SSE
     streaming, and none is desktop-only &mdash; but &ldquo;OpenAI-compatible&rdquo; covers a wide range, and the
     differences land on exactly the features an agent leans on: whether tool-call arguments stream as deltas or
     arrive only after the turn, whether constrained decoding exists at all, and whether <code>tool_choice</code>
-    is implemented. Five of the seven also serve Anthropic <code>/v1/messages</code>, so Claude Code can point
-    at them directly.</p>
+    is implemented. Four of the eight also serve Anthropic <code>/v1/messages</code>, so Claude Code can point
+    at them directly. The four media engines below are a separate set: they load diffusion, audio and video
+    models, not chat models.</p>
     {cross}
     </details>
   </div>
@@ -1239,11 +1343,12 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     <details class="panel-fold">
       <summary><h2>Reading the scores</h2></summary>
     <ul>
-      <li><strong>Terminal-Bench 2.0 and 2.1 are different benchmarks.</strong> Qwen3-Coder-Next's 36.2 is on v2.0; Qwen3.8-27B's 73.0 and GLM-5.2's 81.0 are on v2.1. Do not rank across the two &mdash; they are shown labelled, not normalised.</li>
-      <li>Scores are vendor-reported or aggregator-reported, not reproduced here. Treat them as a shortlist filter, then verify the shortlist on your own context-rot harness.</li>
-      <li>Nothing on this page has been measured on M5 Ultra hardware. Everything else is published numbers.</li>
-      <li>Weights are the summed file sizes of the linked repository &mdash; safetensors for MLX builds, GGUF for the rest &mdash; measured, not estimated. A <strong>*</strong> marks the exception: a figure derived from parameter count because no build has been published anywhere.</li>
-      <li><strong>The same model weighs different amounts on different engines.</strong> GGUF has quant tiers MLX does not, so llama.cpp can often fit a model MLX cannot &mdash; Qwen3-Coder-Next's GGUF ladder reaches down to 18.9 GB while its MLX ladder stops at 42.4 GB. Each engine tab states its own build and its own fit.</li>
+      <li><strong>The five jobs are Artificial Analysis figures, not ours.</strong> Intelligence is the AA Intelligence Index (0&ndash;100, higher is better). Cost is the weighted average USD to run one Intelligence Index task (lower is better). Speed is time per task in minutes (lower is better). Latency is seconds to the first answer token. Context is the maximum context window in tokens. AA publishes no comparable agentic, coding or terminal suites in the free feed this page uses, which is why those categories are gone.</li>
+      <li>Treat the AA figures as a shortlist filter, not a verdict on your workload: they are API measurements, and a local 4-bit build will not match the vendor's serving stack. Verify the shortlist on your own context-rot harness.</li>
+      <li>Nothing on this page has been measured on M5 Ultra hardware.</li>
+      <li><strong>Weights are measured only where a build exists.</strong> For the five models with engine data, weights are the summed file sizes of the linked repository &mdash; safetensors for MLX builds, GGUF for the rest. Every other model is listed from Artificial Analysis with no quantisation build, so its size is an estimate of ~1.5 GB per billion parameters (12-bit) and is marked <strong>~</strong> and <strong>*</strong>. An estimate is not a build you can download.</li>
+      <li><strong>The same model weighs different amounts on different engines.</strong> GGUF has quant tiers MLX does not, so llama.cpp can often fit a model MLX cannot. Each engine tab states its own build and its own fit.</li>
+      <li><strong>&ldquo;Not evaluated&rdquo; is not &ldquo;unsupported&rdquo;.</strong> Most models here have no engine cell at all: nobody has tested them on a Mac. The engine strip shows those as empty squares, and the tooltip says so. A model is only marked unsupported when an engine has been checked and cannot load it.</li>
       <li>Issue lists are scoped to the engine tab you are on, and are filtered for what actually applies on a Mac. A CUDA-only or ROCm-only report is not listed here even when it dominates the upstream thread.</li>
       <li>Fit assumes 15 GB per machine for macOS + Window Server plus framework overhead &mdash; ~10 GB for an LLM server, which has a paged KV pool and Metal buffers to hold, and ~1.5 GB for an image or audio runtime, which does not &mdash; and that pooling shards weights evenly. It answers "does this load", not "does this run well" &mdash; a model spread across machines still pays the Thunderbolt hop on every token.</li>
     </ul>
@@ -1259,8 +1364,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
 
   <footer>
     <span class="live-dot" aria-hidden="true"></span>
-    Polled twice daily against the GitHub API across llama.cpp, Ollama, LM Studio, oMLX, vllm-mlx, mlx-lm and ds4;
-    state changes only &mdash; open&rarr;closed, merged, new release tag.
+    Polled twice daily against the GitHub API across llama.cpp, Ollama, LM Studio, oMLX, vLLM Metal, vllm-mlx,
+    mlx-lm and ds4; state changes only &mdash; open&rarr;closed, merged, new release tag.
   </footer>
 </div>
 
@@ -1327,9 +1432,13 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   // The strictest fidelity gate among the chosen jobs wins: a build acceptable
   // for one of the jobs is not acceptable for the other.
   function ucGate(ucs) {{
-    var g = "unusable";
+    // null means no fidelity floor: a job ordered on an AA benchmark does not
+    // pick a build, so any build the model runs at still counts toward it.
+    var g = null;
     for (var i = 0; i < ucs.length; i++) {{
-      if (BAND_RANK[ucs[i].gate] < BAND_RANK[g]) g = ucs[i].gate;
+      var k = ucs[i].gate;
+      if (!k || BAND_RANK[k] === undefined) continue;
+      if (g === null || BAND_RANK[k] < BAND_RANK[g]) g = k;
     }}
     return g;
   }}
@@ -1562,7 +1671,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         // AA model: no engine data; set defaults so rankings still work
         var aaGb = pl.w || 0;
         var f = fitDetail(aaGb, over, "");
-        var cls = "unknown", label = "AA";
+        var cls = "unknown", label = "No Mac data";
       }} else {{
         var f = fitDetail(rung.gb, over, kvWord);
         var bd = band(rung);
@@ -1588,16 +1697,16 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
           ? (f.tooBig || bd.k === "unusable" || chosen.s === "blocked")
           : f.tooBig;
         el.__pick = {{ model: el.querySelector(".ix-name").textContent.trim(),
-                      engine: chosen ? chosen.name : "AA",
+                      engine: chosen ? chosen.name : "\\u2014",
                       engineId: chosen ? chosen.id : "aa",
-                      gb: pickGb, bpw: chosen ? rung.bpw : 16,
+                      gb: pickGb, bpw: chosen ? rung.bpw : 12,
                       band: pickBand, tooBig: pickTooBig }};
         el.className = "ix-row v-" + cls;
         var st = el.querySelector(".ix-status");
         st.className = "ix-status v-" + cls;
         st.textContent = label;
-        el.querySelector(".ix-eng").textContent = chosen ? chosen.name : "AA";
-        el.querySelector(".ix-size").textContent = chosen ? fmt(rung.gb) : fmt(pl.w || 0);
+        el.querySelector(".ix-eng").textContent = chosen ? chosen.name : "\\u2014";
+        el.querySelector(".ix-size").textContent = chosen ? fmt(rung.gb) : "~" + fmt(pl.w || 0) + "*";
         el.querySelector(".fit").textContent = f.short;
         var meter = el.querySelector(".ix-meter i");
         if (meter) {{
@@ -1641,9 +1750,10 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
               ? "Does not fit. Smallest build is " + chosen.name + " at " + fmt(rung.gb) + ", which " + f.text + "."
               : "Best fit here: " + chosen.name + ", " + fmt(rung.gb) + " of weights, " + f.text + ".";
         }} else {{
+          var est = "~" + fmt(pl.w || 0) + " at 12-bit (no build measured)";
           mf.textContent = f.tooBig
-            ? "Does not fit. Model is " + fmt(pl.w || 0) + ", which " + f.text + "."
-            : "Model weights: " + fmt(pl.w || 0) + ", " + f.text + ".";
+            ? "Does not fit even at an estimated " + est + ", which " + f.text + "."
+            : "Estimated weights: " + est + " \\u2014 " + f.text + ".";
         }}
       }}
 
@@ -1790,9 +1900,17 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
     var mods = {{}};
     if (ucs.length) ucs.forEach(function (u) {{ mods[u.mod] = true; }});
     var inMod = function (mod) {{ return ucs.length ? !!mods[mod] : mod === "text"; }};
+    var filterEl = document.getElementById("model-filter");
+    var term = filterEl ? filterEl.value.trim().toLowerCase() : "";
+    var matches = function (r) {{
+      if (!term) return true;
+      var hay = (r.getAttribute("data-model") + " " +
+                 (r.querySelector(".ix-name") ? r.querySelector(".ix-name").textContent : "")).toLowerCase();
+      return hay.indexOf(term) !== -1;
+    }};
     document.querySelectorAll(".ix-row").forEach(function (r) {{
       r.classList.remove("uc-best", "uc-out-of-scope", "j1", "multi");
-      r.hidden = !inMod(r.getAttribute("data-mod") || "text");
+      r.hidden = !inMod(r.getAttribute("data-mod") || "text") || !matches(r);
     }});
     document.querySelectorAll(".ix-row").forEach(function (r) {{
       r.removeAttribute("data-rank");
@@ -1800,7 +1918,10 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       if (rk) rk.textContent = "";
     }});
     if (!ucs.length) {{
-      if (ucOut) ucOut.innerHTML = "";
+      if (ucOut) {{
+        ucOut.innerHTML = (term && !document.querySelector(".ix-row:not([hidden])"))
+          ? "<strong>No model matches &ldquo;" + esc(term) + "&rdquo;.</strong>" : "";
+      }}
       ucLegend.classList.remove("on");
       ucLegend.innerHTML = "";
       document.querySelectorAll(".ix-row").forEach(function (r) {{
@@ -1842,7 +1963,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
           return (entries[mid] || []).some(function (e) {{ return e[0] === u.id; }});
         }});
         usableSet[mid] = inAll && r.__pick && !r.__pick.tooBig &&
-                         BAND_RANK[r.__pick.band] <= BAND_RANK[gate];
+                         (gate === null || BAND_RANK[r.__pick.band] <= BAND_RANK[gate]);
       }});
       // Full bar = a perfect score on the job's own benchmark. A percentage
       // suite is out of 100, so a perfect score is 100. A suite that is not a
@@ -1855,7 +1976,7 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
         for (var li = 0; li < u.rank.length; li++) {{
           var lrow = document.querySelector('.ix-row[data-model="' + u.rank[li][0] + '"]');
           if (lrow && lrow.__pick && !lrow.__pick.tooBig &&
-              BAND_RANK[lrow.__pick.band] <= BAND_RANK[gate]) {{
+              (gate === null || BAND_RANK[lrow.__pick.band] <= BAND_RANK[gate])) {{
             lm = u.rank[li][1];
             lv = num(u.rank[li][2]);
             break;
@@ -1984,6 +2105,12 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
       }}
     }}
 
+    // A filter that hides everything wins over the job message: the reason the
+    // table is empty is the search box, not the cluster.
+    if (term && ucOut && !document.querySelector(".ix-row:not([hidden])")) {{
+      ucOut.innerHTML = "<strong>No model matches &ldquo;" + esc(term) + "&rdquo;.</strong>";
+    }}
+
     var p = new URLSearchParams();
     p.set("chip", chip); p.set("mem", g); p.set("n", n);
     if (ucs.length) p.set("uc", ucs.map(function (u) {{ return u.id; }}).join(","));
@@ -2099,6 +2226,8 @@ TEMPLATE = """<title>Apple LLM Performance Tracker</title>
   }});
   memSel.addEventListener("change", apply);
   nSel.addEventListener("change", apply);
+  var filterInput = document.getElementById("model-filter");
+  if (filterInput) filterInput.addEventListener("input", apply);
   apply();
   route();
 }})();

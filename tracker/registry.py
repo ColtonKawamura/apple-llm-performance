@@ -133,7 +133,7 @@ MATRIX = {
 
 # ------------------------------------------------------------------ use cases
 USE_CASE_MODULES.sort(key=lambda m: (m.get("DISPLAY_ORDER", 9999), m["ID"]))
-USE_CASES = [{"id": m["ID"], "label": m["LABEL"], "mod": m["MODALITY"], "gate": m["FIDELITY_GATE"],
+USE_CASES = [{"id": m["ID"], "label": m["LABEL"], "mod": m["MODALITY"], "gate": m.get("FIDELITY_GATE"),
               "axis": m["AXIS"], "rank": [tuple(r) for r in m["RANK"]]}
              for m in USE_CASE_MODULES]
 

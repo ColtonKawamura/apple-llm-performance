@@ -29,7 +29,7 @@ SEVERITIES = {"critical", "high", "medium", "low"}
 KINDS = {"quant", "pruned", "native"}
 ID_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 ISSUE_RE = re.compile(r"^[\w.-]+/[\w.-]+#\d+$")
-FIDELITY_BANDS = {"full", "mild", "low", "unusable", "AA Intelligence Index", "Cost in USD per task", "Time per task (minutes)", "Time to first token (seconds)", "Maximum context (tokens)"}
+FIDELITY_BANDS = {"full", "mild", "low", "unusable"}
 
 # Every attribute a record must carry, by section. Adding a required field to
 # the page is a two-line change here and in registry.py, and this list is the
@@ -39,7 +39,7 @@ MODEL_FIELDS = ["ID", "MODALITY", "NAME", "ARCH", "LICENSE", "CONTEXT", "HF",
 ENGINE_FIELDS = ["ID", "NAME", "MODALITIES", "FORMAT", "INTERFACE", "API",
                  "LICENSE", "SITE", "PROSE_ALIASES", "WHAT",
                  "DISPLAY_ORDER", "QUANT_FAMILY"]
-USECASE_FIELDS = ["ID", "LABEL", "MODALITY", "FIDELITY_GATE", "AXIS",
+USECASE_FIELDS = ["ID", "LABEL", "MODALITY", "AXIS",
                   "RANK", "DISPLAY_ORDER"]
 
 
@@ -237,8 +237,12 @@ def check_use_cases(d):
                 err(w, f"missing or empty {field}")
         if m.get("MODALITY") not in R.MODALITIES:
             err(w, f"unknown MODALITY {m.get('MODALITY')!r}")
-        if m.get("FIDELITY_GATE") not in FIDELITY_BANDS:
-            err(w, f"FIDELITY_GATE {m.get('FIDELITY_GATE')!r} is not a band name")
+        # A job ordered on a published benchmark does not pick a build, so it has
+        # no fidelity floor. null is the honest value; a band name means the job
+        # only counts for builds at or above that band.
+        gate = m.get("FIDELITY_GATE")
+        if gate is not None and gate not in FIDELITY_BANDS:
+            err(w, f"FIDELITY_GATE {gate!r} is not a band name")
         order = m.get("DISPLAY_ORDER")
         if order is None:
             err(w, "missing DISPLAY_ORDER")

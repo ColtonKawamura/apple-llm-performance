@@ -109,7 +109,7 @@
     {
       "ID": "deepseek-v41-flash-1017max",
       "MODALITY": "text",
-      "NAME": "DeepSeek V4.1 Flash 1017Max",
+      "NAME": "DeepSeek V4.1 Flash 1017 Max",
       "ARCH": "DeepSeek",
       "LICENSE": "Open weights",
       "CONTEXT": 1000000,
@@ -143,7 +143,7 @@
     {
       "ID": "glm-53max",
       "MODALITY": "text",
-      "NAME": "GLM-5.3Max",
+      "NAME": "GLM-5.3 Max",
       "ARCH": "Z AI",
       "LICENSE": "Open weights",
       "CONTEXT": 1000000,
@@ -162,40 +162,6 @@
         "cost": 5.01,
         "speed": 23.6,
         "latency": 63.06,
-        "context": 1000000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 1000000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
-      "ID": "gemini-38-flashhigh",
-      "MODALITY": "text",
-      "NAME": "Gemini 3.8 FlashHigh",
-      "ARCH": "Google",
-      "LICENSE": "Open weights",
-      "CONTEXT": 1000000,
-      "CONTEXT_LABEL": "1.0M",
-      "HF": "https://artificialanalysis.ai/models/gemini-38-flashhigh",
-      "PARAMS_B": 30,
-      "NOTE": "Open-weights model from Google. Intelligence: 31",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/gemini-38-flashhigh"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": 31,
-        "cost": 7.77,
-        "speed": 14.9,
-        "latency": 19.58,
         "context": 1000000
       },
       "BEST_ENGINE": null,
@@ -483,7 +449,7 @@
     {
       "ID": "mistral-large-4high",
       "MODALITY": "text",
-      "NAME": "Mistral Large 4High",
+      "NAME": "Mistral Large 4 High",
       "ARCH": "Mistral",
       "LICENSE": "Open weights",
       "CONTEXT": 1000000,
@@ -517,7 +483,7 @@
     {
       "ID": "muse-spark-openxhigh",
       "MODALITY": "text",
-      "NAME": "Muse Spark OpenXhigh",
+      "NAME": "Muse Spark Open Xhigh",
       "ARCH": "Meta",
       "LICENSE": "Open weights",
       "CONTEXT": 1000000,
@@ -585,7 +551,7 @@
     {
       "ID": "deepseek-v4-pro-0813max",
       "MODALITY": "text",
-      "NAME": "DeepSeek V4 Pro 0813Max",
+      "NAME": "DeepSeek V4 Pro 0813 Max",
       "ARCH": "DeepSeek",
       "LICENSE": "Open weights",
       "CONTEXT": 1000000,
@@ -653,7 +619,7 @@
     {
       "ID": "qwen38-27bxhigh",
       "MODALITY": "text",
-      "NAME": "Qwen3.8 27BXhigh",
+      "NAME": "Qwen3.8 27B Xhigh",
       "ARCH": "Alibaba",
       "LICENSE": "Open weights",
       "CONTEXT": 256000,
@@ -957,43 +923,9 @@
       "ENGINES": {}
     },
     {
-      "ID": "gemini-35-flash-lite",
-      "MODALITY": "text",
-      "NAME": "Gemini 3.5 Flash-Lite",
-      "ARCH": "Google",
-      "LICENSE": "Open weights",
-      "CONTEXT": 1000000,
-      "CONTEXT_LABEL": "1.0M",
-      "HF": "https://artificialanalysis.ai/models/gemini-35-flash-lite",
-      "PARAMS_B": 10,
-      "NOTE": "Open-weights model from Google. Intelligence: 12",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/gemini-35-flash-lite"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": 12,
-        "cost": 0.69,
-        "speed": 1.7,
-        "latency": 4.91,
-        "context": 1000000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 1000000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
       "ID": "inklingxhigh",
       "MODALITY": "text",
-      "NAME": "InklingXhigh",
+      "NAME": "Inkling Xhigh",
       "ARCH": "Thinking Machines",
       "LICENSE": "Open weights",
       "CONTEXT": 1000000,
@@ -1027,7 +959,7 @@
     {
       "ID": "nemotron-3-ultra-550b-a55breasoning",
       "MODALITY": "text",
-      "NAME": "Nemotron 3 Ultra 550B A55BReasoning",
+      "NAME": "Nemotron 3 Ultra 550B A55B Reasoning",
       "ARCH": "NVIDIA",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -1265,7 +1197,7 @@
     {
       "ID": "gemma-4-31breasoning",
       "MODALITY": "text",
-      "NAME": "Gemma 4 31BReasoning",
+      "NAME": "Gemma 4 31B Reasoning",
       "ARCH": "Google",
       "LICENSE": "Open weights",
       "CONTEXT": 256000,
@@ -1299,7 +1231,7 @@
     {
       "ID": "mistral-small-4reasoning",
       "MODALITY": "text",
-      "NAME": "Mistral Small 4Reasoning",
+      "NAME": "Mistral Small 4 Reasoning",
       "ARCH": "Mistral",
       "LICENSE": "Open weights",
       "CONTEXT": 256000,
@@ -1605,7 +1537,7 @@
     {
       "ID": "cogito-v21reasoning",
       "MODALITY": "text",
-      "NAME": "Cogito v2.1Reasoning",
+      "NAME": "Cogito v2.1 Reasoning",
       "ARCH": "Deep Cogito",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -1673,7 +1605,7 @@
     {
       "ID": "deephermes-3-llama-31-8b-previewnon-reasoning",
       "MODALITY": "text",
-      "NAME": "DeepHermes 3 - Llama-3.1 8B PreviewNon-reasoning",
+      "NAME": "DeepHermes 3 - Llama-3.1 8B Preview Non-reasoning",
       "ARCH": "Nous Research",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -1707,7 +1639,7 @@
     {
       "ID": "deephermes-3-mistral-24b-previewnon-reasoning",
       "MODALITY": "text",
-      "NAME": "DeepHermes 3 - Mistral 24B PreviewNon-reasoning",
+      "NAME": "DeepHermes 3 - Mistral 24B Preview Non-reasoning",
       "ARCH": "Nous Research",
       "LICENSE": "Open weights",
       "CONTEXT": 32000,
@@ -1741,7 +1673,7 @@
     {
       "ID": "deepseek-v4-flash-visionmax",
       "MODALITY": "text",
-      "NAME": "DeepSeek V4 Flash VisionMax",
+      "NAME": "DeepSeek V4 Flash Vision Max",
       "ARCH": "DeepSeek",
       "LICENSE": "Open weights",
       "CONTEXT": 1000000,
@@ -1911,7 +1843,7 @@
     {
       "ID": "exaone-40-32bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "EXAONE 4.0 32BNon-reasoning",
+      "NAME": "EXAONE 4.0 32B Non-reasoning",
       "ARCH": "LG AI Research",
       "LICENSE": "Open weights",
       "CONTEXT": 131000,
@@ -1945,7 +1877,7 @@
     {
       "ID": "exaone-45-33bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "EXAONE 4.5 33BNon-reasoning",
+      "NAME": "EXAONE 4.5 33B Non-reasoning",
       "ARCH": "LG AI Research",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -1979,7 +1911,7 @@
     {
       "ID": "exaone-40-12bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Exaone 4.0 1.2BNon-reasoning",
+      "NAME": "Exaone 4.0 1.2B Non-reasoning",
       "ARCH": "LG AI Research",
       "LICENSE": "Open weights",
       "CONTEXT": 64000,
@@ -2113,74 +2045,6 @@
       "ENGINES": {}
     },
     {
-      "ID": "gemini-3-deep-think",
-      "MODALITY": "text",
-      "NAME": "Gemini 3 Deep Think",
-      "ARCH": "Google",
-      "LICENSE": "Open weights",
-      "CONTEXT": 128000,
-      "CONTEXT_LABEL": "0.1M",
-      "HF": "https://artificialanalysis.ai/models/gemini-3-deep-think",
-      "PARAMS_B": 100,
-      "NOTE": "Open-weights model from Google. Intelligence: None",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/gemini-3-deep-think"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": null,
-        "cost": null,
-        "speed": null,
-        "latency": null,
-        "context": 128000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 128000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
-      "ID": "gemini-31-pro-preview",
-      "MODALITY": "text",
-      "NAME": "Gemini 3.1 Pro Preview",
-      "ARCH": "Google",
-      "LICENSE": "Open weights",
-      "CONTEXT": 1000000,
-      "CONTEXT_LABEL": "1.0M",
-      "HF": "https://artificialanalysis.ai/models/gemini-31-pro-preview",
-      "PARAMS_B": 100,
-      "NOTE": "Open-weights model from Google. Intelligence: None",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/gemini-31-pro-preview"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": null,
-        "cost": null,
-        "speed": null,
-        "latency": 15.56,
-        "context": 1000000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 1000000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
       "ID": "gemma-3-270m",
       "MODALITY": "text",
       "NAME": "Gemma 3 270M",
@@ -2217,7 +2081,7 @@
     {
       "ID": "gemma-4-12bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Gemma 4 12BNon-reasoning",
+      "NAME": "Gemma 4 12B Non-reasoning",
       "ARCH": "Google",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -2251,7 +2115,7 @@
     {
       "ID": "gemma-4-26b-a4breasoning",
       "MODALITY": "text",
-      "NAME": "Gemma 4 26B A4BReasoning",
+      "NAME": "Gemma 4 26B A4B Reasoning",
       "ARCH": "Google",
       "LICENSE": "Open weights",
       "CONTEXT": 256000,
@@ -2285,7 +2149,7 @@
     {
       "ID": "gemma-4-e2bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Gemma 4 E2BNon-reasoning",
+      "NAME": "Gemma 4 E2B Non-reasoning",
       "ARCH": "Google",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -2319,7 +2183,7 @@
     {
       "ID": "gemma-4-e4bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Gemma 4 E4BNon-reasoning",
+      "NAME": "Gemma 4 E4B Non-reasoning",
       "ARCH": "Google",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -2557,7 +2421,7 @@
     {
       "ID": "hermes-4-llama-31-405breasoning",
       "MODALITY": "text",
-      "NAME": "Hermes 4 - Llama-3.1 405BReasoning",
+      "NAME": "Hermes 4 - Llama-3.1 405B Reasoning",
       "ARCH": "Nous Research",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -2591,7 +2455,7 @@
     {
       "ID": "hermes-4-llama-31-70bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Hermes 4 - Llama-3.1 70BNon-reasoning",
+      "NAME": "Hermes 4 - Llama-3.1 70B Non-reasoning",
       "ARCH": "Nous Research",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -2691,43 +2555,9 @@
       "ENGINES": {}
     },
     {
-      "ID": "hypernova-60b-2605high-based-on-gpt-oss-120b",
-      "MODALITY": "text",
-      "NAME": "HyperNova 60B 2605High, Based on gpt-oss-120b",
-      "ARCH": "Multiverse Computing",
-      "LICENSE": "Open weights",
-      "CONTEXT": 131000,
-      "CONTEXT_LABEL": "0.1M",
-      "HF": "https://artificialanalysis.ai/models/hypernova-60b-2605high-based-on-gpt-oss-120b",
-      "PARAMS_B": 60,
-      "NOTE": "Open-weights model from Multiverse Computing. Intelligence: None",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/hypernova-60b-2605high-based-on-gpt-oss-120b"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": null,
-        "cost": null,
-        "speed": null,
-        "latency": null,
-        "context": 131000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 131000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
       "ID": "intellect-3based-on-glm-45-air",
       "MODALITY": "text",
-      "NAME": "INTELLECT-3Based on GLM-4.5-Air",
+      "NAME": "INTELLECT-3 Based on GLM-4.5-Air",
       "ARCH": "Prime Intellect",
       "LICENSE": "Open weights",
       "CONTEXT": 131000,
@@ -3101,7 +2931,7 @@
     {
       "ID": "k2-v2high",
       "MODALITY": "text",
-      "NAME": "K2-V2High",
+      "NAME": "K2-V2 High",
       "ARCH": "Institute of Foundation Models",
       "LICENSE": "Open weights",
       "CONTEXT": 512000,
@@ -3611,7 +3441,7 @@
     {
       "ID": "llama-31-nemotron-ultra-253b-v1reasoning",
       "MODALITY": "text",
-      "NAME": "Llama 3.1 Nemotron Ultra 253B v1Reasoning",
+      "NAME": "Llama 3.1 Nemotron Ultra 253B v1 Reasoning",
       "ARCH": "NVIDIA",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -4053,7 +3883,7 @@
     {
       "ID": "minicpm5-1breasoning",
       "MODALITY": "text",
-      "NAME": "MiniCPM5-1BReasoning",
+      "NAME": "MiniCPM5-1B Reasoning",
       "ARCH": "OpenBMB",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -4359,7 +4189,7 @@
     {
       "ID": "nvidia-nemotron-3-nano-30b-a3bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "NVIDIA Nemotron 3 Nano 30B A3BNon-reasoning",
+      "NAME": "NVIDIA Nemotron 3 Nano 30B A3B Non-reasoning",
       "ARCH": "NVIDIA",
       "LICENSE": "Open weights",
       "CONTEXT": 1000000,
@@ -4393,7 +4223,7 @@
     {
       "ID": "nvidia-nemotron-nano-12b-v2-vlreasoning",
       "MODALITY": "text",
-      "NAME": "NVIDIA Nemotron Nano 12B v2 VLReasoning",
+      "NAME": "NVIDIA Nemotron Nano 12B v2 VL Reasoning",
       "ARCH": "NVIDIA",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -4427,7 +4257,7 @@
     {
       "ID": "nvidia-nemotron-nano-9b-v2non-reasoning",
       "MODALITY": "text",
-      "NAME": "NVIDIA Nemotron Nano 9B V2Non-reasoning",
+      "NAME": "NVIDIA Nemotron Nano 9B V2 Non-reasoning",
       "ARCH": "NVIDIA",
       "LICENSE": "Open weights",
       "CONTEXT": 131000,
@@ -4563,7 +4393,7 @@
     {
       "ID": "nemotron-35-bolt-e4b-4gbreasoning",
       "MODALITY": "text",
-      "NAME": "Nemotron 3.5 Bolt E4B 4GBReasoning",
+      "NAME": "Nemotron 3.5 Bolt E4B 4GB Reasoning",
       "ARCH": "NVIDIA",
       "LICENSE": "Open weights",
       "CONTEXT": 131000,
@@ -4631,7 +4461,7 @@
     {
       "ID": "nex-n2-probased-on-qwen35-397b-a17b",
       "MODALITY": "text",
-      "NAME": "Nex-N2-ProBased on Qwen3.5-397B-A17B",
+      "NAME": "Nex-N2-Pro Based on Qwen3.5-397B-A17B",
       "ARCH": "Nex AGI",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -4658,176 +4488,6 @@
       "KV": {
         "bytes_per_token": null,
         "max_context": 262000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
-      "ID": "nova-20-litehigh",
-      "MODALITY": "text",
-      "NAME": "Nova 2.0 LiteHigh",
-      "ARCH": "Amazon",
-      "LICENSE": "Open weights",
-      "CONTEXT": 1000000,
-      "CONTEXT_LABEL": "1.0M",
-      "HF": "https://artificialanalysis.ai/models/nova-20-litehigh",
-      "PARAMS_B": 30,
-      "NOTE": "Open-weights model from Amazon. Intelligence: None",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/nova-20-litehigh"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": null,
-        "cost": null,
-        "speed": null,
-        "latency": 20.24,
-        "context": 1000000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 1000000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
-      "ID": "nova-20-omnimedium",
-      "MODALITY": "text",
-      "NAME": "Nova 2.0 OmniMedium",
-      "ARCH": "Amazon",
-      "LICENSE": "Open weights",
-      "CONTEXT": 1000000,
-      "CONTEXT_LABEL": "1.0M",
-      "HF": "https://artificialanalysis.ai/models/nova-20-omnimedium",
-      "PARAMS_B": 80,
-      "NOTE": "Open-weights model from Amazon. Intelligence: None",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/nova-20-omnimedium"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": null,
-        "cost": null,
-        "speed": null,
-        "latency": null,
-        "context": 1000000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 1000000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
-      "ID": "nova-20-pro-previewmedium",
-      "MODALITY": "text",
-      "NAME": "Nova 2.0 Pro PreviewMedium",
-      "ARCH": "Amazon",
-      "LICENSE": "Open weights",
-      "CONTEXT": 256000,
-      "CONTEXT_LABEL": "0.3M",
-      "HF": "https://artificialanalysis.ai/models/nova-20-pro-previewmedium",
-      "PARAMS_B": 80,
-      "NOTE": "Open-weights model from Amazon. Intelligence: None",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/nova-20-pro-previewmedium"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": null,
-        "cost": null,
-        "speed": null,
-        "latency": 17.38,
-        "context": 256000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 256000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
-      "ID": "nova-micro",
-      "MODALITY": "text",
-      "NAME": "Nova Micro",
-      "ARCH": "Amazon",
-      "LICENSE": "Open weights",
-      "CONTEXT": 130000,
-      "CONTEXT_LABEL": "0.1M",
-      "HF": "https://artificialanalysis.ai/models/nova-micro",
-      "PARAMS_B": 2,
-      "NOTE": "Open-weights model from Amazon. Intelligence: None",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/nova-micro"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": null,
-        "cost": null,
-        "speed": null,
-        "latency": 1.35,
-        "context": 130000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 130000,
-        "derivation": ""
-      },
-      "ENGINES": {}
-    },
-    {
-      "ID": "nova-premier",
-      "MODALITY": "text",
-      "NAME": "Nova Premier",
-      "ARCH": "Amazon",
-      "LICENSE": "Open weights",
-      "CONTEXT": 1000000,
-      "CONTEXT_LABEL": "1.0M",
-      "HF": "https://artificialanalysis.ai/models/nova-premier",
-      "PARAMS_B": 80,
-      "NOTE": "Open-weights model from Amazon. Intelligence: None",
-      "SOURCES": [
-        [
-          "AA Profile",
-          "https://artificialanalysis.ai/models/nova-premier"
-        ]
-      ],
-      "SCORES": {
-        "intelligence": null,
-        "cost": null,
-        "speed": null,
-        "latency": null,
-        "context": 1000000
-      },
-      "BEST_ENGINE": null,
-      "QUANT_SOURCES": {},
-      "LADDER": {},
-      "KV": {
-        "bytes_per_token": null,
-        "max_context": 1000000,
         "derivation": ""
       },
       "ENGINES": {}
@@ -5277,7 +4937,7 @@
     {
       "ID": "qwen35-08bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Qwen3.5 0.8BNon-reasoning",
+      "NAME": "Qwen3.5 0.8B Non-reasoning",
       "ARCH": "Alibaba",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -5311,7 +4971,7 @@
     {
       "ID": "qwen35-122b-a10bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Qwen3.5 122B A10BNon-reasoning",
+      "NAME": "Qwen3.5 122B A10B Non-reasoning",
       "ARCH": "Alibaba",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -5345,7 +5005,7 @@
     {
       "ID": "qwen35-2bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Qwen3.5 2BNon-reasoning",
+      "NAME": "Qwen3.5 2B Non-reasoning",
       "ARCH": "Alibaba",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -5379,7 +5039,7 @@
     {
       "ID": "qwen35-397b-a17breasoning",
       "MODALITY": "text",
-      "NAME": "Qwen3.5 397B A17BReasoning",
+      "NAME": "Qwen3.5 397B A17B Reasoning",
       "ARCH": "Alibaba",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -5413,7 +5073,7 @@
     {
       "ID": "qwen35-4bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Qwen3.5 4BNon-reasoning",
+      "NAME": "Qwen3.5 4B Non-reasoning",
       "ARCH": "Alibaba",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -5447,7 +5107,7 @@
     {
       "ID": "qwen35-9bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Qwen3.5 9BNon-reasoning",
+      "NAME": "Qwen3.5 9B Non-reasoning",
       "ARCH": "Alibaba",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -5549,7 +5209,7 @@
     {
       "ID": "qwen36-35b-a3bnon-reasoning",
       "MODALITY": "text",
-      "NAME": "Qwen3.6 35B A3BNon-reasoning",
+      "NAME": "Qwen3.6 35B A3B Non-reasoning",
       "ARCH": "Alibaba",
       "LICENSE": "Open weights",
       "CONTEXT": 262000,
@@ -5787,7 +5447,7 @@
     {
       "ID": "sarvam-105bhigh",
       "MODALITY": "text",
-      "NAME": "Sarvam 105BHigh",
+      "NAME": "Sarvam 105B High",
       "ARCH": "Sarvam",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -5821,7 +5481,7 @@
     {
       "ID": "sarvam-30bhigh",
       "MODALITY": "text",
-      "NAME": "Sarvam 30BHigh",
+      "NAME": "Sarvam 30B High",
       "ARCH": "Sarvam",
       "LICENSE": "Open weights",
       "CONTEXT": 66000,
@@ -5889,7 +5549,7 @@
     {
       "ID": "solar-open-100breasoning",
       "MODALITY": "text",
-      "NAME": "Solar Open 100BReasoning",
+      "NAME": "Solar Open 100B Reasoning",
       "ARCH": "Upstage",
       "LICENSE": "Open weights",
       "CONTEXT": 128000,
@@ -6939,6 +6599,40 @@
           }
         ]
       }
+    },
+    {
+      "ID": "hypernova-60b-2605high-based-on-gpt-oss-120b",
+      "MODALITY": "text",
+      "NAME": "HyperNova 60B 2605High, Based on gpt-oss-120b",
+      "ARCH": "Multiverse Computing",
+      "LICENSE": "Open weights",
+      "CONTEXT": 131000,
+      "CONTEXT_LABEL": "0.1M",
+      "HF": "https://artificialanalysis.ai/models/hypernova-60b-2605high-based-on-gpt-oss-120b",
+      "PARAMS_B": 60,
+      "NOTE": "Open-weights model from Multiverse Computing. Intelligence: None",
+      "SOURCES": [
+        [
+          "AA Profile",
+          "https://artificialanalysis.ai/models/hypernova-60b-2605high-based-on-gpt-oss-120b"
+        ]
+      ],
+      "SCORES": {
+        "intelligence": null,
+        "cost": null,
+        "speed": null,
+        "latency": null,
+        "context": 131000
+      },
+      "BEST_ENGINE": null,
+      "QUANT_SOURCES": {},
+      "LADDER": {},
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": 131000,
+        "derivation": ""
+      },
+      "ENGINES": {}
     }
   ],
   "engines": [
@@ -7347,7 +7041,7 @@
       "ID": "intelligence",
       "LABEL": "Intelligence",
       "MODALITY": "text",
-      "FIDELITY_GATE": "AA Intelligence Index",
+      "FIDELITY_GATE": null,
       "AXIS": "AA Intelligence Index",
       "RANK": [
         [
@@ -7374,11 +7068,6 @@
           "glm-53max",
           "AA Intelligence",
           "32"
-        ],
-        [
-          "gemini-38-flashhigh",
-          "AA Intelligence",
-          "31"
         ],
         [
           "inkling-2-small",
@@ -7491,11 +7180,6 @@
           "13"
         ],
         [
-          "gemini-35-flash-lite",
-          "AA Intelligence",
-          "12"
-        ],
-        [
           "inklingxhigh",
           "AA Intelligence",
           "12"
@@ -7562,7 +7246,7 @@
       "ID": "cost",
       "LABEL": "Cost per Task",
       "MODALITY": "text",
-      "FIDELITY_GATE": "Cost in USD per task",
+      "FIDELITY_GATE": null,
       "AXIS": "Cost in USD per task",
       "RANK": [
         [
@@ -7646,11 +7330,6 @@
           "0.6"
         ],
         [
-          "gemini-35-flash-lite",
-          "Cost per task",
-          "0.69"
-        ],
-        [
           "apodex-11",
           "Cost per task",
           "0.76"
@@ -7731,11 +7410,6 @@
           "5.01"
         ],
         [
-          "gemini-38-flashhigh",
-          "Cost per task",
-          "7.77"
-        ],
-        [
           "qwen38-max",
           "Cost per task",
           "10.02"
@@ -7747,14 +7421,9 @@
       "ID": "speed",
       "LABEL": "Speed",
       "MODALITY": "text",
-      "FIDELITY_GATE": "Time per task (minutes)",
+      "FIDELITY_GATE": null,
       "AXIS": "Time per task (minutes)",
       "RANK": [
-        [
-          "gemini-35-flash-lite",
-          "Time per task",
-          "1.7"
-        ],
         [
           "mistral-small-4reasoning",
           "Time per task",
@@ -7846,11 +7515,6 @@
           "14.8"
         ],
         [
-          "gemini-38-flashhigh",
-          "Time per task",
-          "14.9"
-        ],
-        [
           "minimax-m31-flash",
           "Time per task",
           "15.7"
@@ -7927,7 +7591,7 @@
       "ID": "latency",
       "LABEL": "Latency",
       "MODALITY": "text",
-      "FIDELITY_GATE": "Time to first token (seconds)",
+      "FIDELITY_GATE": null,
       "AXIS": "Time to first token (seconds)",
       "RANK": [
         [
@@ -7974,11 +7638,6 @@
           "qwen3-next-80b-a3b-instruct",
           "Time to first token",
           "1.3"
-        ],
-        [
-          "nova-micro",
-          "Time to first token",
-          "1.35"
         ],
         [
           "qwen35-4bnon-reasoning",
@@ -8066,11 +7725,6 @@
           "4.56"
         ],
         [
-          "gemini-35-flash-lite",
-          "Time to first token",
-          "4.91"
-        ],
-        [
           "nemotron-3-ultra-550b-a55breasoning",
           "Time to first token",
           "4.93"
@@ -8136,19 +7790,9 @@
           "15.14"
         ],
         [
-          "gemini-31-pro-preview",
-          "Time to first token",
-          "15.56"
-        ],
-        [
           "nemotron-35-super-vl",
           "Time to first token",
           "17.14"
-        ],
-        [
-          "nova-20-pro-previewmedium",
-          "Time to first token",
-          "17.38"
         ],
         [
           "k2-horizon-375b-a23b",
@@ -8159,16 +7803,6 @@
           "apodex-11",
           "Time to first token",
           "18.94"
-        ],
-        [
-          "gemini-38-flashhigh",
-          "Time to first token",
-          "19.58"
-        ],
-        [
-          "nova-20-litehigh",
-          "Time to first token",
-          "20.24"
         ],
         [
           "inklingxhigh",
@@ -8342,7 +7976,7 @@
       "ID": "context",
       "LABEL": "Context Window",
       "MODALITY": "text",
-      "FIDELITY_GATE": "Maximum context (tokens)",
+      "FIDELITY_GATE": null,
       "AXIS": "Maximum context (tokens)",
       "RANK": [
         [
@@ -8367,11 +8001,6 @@
         ],
         [
           "glm-53max",
-          "Context window",
-          "1000000"
-        ],
-        [
-          "gemini-38-flashhigh",
           "Context window",
           "1000000"
         ],
@@ -8451,11 +8080,6 @@
           "1000000"
         ],
         [
-          "gemini-35-flash-lite",
-          "Context window",
-          "1000000"
-        ],
-        [
           "inklingxhigh",
           "Context window",
           "1000000"
@@ -8472,11 +8096,6 @@
         ],
         [
           "deepseek-v4-flash-visionmax",
-          "Context window",
-          "1000000"
-        ],
-        [
-          "gemini-31-pro-preview",
           "Context window",
           "1000000"
         ],
@@ -8507,21 +8126,6 @@
         ],
         [
           "nemotron-cascade-2-30b-a3b",
-          "Context window",
-          "1000000"
-        ],
-        [
-          "nova-20-litehigh",
-          "Context window",
-          "1000000"
-        ],
-        [
-          "nova-20-omnimedium",
-          "Context window",
-          "1000000"
-        ],
-        [
-          "nova-premier",
           "Context window",
           "1000000"
         ],
@@ -8851,11 +8455,6 @@
           "256000"
         ],
         [
-          "nova-20-pro-previewmedium",
-          "Context window",
-          "256000"
-        ],
-        [
           "qwen3-coder-next",
           "Context window",
           "256000"
@@ -8911,11 +8510,6 @@
           "131000"
         ],
         [
-          "hypernova-60b-2605high-based-on-gpt-oss-120b",
-          "Context window",
-          "131000"
-        ],
-        [
           "intellect-3based-on-glm-45-air",
           "Context window",
           "131000"
@@ -8941,9 +8535,9 @@
           "131000"
         ],
         [
-          "nova-micro",
+          "hypernova-60b-2605high-based-on-gpt-oss-120b",
           "Context window",
-          "130000"
+          "131000"
         ],
         [
           "apriel-v16-15b-thinker",
@@ -8962,11 +8556,6 @@
         ],
         [
           "ernie-50-thinking-preview",
-          "Context window",
-          "128000"
-        ],
-        [
-          "gemini-3-deep-think",
           "Context window",
           "128000"
         ],
