@@ -9815,6 +9815,27 @@
   ],
   "news": [
     {
+      "date": "2026-11-26",
+      "top": [
+        [
+          "PrismML ships Ternary Bonsai 2.5 27B: 5.93 GB agentic build of Qwen3.8-27B",
+          "PrismML's agentic Ternary Bonsai 2.5 27B is a ternary (1.76 bits per weight) re-encoding of the Qwen3.8-27B hybrid-attention architecture, with the PTQ1_0 GGUF at 5.93 GB versus 53.8 GB for FP16. It runs on stock llama.cpp - the Q2_0 file on upstream llama.cpp today, PTQ1_0 under upstream review - on Metal, CPU, or CUDA, and is Apache-2.0 with a 262K context. On agentic work it claims 90% of FP16, up from 63% for Bonsai 2: SWE-bench Verified 75.6 (from 60.8), Terminal-Bench 2.1 60.1 (from 52.8), DeepSWE 27.0 (from 0), the strongest agentic build under 10 GB it compared. An optional mmproj file adds a 0.47B vision tower, and the MTP draft head enables speculative decoding.",
+          "https://huggingface.co/prism-ml/Ternary-Bonsai-2.5-27B-GGUF"
+        ],
+        [
+          "Qwen3.8-27B drops to 18.1 GB: MACaQ 4-bit MLX build",
+          "mlx-community's MACaQ W4A16 build of Qwen3.8-27B is a calibrated MXFP4 4-bit quantization (4.25 bits per weight, bf16 activations) of the 27B flagship: 18.1 GB versus 54.7 GB for bf16, Apache-2.0, text-only. It runs on MLX through mlx-lm using a ~100-line bundled loader (loaded with trust_remote_code - a plain mxfp4 load drops the per-channel scale and rotation and outputs garbage) on stock MLX's mxfp4 matmul. Measured on an M5 Max, greedy decode is 26-31 tok/s (about 9 tok/s for bf16) with 23.6 GB peak memory, and WikiText-2/C4 top-1 agreement with bf16 is 92.6% / 92.9%, edging out the stock mlx_lm 4-bit affine.",
+          "https://huggingface.co/mlx-community/Qwen3.8-27B-MACaQ-W4A16-mlx"
+        ],
+        [
+          "Microsoft releases Aion 1.0 Instruct: 2.3B MIT-licensed on-device SLM",
+          "Microsoft's Windows Applied Sciences Group has published Aion 1.0 Instruct, the 2.3B-parameter on-device SLM that will become the Windows OS small model by the end of January 2027. It is MIT-licensed with a 32K context and is tuned for on-device document, chat, and summarization work in eight languages. The unquantized checkpoint is out now - about 4.6 GB in 16-bit, and with GGUF listed among the supported formats it will run on llama.cpp on Metal on any Mac - with quantized versions to follow. Community evals rank it #2 in the sub-3B class: GSM8K 74.91, MMLU-Pro 33.35, GPQA Diamond 28.18.",
+          "https://huggingface.co/microsoft/Aion-1.0-Instruct-2.3B"
+        ]
+      ],
+      "newModels": []
+    },
+    {
       "date": "2026-11-25",
       "top": [
         [
@@ -9966,28 +9987,6 @@
         ]
       ],
       "newModels": []
-    },
-    {
-      "date": "2026-11-19",
-      "top": [
-        [
-          "Zyphra releases ZONOS3-Mini: 800M-parameter open TTS, real-time voice cloning on a Mac",
-          "Zyphra published ZONOS3-Mini under Apache 2.0: an 800M-parameter text-to-speech model (about 100M active per token, a latent MoE of 64 experts over an 11-layer hybrid backbone of 9 Gated DeltaNet layers and 2 global-attention layers) that speaks 43 languages with 27 built-in voices, clones a voice from a reference clip, and outputs 44.1 kHz audio with a 32K context. On a Mac it runs through MLX-Audio via the mlx-community/ZONOS3-Mini conversion — model, codec and speaker encoder together weigh about 1.4 GB — and the card claims real-time on laptops and phones. Technical report: arXiv 2611.16525.",
-          "https://huggingface.co/Zyphra/ZONOS3-Mini"
-        ],
-        [
-          "Microsoft publishes Aion 1.0, the 2.3B Windows OS small language model, under MIT",
-          "Microsoft's Windows Applied Sciences group released Aion 1.0 Instruct, the 2.29B-parameter small language model that will become the Windows OS SLM by the end of January 2027, under an MIT licence. It is a 28-layer hybrid-attention causal LM (21 sliding-window layers at a 2048 window plus 7 full-attention layers, 32K context) trained on an extension of the Phi Silica data and aimed at on-device OS work in eight languages. The unquantized bf16 original is about 4.6 GB, and a 4-bit imatrix GGUF for llama.cpp (AtomicChat) is already published, so the quantised version is roughly a quarter of that and fits comfortably on any Apple silicon Mac.",
-          "https://huggingface.co/microsoft/Aion-1.0-Instruct-2.3B"
-        ]
-      ],
-      "newModels": [
-        [
-          "Aion 1.0 Instruct 2.3B",
-          "Microsoft's 2.29B-parameter, MIT-licensed on-device SLM (the future Windows OS model); the bf16 original is about 4.6 GB, and a 4-bit GGUF for llama.cpp has already shipped, so the quantised version runs in roughly a gigabyte or two on any Mac",
-          "https://huggingface.co/microsoft/Aion-1.0-Instruct-2.3B"
-        ]
-      ]
     }
   ]
 }
