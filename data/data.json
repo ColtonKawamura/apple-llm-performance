@@ -6816,6 +6816,129 @@
           }
         ]
       }
+    },
+    {
+      "ID": "wemmecom08b",
+      "NAME": "WeMM-Ecom-0.8B",
+      "MODALITY": "text",
+      "ARCH": "Dense 0.85B - Qwen3.5 backbone, 24 layers, 18 GDN linear + 6 full-attn - image+video in",
+      "LICENSE": "Apache-2.0",
+      "CONTEXT": 262144,
+      "CONTEXT_LABEL": "0.3M",
+      "HF": "tencent/WeMM-Ecom-0.8B",
+      "PARAMS_B": 0.85,
+      "NOTE": "WeChat Vision (Tencent) released the WeMM-Ecom family Nov 18 - five sizes from this 0.8B dense model to a 35B-A3B MoE, all published - for e-commerce content understanding: product attributes, moderation, OCR, retrieval, grounding, reasoning, with hybrid thinking at 262k context. The report (arXiv 2611.30662) puts it 16.43 points above Qwen3.5-0.8B and 13.03 above MiniCPM-V-4.7-1B on the lab's own 28-benchmark e-commerce suite (23 in-house, five open), and +6.93 / +1.09 on 64 public general benchmarks - deltas only, the tables ship as images in the card, so there is no public-scale figure to rank it here. The report says the family already serves WeChat commerce at billion-scale requests per day. At 0.85B the compute story is trivial; the real question is multimodal support, which is engine-dependent (see cells).",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/tencent/WeMM-Ecom-0.8B"
+        ],
+        [
+          "Technical report (arXiv 2611.30662)",
+          "https://arxiv.org/abs/2611.30662"
+        ],
+        [
+          "llama.cpp qwen35 support (PR 19468)",
+          "https://github.com/ggml-org/llama.cpp/pull/19468"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "vllmmetal",
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs (text-only)",
+          "note": "The GGUFs declare qwen35, which llama.cpp has supported since Feb 10 (PR 19468); the lab ships its own tencent/WeMM-Ecom-0.8B-GGUF and bartowski, mradermacher and AIArchiveInfo follow. mtmd has no qwen35 multimodal projector as of Nov 26, so on a Mac it loads the language backbone text-only; first runs unverified here.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "degraded",
+          "label": "No library entry",
+          "note": "No Ollama library entry as of Nov 26 (/library/wemm 404s), so it goes in as a GGUF or an MLX quant. On a Mac Ollama defaults to the MLX engine since v0.30 and mlx-lm's qwen3_5 class loads the language backbone text-only.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "degraded",
+          "label": "Third-party quants",
+          "note": "No lmstudio-community GGUF as of Nov 26; the app would load the lab's or bartowski's GGUF on its bundled engine, which has carried the qwen35 arch since it landed upstream in Feb 2026 (PR 19468). Unverified.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "degraded",
+          "label": "Text only",
+          "note": "mlx-lm's qwen3_5 class reads the language_model part of the multimodal checkpoint, but there is no vision class, so image and video input are out. netprojects ships 8bit and bf16 MLX quants carrying the full 0.85B including the ~101M-parameter BF16 vision tower.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "degraded",
+          "label": "Text only",
+          "note": "oMLX's LLM coverage is mlx-lm's plus its hand-written Qwen3.5-family kernels, so the qwen3_5 backbone loads on the fast path; no vision support, so text-only.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "works",
+          "label": "Multimodal via MLX",
+          "note": "The vllm-metal matrix lists Qwen3.5/3.6 dense and MoE as experimental native multimodal paged generation over MLX - image and video input - verified on mlx-community/Qwen3.5-4B-MLX-4bit, with other sizes and quants of the family stated to generally work. The netprojects MLX quants fit that; FP8 and GGUF checkpoints stay text-only, and this checkpoint itself is unverified here.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "degraded",
+          "label": "Text only",
+          "note": "vllm-mlx wraps mlx-lm's model classes rather than reimplementing them, so the qwen3_5 language backbone loads text-only; the wrapper has no multimodal path.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "DwarfStar is purpose-built for DeepSeek V4 Flash, V4 PRO and GLM-5.2 and deliberately does not load other checkpoints.",
+          "issues": []
+        }
+      },
+      "QUANT_SOURCES": {
+        "gguf": [
+          "tencent/WeMM-Ecom-0.8B-GGUF",
+          "bartowski/WeMM-Ecom-0.8B-GGUF",
+          "mradermacher/WeMM-Ecom-0.8B-GGUF",
+          "AIArchiveInfo/WeMM-Ecom-0.8B-GGUF"
+        ],
+        "mlx": [
+          "netprojects/WeMM-Ecom-0.8B-MLX-8bit",
+          "netprojects/WeMM-Ecom-0.8B-MLX-bf16"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 12288,
+        "max_context": 262144,
+        "derivation": "24 text layers; 18 are GDN linear-attention layers holding a fixed recurrent state (excluded) and 6 are full-attention layers (full_attention_interval 4). 6 x 2 KV heads x 256 head_dim x 2 (K and V) x 2 (fp16 bytes) = 12,288 bytes/token, so a full 262k context costs about 3.0 GiB."
+      },
+      "ranks": [],
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "WeMM-Ecom-0.8B-bf16",
+            "repo": "bartowski/WeMM-Ecom-0.8B-GGUF",
+            "gb": 1.52,
+            "kind": "quant",
+            "bpw": 14.28
+          }
+        ],
+        "mlx": [
+          {
+            "label": "WeMM-Ecom-0.8B-MLX-bf16",
+            "repo": "netprojects/WeMM-Ecom-0.8B-MLX-bf16",
+            "gb": 1.71,
+            "kind": "quant",
+            "bpw": 16.06
+          },
+          {
+            "label": "WeMM-Ecom-0.8B-MLX-8bit",
+            "repo": "netprojects/WeMM-Ecom-0.8B-MLX-8bit",
+            "gb": 1.0,
+            "kind": "quant",
+            "bpw": 9.42
+          }
+        ]
+      }
     }
   ],
   "engines": [
