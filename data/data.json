@@ -9527,6 +9527,22 @@
   ],
   "news": [
     {
+      "date": "2026-11-27",
+      "top": [
+        [
+          "Tencent's WeChat Vision ships WeMM-Ecom: five e-commerce multimodal models from 0.8B to 35B-A3B",
+          "WeChat Vision (Tencent) has published the full WeMM-Ecom family, released Nov 18 - five sizes from a 0.8B dense model to a 35B-A3B MoE - for WeChat e-commerce content understanding: product attributes, moderation, OCR, retrieval, grounding, and reasoning, with hybrid thinking. All five are Apache-2.0 and built on Qwen3.5 (the 0.8B is based on Qwen3.5-0.8B, 262K context), and the lab ships official FP8, GPTQ, and GGUF quantizations. The page's best engine for the 0.8B is vLLM Metal; at 16-bit the 0.8B is about 1.6 GB, and the official GGUFs cover llama.cpp-family runtimes. On the lab's 28-benchmark e-commerce suite the 0.8B beats its Qwen3.5-0.8B base by 16.43 points.",
+          "https://huggingface.co/tencent/WeMM-Ecom-0.8B"
+        ],
+        [
+          "Inkling 2 Mini gets a Mac path: Ollama entry and GGUF for the 20GB looped MoE",
+          "Thinking Machines Lab's Inkling 2 Mini (Nov 20, Apache-2.0) is a 26.4B multimodal MoE with 3.4B active - a 24-layer looped transformer whose middle 12 layers run three times per token, 1M context - distributed as a single ~20GB checkpoint in mixed NVFP4/MXFP8. The Apple-silicon path just landed: Ollama added inkling-2-mini (67.7K pulls on its library page), the model card names Ollama and Exo Labs for 32GB+ Macs, and ggml-org/Unsloth GGUFs - 4-bit IQ4_NL that fits in 32 GB, plus near-lossless Q8_0 - run it on llama.cpp and the Llama App. The card cautions that looped-model support in local runtimes is new, so speed varies by runtime.",
+          "https://huggingface.co/thinkingmachines/Inkling-2-Mini"
+        ]
+      ],
+      "newModels": []
+    },
+    {
       "date": "2026-11-26",
       "top": [
         [
@@ -9675,27 +9691,6 @@
           "NVIDIA publishes a 4.21B speculative-decoding draft model for Qwen3.8-27B",
           "NVIDIA released an official external speculative-decoding draft for Qwen3.8-27B, the flagship this page tracks: a complete 4.21B model rather than a draft head, sharing the target's tokenizer and proposing blocks of candidate tokens that Qwen3.8-27B verifies by rejection sampling, which cuts decode latency without changing the target's output distribution. The Qwen3.5-4B draft base is Apache 2.0 and the checkpoint ships under the NVIDIA Open Model Agreement. The card officially targets only vLLM on NVIDIA Blackwell under Linux; using it on a Mac would mean vLLM on Metal with the 4.2B draft resident alongside the 27B target, a path the card does not cover and that remains unverified.",
           "https://huggingface.co/nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft"
-        ]
-      ],
-      "newModels": []
-    },
-    {
-      "date": "2026-11-20",
-      "top": [
-        [
-          "Qwen3.8-27B gets a MACaQ 4-bit MLX quant: 18.1 GB, ~3x bf16 decode speed",
-          "mlx-community has published a calibrated MXFP4 4-bit (W4A16) quantization of Qwen3.8-27B built with the MACaQ method (arXiv 2611.10649) at 18.1 GB versus 54.7 GB for bf16, licensed Apache-2.0. All 400 decoder linear layers sit at 4.25 bits per weight while embeddings, lm_head and norms stay bf16; it is text-only, with the vision tower not included. It runs on a Mac via mlx-lm with --trust-remote-code using a bundled ~100-line loader that depends only on mlx and mlx-lm, and is reported at about 26-31 tok/s greedy decode on an M5 Max (bf16: about 9 tok/s) with 23.6 GB peak memory. Card measurements: KLD on WikiText-2 of 0.0277 and PPL of 7.1565, better than both the affine 4-bit (KLD 0.0402) and plain mxfp4 (KLD 0.0606) conversions.",
-          "https://huggingface.co/mlx-community/Qwen3.8-27B-MACaQ-W4A16-mlx"
-        ],
-        [
-          "Edge0-145B: 145B/10B-active agent MoE posts 86.5 on Terminal-Bench 2.1 and runs on M2 Ultra",
-          "Edge0-145B is a 145B-parameter latent sparse MoE agent model - 10.12B active per token, 48 layers, 512 experts per layer (10 routed plus 1 shared active), 256K context, trained natively at 4 bits and built on Qwen3.8-Flash-Next - and it posts 86.5 on Terminal-Bench 2.1. The NVFP4 build in this repo targets NVIDIA GPUs (23.25 GiB VRAM plus 38.27 GiB host RAM on an RTX 5090 D); for a Mac, the card's speed table lists the Q3_K build on Apple M2 Ultra (Metal) at 755.6-800.3 tok/s prefill, 57.0 tok/s agent decode and 60.9 tok/s chat decode, with 40.81 GiB of Q3_K weights. It is licensed under the edge0-community-model-1.0 terms.",
-          "https://huggingface.co/Edge0/Edge0-145B-NVFP4"
-        ],
-        [
-          "NVIDIA's Dory 1.0 4B looped reasoning model gets an 8-bit MLX conversion (patched runtime required)",
-          "mlx-community has converted NVIDIA's Dory 1.0 4B - a ~4B-parameter looped reasoning model that declares 262,144 positions and a reasoning-mode chat template - to uniform MLX affine 8-bit (group size 64) with the remaining parameters in BF16; model.safetensors is 4.22 GB and the license is openmdw-1.1. The catch is that stock oMLX 0.7.3 lacks the Dory MLX-LM implementation and the relevant MLX-LM PR #1988 was still pending when the conversion was recorded, so the repo's pinned Dory-enabled MLX-LM overlay must be installed before the model loads; trust_remote_code alone does not supply the runtime.",
-          "https://huggingface.co/mlx-community/NVIDIA-Nemotron-Labs-Dory1.0-4B-MLX-8bit"
         ]
       ],
       "newModels": []
