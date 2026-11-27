@@ -6633,6 +6633,134 @@
         "derivation": ""
       },
       "ENGINES": {}
+    },
+    {
+      "ID": "mingimage02design",
+      "NAME": "Ming-Image-0.2-Design",
+      "MODALITY": "image",
+      "ARCH": "6B Z-Image-family single-stream DiT · BailingMoeV2 16B MoE text encoder (256 experts, top-8) · Qwen2-1.5B connector · Qwen-Image RGBA VAE",
+      "LICENSE": "MIT",
+      "CONTEXT": "2048 × 2048 default (up to 2560 × 1440)",
+      "CONTEXT_LABEL": "Output",
+      "HF": "inclusionAI/Ming-Image-0.2-Design",
+      "PARAMS_B": 24,
+      "NOTE": "inclusionAI's design-focused text-to-image model (posters, UI, e-commerce hero images) with RGBA output; 12 steps, CFG 1.0. Officially validated on one 80 GiB CUDA GPU. On a Mac the route is mflux's Ming-Image pipeline: the 0.2 checkpoint's TE (bailing_moe_v2, 20 layers, 256 experts, top-8), connector, DiT and VAE configs are identical to the 0.1-Design checkpoint mflux documents, but no 0.2 run is documented yet. A component-verified standalone MLX port (amarck/Ming-Image-0.2-Design-MLX, ~30 GB) peaks at ~19 GiB at 1024² and ~24 GiB at 2048². Number one overall among open-weight models on AA-Image-T2I v2.1 as of Nov 25, 2026.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/inclusionAI/Ming-Image-0.2-Design"
+        ],
+        [
+          "AA image leaderboard",
+          "https://artificialanalysis.ai/image/leaderboard/text-to-image"
+        ],
+        [
+          "Component-verified MLX port",
+          "https://huggingface.co/amarck/Ming-Image-0.2-Design-MLX"
+        ],
+        [
+          "mflux Ming-Image model README",
+          "https://github.com/mflux-community/mflux/blob/main/src/mflux/models/ming_image/README.md"
+        ]
+      ],
+      "SCORES": {},
+      "BEST_ENGINE": "mflux",
+      "ENGINES": {
+        "mflux": {
+          "status": "degraded",
+          "label": "Unverified",
+          "note": "mflux's Ming-Image pipeline is documented against 0.1-Design; 0.2's TE, connector, DiT and VAE configs are identical to 0.1's, so the same pipeline should load it, but no 0.2 run is documented yet. A component-verified standalone MLX port exists (amarck/Ming-Image-0.2-Design-MLX): ~19 GiB peak at 1024², ~24 GiB at 2048² on an M5 Max.",
+          "issues": []
+        },
+        "mlxvideo": {
+          "status": "none",
+          "label": "No support",
+          "note": "MLX-Video's supported models are LTX-2 and Wan2.1/Wan2.2; there is no Ming-Image pipeline.",
+          "issues": []
+        },
+        "diffusionkit": {
+          "status": "none",
+          "label": "No support",
+          "note": "DiffusionKit ships Stable Diffusion 3 and FLUX pipelines only; no Ming-Image implementation.",
+          "issues": []
+        }
+      },
+      "QUANT_SOURCES": {
+        "mlx": [
+          "amarck/Ming-Image-0.2-Design-MLX"
+        ],
+        "gguf": [
+          "Abiray/Ming-Image-0.2-Design-GGUF"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": null,
+        "max_context": null,
+        "derivation": ""
+      },
+      "ranks": [],
+      "LADDER": {
+        "mlx": [
+          {
+            "label": "Ming-Image-0.2-Design-MLX",
+            "repo": "amarck/Ming-Image-0.2-Design-MLX",
+            "gb": 32.34,
+            "kind": "native",
+            "bpw": null
+          }
+        ],
+        "gguf": [
+          {
+            "label": "Ming-Image-0.2-Ling-Mini-2.0-Q4_K_M",
+            "repo": "Abiray/Ming-Image-0.2-Design-GGUF",
+            "gb": 11.98,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "Ming-Image-0.2-Ling-Mini-2.0-Q3_K_M",
+            "repo": "Abiray/Ming-Image-0.2-Design-GGUF",
+            "gb": 9.69,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "Ming-Image-0.2-Design-Q6_K",
+            "repo": "Abiray/Ming-Image-0.2-Design-GGUF",
+            "gb": 5.91,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "Ming-Image-0.2-Design-Q5_K_M",
+            "repo": "Abiray/Ming-Image-0.2-Design-GGUF",
+            "gb": 5.6,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "Ming-Image-0.2-Design-Q4_K_M",
+            "repo": "Abiray/Ming-Image-0.2-Design-GGUF",
+            "gb": 5.24,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "Ming-Image-0.2-Design-Q3_K_M",
+            "repo": "Abiray/Ming-Image-0.2-Design-GGUF",
+            "gb": 4.87,
+            "kind": "native",
+            "bpw": null
+          },
+          {
+            "label": "Ming-Image-0.2-Design-Q2_K",
+            "repo": "Abiray/Ming-Image-0.2-Design-GGUF",
+            "gb": 4.63,
+            "kind": "native",
+            "bpw": null
+          }
+        ]
+      }
     }
   ],
   "engines": [
