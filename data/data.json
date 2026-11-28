@@ -6761,6 +6761,193 @@
           }
         ]
       }
+    },
+    {
+      "ID": "tencenthy4flash",
+      "NAME": "Tencent Hy4 Flash",
+      "MODALITY": "text",
+      "ARCH": "MoE 220.3B (12B active) - 42 layers (1 dense + 41 MoE), hybrid sparse + sliding-window MLA (12 sparse : 30 SWA), LatentMoE 16/512 + 1 shared, Engram n-gram 63.5B, SigLIP2-So400m vision in - hy_v4_flash",
+      "LICENSE": "Tencent Hy License",
+      "CONTEXT": "1M",
+      "HF": "tencent/Hy4-flash",
+      "PARAMS_B": 220.3,
+      "NOTE": "Released Nov 17 as Tencent's most cost-effective Hy model: a 220.3B MoE (12B active) whose 42 layers interleave 12 sparse-attention and 30 sliding-window MLA layers, so the KV cache is only 13.5 KiB/token and the 1M context is ~14 GB on top of the weights. Image in (SigLIP2-So400m); a built-in DFly2 drafter (0.85B) reuses the target KV for constant-cost speculative decoding. On the lab's own card the base model scores MMLU 88.7 / MMLU-Pro 71.1, and the instruct model scores WorkIndex 42.1 (internal), above Hy4 preview's 39.7 at 1/20 Hy4's cost per task. The GGUFs declare hy_v4_flash, in llama.cpp since release v1.1.0 (Nov 26), so llama.cpp loads it text-only (no mmproj as of Nov 28); mlx-lm has no hy_v4_flash class yet and Ollama has not listed it.",
+      "SOURCES": [
+        [
+          "Model card",
+          "https://huggingface.co/tencent/Hy4-flash"
+        ],
+        [
+          "llama.cpp hy_v4_flash (release v1.1.0)",
+          "https://github.com/ggml-org/llama.cpp/releases/tag/v1.1.0"
+        ]
+      ],
+      "SCORES": {
+        "knowledge": [
+          [
+            "MMLU (base model)",
+            "88.7"
+          ],
+          [
+            "MMLU-Pro (base model)",
+            "71.1"
+          ],
+          [
+            "SuperGPQA (base model)",
+            "57.8"
+          ]
+        ],
+        "agentic": [
+          [
+            "WorkIndex (instruct, internal)",
+            "42.1"
+          ]
+        ]
+      },
+      "BEST_ENGINE": "llamacpp",
+      "ENGINES": {
+        "llamacpp": {
+          "status": "works",
+          "label": "Runs",
+          "note": "The GGUFs declare hy_v4_flash, which is in llama.cpp since release v1.1.0 (Nov 26) and on master. No mmproj for the SigLIP2-So400m vision encoder has been published as of Nov 28, so on a Mac it loads text-only; first runs are unverified here. AngelSlim (Tencent's own toolkit), AtomicChat, Xylolabs and nace-ai ship the GGUFs.",
+          "issues": []
+        },
+        "ollama": {
+          "status": "degraded",
+          "label": "No library entry",
+          "note": "No Ollama library entry for hy4-flash as of Nov 28 (only the non-flash hy4 is listed), so it has to be pulled as a GGUF from one of the packagers. On Mac Ollama defaults to the MLX engine since v0.30 and mlx-lm has no hy_v4_flash class, so the GGUF (llama.cpp hy_v4_flash) path is the one that should work - unverified.",
+          "issues": []
+        },
+        "lmstudio": {
+          "status": "degraded",
+          "label": "Needs current engine",
+          "note": "No lmstudio-community GGUF as of Nov 28; the app would load the third-party quants (AngelSlim et al.) and only if its bundled engine carries the hy_v4_flash arch that has been in upstream llama.cpp since release v1.1.0 (Nov 26). Unverified.",
+          "issues": []
+        },
+        "mlxlm": {
+          "status": "blocked",
+          "label": "No model class",
+          "note": "mlx-lm has no hy_v4_flash model class as of Nov 28, so it cannot load the MLX quants; nace-ai ships Hy4-flash-MLX-4bit (~134 GB) plus 3.1/4.6-bit variants that nothing can load until the class lands.",
+          "issues": []
+        },
+        "omlx": {
+          "status": "blocked",
+          "label": "No model class",
+          "note": "oMLX's LLM coverage is mlx-lm's plus its hand-written kernels; there is no hy_v4_flash support, so it cannot load the MLX quant.",
+          "issues": []
+        },
+        "vllmmetal": {
+          "status": "blocked",
+          "label": "No model",
+          "note": "No hy_v4_flash in the vLLM Metal fork as of Nov 28 (its supported-models table lists dense Hunyuan and the Ling-3.0 hybrid but not Hy4); the lab's own serving recipe is a CUDA SGLang image (lmsysorg/sglang:hy4-flash) with the DFly2 drafter.",
+          "issues": []
+        },
+        "vllmmlx": {
+          "status": "blocked",
+          "label": "No model",
+          "note": "No hy_v4_flash implementation in vllm-mlx as of Nov 28; the lab's own serving recipe is a CUDA SGLang image (lmsysorg/sglang:hy4-flash) with the DFly2 drafter.",
+          "issues": []
+        },
+        "ds4": {
+          "status": "none",
+          "label": "Out of scope",
+          "note": "DwarfStar is purpose-built for DeepSeek V4 Flash, V4 PRO and GLM-5.2 and deliberately does not load other checkpoints.",
+          "issues": []
+        }
+      },
+      "QUANT_SOURCES": {
+        "gguf": [
+          "AngelSlim/Hy4-flash-GGUF",
+          "AtomicChat/Hy4-flash-GGUF",
+          "Xylolabs/Hy4-flash-GGUF",
+          "nace-ai/Hy4-flash-GGUF"
+        ],
+        "mlx": [
+          "nace-ai/Hy4-flash-MLX-4bit"
+        ]
+      },
+      "KV": {
+        "bytes_per_token": 13824,
+        "max_context": 1048576,
+        "derivation": "12 of 42 layers are full-context (sparse-attention MLA); the other 30 are 512-token sliding-window and bounded, so they are excluded. 12 x (kv_lora_rank 512 + qk_rope_head_dim 64) x 2 = 13,824 bytes/token (fp16 latent KV, one compressed vector per layer)."
+      },
+      "ranks": [],
+      "LADDER": {
+        "gguf": [
+          {
+            "label": "Hy4-flash-Q8_0",
+            "repo": "Xylolabs/Hy4-flash-GGUF",
+            "gb": 228.86,
+            "kind": "quant",
+            "bpw": 8.31
+          },
+          {
+            "label": "Hy4-flash-Q5_K_M",
+            "repo": "Xylolabs/Hy4-flash-GGUF",
+            "gb": 176.73,
+            "kind": "quant",
+            "bpw": 6.42
+          },
+          {
+            "label": "Hy4-flash-SPARK-4Bit",
+            "repo": "AngelSlim/Hy4-flash-GGUF",
+            "gb": 162.51,
+            "kind": "quant",
+            "bpw": 5.9
+          },
+          {
+            "label": "Hy4-flash-Q4M-E5",
+            "repo": "Xylolabs/Hy4-flash-GGUF",
+            "gb": 141.37,
+            "kind": "quant",
+            "bpw": 5.13
+          },
+          {
+            "label": "Hy4-flash-Q4_K_M",
+            "repo": "nace-ai/Hy4-flash-GGUF",
+            "gb": 127.22,
+            "kind": "quant",
+            "bpw": 4.62
+          },
+          {
+            "label": "Hy4-flash-IQ4_XS-E4",
+            "repo": "Xylolabs/Hy4-flash-GGUF",
+            "gb": 122.58,
+            "kind": "quant",
+            "bpw": 4.45
+          },
+          {
+            "label": "Hy4-flash-IQ3_M-E4",
+            "repo": "Xylolabs/Hy4-flash-GGUF",
+            "gb": 108.13,
+            "kind": "quant",
+            "bpw": 3.93
+          },
+          {
+            "label": "Hy4-flash-IQ2_M-E4",
+            "repo": "Xylolabs/Hy4-flash-GGUF",
+            "gb": 91.9,
+            "kind": "quant",
+            "bpw": 3.34
+          },
+          {
+            "label": "Hy4-flash-AD-IQ2_S-IQ2_XXS",
+            "repo": "AtomicChat/Hy4-flash-GGUF",
+            "gb": 84.7,
+            "kind": "quant",
+            "bpw": 3.08
+          }
+        ],
+        "mlx": [
+          {
+            "label": "Hy4-flash-MLX-4bit",
+            "repo": "nace-ai/Hy4-flash-MLX-4bit",
+            "gb": 133.82,
+            "kind": "quant",
+            "bpw": 4.86
+          }
+        ]
+      }
     }
   ],
   "engines": [
