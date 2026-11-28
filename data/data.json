@@ -9655,6 +9655,27 @@
   ],
   "news": [
     {
+      "date": "2026-11-28",
+      "top": [
+        [
+          "Ming-Image-0.2-Design gets a Mac path via mflux: the 6B DiT design model that tops the open-weight T2I board",
+          "inclusionAI open-sourced Ming-Image-0.2-Design, a MIT-licensed, design-focused text-to-image model for posters, UI drafts and e-commerce hero images with RGBA output, generating in 12 steps at CFG 1.0. Its 6B-parameter DiT (12.3 GB of weights) ranks #1 among open-weight models overall on Artificial Analysis' image text-to-image leaderboard (v2.1, as of Nov 25), and the lab validated the full pipeline on a single 80 GiB CUDA GPU. On a Mac the route is mflux's Ming-Image pipeline, and the checkpoint is a 52.9 GB download - 29.0 GB of it the bailing_moe text encoder, 6.2 GB the connector - so it is a job for the largest unified-memory machines.",
+          "https://huggingface.co/inclusionAI/Ming-Image-0.2-Design"
+        ],
+        [
+          "Inkling 2 Mini gets sub-4-bit GGUFs: DASLab's GSQ-RCO non-uniform quants at 2.75 to 3.5 bpw",
+          "ISTA DASLab publishes Apache-2.0 GSQ-RCO GGUFs of Inkling-2-Mini, the 26.4B-parameter looped MoE (24 layers, the middle 12 run three times, 128 experts with 8 active per token, 1M context) that gained its Mac path in yesterday's rollup. Instead of one quant type for all tensors, each build assigns a per-tensor quantization type by gradient-based search under a size budget - IQ2_S at 2.75 bpw, Q2_K_XL 3.00, IQ3_XXS 3.25 and IQ3_S 3.50 - and the 0.93 GB BF16 token embedding is held in system memory rather than the accelerator, so the IQ2_S build runs with 8.05 GB on GPU, 8.98 GB total, under half the 20 GB GGUF it accompanies. Standard GGUF files for stock llama.cpp and Metal, with the vision projector in the repo.",
+          "https://huggingface.co/ISTA-DASLab/Inkling-2-Mini-GSQ-RCO-GGUF"
+        ],
+        [
+          "Ternary Bonsai 2.5 27B: a 6 GB ternary Qwen3.8-27B with near-FP16 agentic scores, on stock llama.cpp",
+          "prism-ml's Ternary Bonsai 2.5 27B (Apache-2.0) is the agentic release of the Bonsai ternary line: it keeps Qwen3.8-27B's hybrid-attention architecture - 27.36B total, 262K context - in the ternary g128 weight format at 1.76 bits per weight, so the PTQ1_0 build is a 6.0 GB file against 53.8 GB for FP16 (Q2_0 is 7.7 GB). Across five tool-calling benchmarks it averages 77.2 against 77.7 for FP16, and it takes 90% of FP16's agentic coding: SWE-bench Verified 75.6, Terminal-Bench 2.1 60.1. The Q2_0 file runs on upstream llama.cpp - Metal included, with an MTP preset in the repo - while PTQ1_0 is under upstream review, and an MLX fork targets Apple Silicon directly.",
+          "https://huggingface.co/prism-ml/Ternary-Bonsai-2.5-27B-GGUF"
+        ]
+      ],
+      "newModels": []
+    },
+    {
       "date": "2026-11-27",
       "top": [
         [
@@ -9798,27 +9819,6 @@
           "Inkling-2 Mini and Small land on Ollama for one-command Mac inference",
           "Ollama's library gained inkling-2-mini about 18 hours ago, with inkling-2-small alongside it in the newest list, so Thinking Machines' release is one `ollama run` away on a Mac. Ollama's card describes it as a 26B-parameter, 5.4B-active model with looped layers for more computation per token, tagged for vision, tools and thinking; the model is 26.2B total parameters with 5.4B effective active per token, about 20GB of weights, Apache-2.0, and the lab's own card targets Apple silicon with 32GB or more of memory.",
           "https://ollama.com/library/inkling-2-mini"
-        ]
-      ],
-      "newModels": []
-    },
-    {
-      "date": "2026-11-21",
-      "top": [
-        [
-          "Maxwell-V1-Flash: 35B/3B-active MoE with 256K context trends on Hugging Face",
-          "A new open-weight MoE from the Maxwell Team, trending on Hugging Face: 35B total parameters with only 3B active per token, 256K-token context, 45 transformer layers. Its headline feature is Maxwell Block Sparse Attention, which bounds each KV group's main attention at 4,096 tokens while keeping the full-history KV cache available, and the card claims the MBSA kernel is 6.7x faster than dense GQA at 256K - the economics long-context inference on a Mac has been missing. No MLX or GGUF quant has landed yet, so nothing on Apple silicon can load it today; with 35B total parameters the first 4-bit conversion would be roughly 18 GB resident.",
-          "https://huggingface.co/maxwell-model/Maxwell-V1-Flash"
-        ],
-        [
-          "Microsoft releases Aion 1.0 Instruct: 2.3B MIT-licensed Windows SLM with 32K context",
-          "Microsoft's Windows Applied Sciences Group published Aion 1.0 Instruct, the foundational small language model for the Windows ecosystem: 2.3B parameters, 32K context, eight languages, MIT-licensed, and aimed at on-device document comprehension, summarization and chat. This is the unquantized preview - the card says quantized versions follow, and an optimized Aion paired with a content-moderation model will ship as the Windows OS SLM by the end of January 2027. GGUF is already listed as a supported format, and at 2.3B the model is about 4.6 GB in 16-bit, so it fits comfortably on any Mac once a quant lands.",
-          "https://huggingface.co/microsoft/Aion-1.0-Instruct-2.3B"
-        ],
-        [
-          "NVIDIA publishes a 4.21B speculative-decoding draft model for Qwen3.8-27B",
-          "NVIDIA released an official external speculative-decoding draft for Qwen3.8-27B, the flagship this page tracks: a complete 4.21B model rather than a draft head, sharing the target's tokenizer and proposing blocks of candidate tokens that Qwen3.8-27B verifies by rejection sampling, which cuts decode latency without changing the target's output distribution. The Qwen3.5-4B draft base is Apache 2.0 and the checkpoint ships under the NVIDIA Open Model Agreement. The card officially targets only vLLM on NVIDIA Blackwell under Linux; using it on a Mac would mean vLLM on Metal with the 4.2B draft resident alongside the 27B target, a path the card does not cover and that remains unverified.",
-          "https://huggingface.co/nvidia/Qwen3.5-4B-Qwen3.8-27B-Draft"
         ]
       ],
       "newModels": []
